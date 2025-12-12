@@ -1,48 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Sawfish App Store</title>
-<link rel="stylesheet" href="style.css">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1E90FF">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Sawfish App Store</title>
+
+    <!-- External CSS + Manifest Only -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
 </head>
+
 <body>
 
-<!-- INSTALL INSTRUCTIONS -->
-<div id="install-screen">
-  <div class="intro-animation">🌊 Welcome to The Sawfish App Store! 🌊</div>
-  <h2>Add to Home Screen to Unlock Apps</h2>
-  <div class="instruction-box">
-    <p>Follow these steps:</p>
-    <ol>
-      <li>Tap your browser menu (⋮)</li>
-      <li>Select "Add to Home Screen"</li>
-      <li>Open the app from your home screen</li>
-    </ol>
-  </div>
-  <button id="prompt-install">Install Now</button>
-</div>
+    <!-- ===========================================================
+         HERO / INTRO SCREEN
+    ============================================================ -->
+    <section id="intro-screen" class="screen">
+        <div class="container">
 
-<!-- MAIN APP STORE UI -->
-<div id="app-store" style="display:none;">
-  <header>
-    <h1>The Sawfish App Store</h1>
-    <input type="text" id="search" placeholder="Search apps...">
-  </header>
+            <h1 class="main-title">Welcome to The Sawfish App Store</h1>
 
-  <nav id="categories">
-    <button data-cat="all" class="active">All</button>
-    <button data-cat="chat">Chat & Calls</button>
-    <button data-cat="games">Games</button>
-  </nav>
+            <p class="headline-description">
+                A modern, student-created App Store designed to bring **fun**, **useful**,  
+                and **safe** web-apps to your school iPad — without the limitations of Self-Service.
+            </p>
 
-  <div class="app-list" id="app-list">
-    <!-- Dynamic App Cards -->
-  </div>
-</div>
+            <div class="intro-message">
+                <h2>Why Are We Building This?</h2>
+                <p>
+                    For years, students have relied on the district’s Self-Service app to
+                    download school software. But let’s be honest — Self-Service is slow,
+                    outdated, missing useful apps, and often fails to deliver the tools that
+                    students actually need.  
+                </p>
+                <p>
+                    Because of these issues, a small team of student developers has dedicated itself  
+                    to creating a new solution: a browser-based App Store that works smoothly,
+                    installs instantly, and delivers apps the way you expect.
+                </p>
+            </div>
 
-<script src="app.js"></script>
+        </div>
+    </section>
+
+    <!-- ===========================================================
+         ABOUT THE PROJECT
+    ============================================================ -->
+    <section id="about-section" class="screen">
+        <div class="container">
+
+            <h2 class="section-title">What Makes This App Store Different?</h2>
+
+            <div class="feature-list">
+
+                <div class="feature-item">
+                    <h3>🚀 Fast & Lightweight</h3>
+                    <p>
+                        Unlike Self-Service, this store loads instantly, doesn’t freeze,
+                        and doesn’t require any special profile installs or updates.
+                    </p>
+                </div>
+
+                <div class="feature-item">
+                    <h3>🔒 Safe for School</h3>
+                    <p>
+                        All apps included here are browser-based and follow school technology
+                        rules. No system modifications, no downloads, no harmful content.
+                    </p>
+                </div>
+
+                <div class="feature-item">
+                    <h3>📱 Works Like a Real App</h3>
+                    <p>
+                        When installed, the store appears on your home screen with an icon,
+                        opens in full-screen mode, and behaves like a native iPad application.
+                    </p>
+                </div>
+
+                <div class="feature-item">
+                    <h3>🎮 Fun & Useful</h3>
+                    <p>
+                        This store provides instant access to the apps students actually use:  
+                        a chat platform, a call system, and a full game hub.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ===========================================================
+         INSTALLATION INSTRUCTIONS
+    ============================================================ -->
+    <section id="setup-section" class="screen">
+        <div class="container">
+
+            <h2 class="section-title">How to Install the Sawfish App Store</h2>
+
+            <p class="section-description">
+                The Sawfish App Store uses PWA technology. Installation takes less than 10 seconds.
+                Once added to your home screen, the full App Store will unlock.
+            </p>
+
+            <ol class="instruction-steps">
+                <li>Open this website in <strong>Safari</strong> on your school iPad.</li>
+                <li>Tap the <strong>Share</strong> icon (the square with an arrow pointing upward).</li>
+                <li>Scroll down and select <strong>“Add to Home Screen”</strong>.</li>
+                <li>Confirm by tapping <strong>Add</strong> at the top right.</li>
+                <li>Once the icon appears on your home screen, tap it to open the App Store.</li>
+            </ol>
+
+            <div class="install-note">
+                <p>
+                    After installation, you will gain access to all apps:
+                    <strong>Chat App</strong>, <strong>Call App</strong>, and 
+                    <strong>The Sawfish Game Station</strong>.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ===========================================================
+         APP STORE CONTENT (HIDDEN UNTIL INSTALLED)
+    ============================================================ -->
+    <section id="appstore-section" class="screen" style="display:none;">
+        <div class="container">
+
+            <h2 class="section-title">Available Apps</h2>
+
+            <p class="section-description">
+                Once installed, you will access these applications directly from your home screen.
+            </p>
+
+            <div class="app-grid">
+
+                <div class="app-item" data-app="chat">
+                    <h3>💬 Chat App</h3>
+                    <p>Communicate with friends in a safe, web-based platform.</p>
+                    <a href="https://the-sawfish.github.io/chat1234567890/login.html" class="app-link">
+                        Open Chat App
+                    </a>
+                </div>
+
+                <div class="app-item" data-app="call">
+                    <h3>📞 Call App</h3>
+                    <p>High-quality voice calls, fast, simple, and browser-ready.</p>
+                    <a href="https://the-sawfish.github.io/call-app/" class="app-link">
+                        Open Call App
+                    </a>
+                </div>
+
+                <div class="app-item" data-app="games">
+                    <h3>🎮 The Sawfish Game Station</h3>
+                    <p>A full library of games designed for fun between classes.</p>
+                    <a href="https://the-sawfish.github.io/game-portal/" class="app-link">
+                        Enter Game Station
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Script placeholder (JS added separately) -->
+    <script src="app.js"></script>
+
 </body>
 </html>
