@@ -1,254 +1,342 @@
-/* ============================================================
-   GLOBAL RESET & THEME
-============================================================ */
-* {
+/* ==========================================================================
+   GLOBAL RESET & SYSTEM SETTINGS
+   Clean, predictable rendering across iOS Safari + Desktop
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
 }
 
 html, body {
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
-                 "SF Pro Display", Arial, sans-serif;
-    background: #f3f4f6;
-    color: #111111;
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+                 "SF Pro Text", Inter, Roboto, sans-serif;
+    background: #f5f5f7;
+    color: #1c1c1e;
     overflow-x: hidden;
 }
 
-/* Smooth fade for screens */
-.screen {
-    display: none;
-    opacity: 0;
-    transform: translateY(12px);
-    transition: opacity 0.45s ease, transform 0.45s ease;
-}
-.screen.visible {
+img {
+    max-width: 100%;
     display: block;
-    opacity: 1;
-    transform: translateY(0);
 }
 
-/* ============================================================
-   INSTALL SCREEN (Apple Marketing Style)
-============================================================ */
-#welcome-screen,
-#install-screen {
-    padding: 4rem 1.5rem;
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+
+/* ==========================================================================
+   SCREEN VISIBILITY LOGIC
+   (Works with your app.js)
+   ========================================================================== */
+
+[data-screen] {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+}
+
+[data-screen].visible {
+    display: block;
+    opacity: 1;
+}
+
+
+/* ==========================================================================
+   INSTALLATION SCREEN STYLING
+   ========================================================================== */
+
+.install-header {
+    padding: 50px 24px 20px;
     text-align: center;
 }
 
-.apple-title {
-    font-size: 3rem;
-    font-weight: 800;
-    color: #000;
-    letter-spacing: -0.02em;
-    margin-bottom: 1rem;
-}
-
-.apple-subtitle {
-    font-size: 1.25rem;
-    font-weight: 400;
-    color: #4a4a4a;
-    max-width: 700px;
-    margin: 0 auto 2.5rem auto;
-}
-
-/* Apple style "cards" */
-.apple-card {
-    background: #ffffff;
-    border-radius: 28px;
-    padding: 2.2rem;
-    margin: 0 auto;
-    margin-bottom: 2.4rem;
-    max-width: 820px;
-    border: 1px solid rgba(0,0,0,0.08);
-    box-shadow:
-        0 8px 16px rgba(0,0,0,0.04),
-        0 2px 4px rgba(0,0,0,0.06);
-}
-
-.apple-card h2 {
-    font-size: 1.45rem;
+.install-header h1 {
+    font-size: 2.4rem;
     font-weight: 700;
-    margin-bottom: 1rem;
+    color: #000;
+    margin-bottom: 8px;
 }
 
-/* Clean readable paragraphs */
-.apple-card p {
-    line-height: 1.65;
-    color: #333;
+.install-header .subtitle {
+    font-size: 1.2rem;
+    color: #505055;
+}
+
+.install-content {
+    padding: 20px 24px 80px;
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.install-content section {
+    background: rgba(255, 255, 255, 0.75);
+    padding: 22px 26px;
+    margin-bottom: 24px;
+    border-radius: 18px;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 8px 22px rgba(0,0,0,0.06);
+}
+
+.install-content h2 {
+    font-size: 1.6rem;
+    margin-bottom: 12px;
+    color: #111;
+}
+
+.install-content p,
+.install-content li {
     font-size: 1.05rem;
+    line-height: 1.55;
+    color: #3b3b3d;
 }
 
-/* Setup steps */
-.setup-list {
-    margin: 1rem 0 0 1.4rem;
-    font-size: 1.1rem;
-    line-height: 1.85;
+.install-steps {
+    margin-left: 24px;
+    margin-top: 12px;
 }
 
-.note {
+.install-steps li {
+    margin-bottom: 8px;
+}
+
+.benefit-list {
+    margin-left: 20px;
+    margin-top: 10px;
+}
+
+.install-footer {
+    text-align: center;
+    padding: 40px 0;
+    color: #666;
+}
+
+
+/* ==========================================================================
+   APP MODE
+   ========================================================================== */
+
+/* -----------------------------------
+   Header
+----------------------------------- */
+
+.app-header {
+    padding: 18px 24px;
+    background: #ffffffee;
+    backdrop-filter: blur(14px);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    border-bottom: 1px solid #e9e9eb;
+}
+
+.app-header h1 {
+    font-size: 1.9rem;
+    font-weight: 700;
+}
+
+
+/* -----------------------------------
+   TAB BAR (iOS style)
+----------------------------------- */
+
+.tab-bar {
+    display: flex;
+    justify-content: space-around;
+    padding: 12px 0;
+    position: sticky;
+    top: 68px;
+    background: #fff;
+    backdrop-filter: blur(15px);
+    border-bottom: 1px solid #e5e5e7;
+    z-index: 19;
+}
+
+.tab-bar button {
+    background: none;
+    border: none;
+    padding: 8px 4px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #6b6b70;
+    transition: color 0.25s ease, font-weight 0.25s ease;
+}
+
+.tab-bar button.active {
     color: #007aff;
-    margin-top: 1.2rem;
-    font-size: 1.05rem;
     font-weight: 600;
 }
 
-/* ============================================================
-   MAIN APP INTERFACE — Apple Tab Layout
-============================================================ */
-.app-header {
-    background: #ffffff;
-    padding: 1.2rem;
-    text-align: center;
-    font-size: 1.45rem;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    border-bottom: 1px solid rgba(0,0,0,0.07);
-    position: sticky;
-    top: 0;
-    z-index: 15;
-}
 
-/* iOS Tab Bar */
-.tab-bar {
-    display: flex;
-    background: #fafafa;
-    border-bottom: 1px solid rgba(0,0,0,0.08);
-    position: sticky;
-    top: 63px;
-    z-index: 14;
-}
+/* -----------------------------------
+   Pages (shown/hidden by JS)
+----------------------------------- */
 
-.tab {
-    flex: 1;
-    padding: 1rem 0;
-    text-align: center;
-    font-size: 1rem;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    font-weight: 500;
-    color: #6d6d6d;
-    transition: color 0.25s ease, border-color 0.25s ease;
-}
-
-.tab.active {
-    color: #007aff;
-    border-bottom: 3px solid #007aff;
-}
-
-/* Tab panels */
-.tab-content {
+[data-page] {
     display: none;
+    padding: 24px;
+    animation: fadeIn 0.3s ease;
+    max-width: 820px;
+    margin: 0 auto;
 }
-.tab-content.visible {
+
+[data-page].visible {
     display: block;
 }
 
-/* ============================================================
-   SECTION HEADERS
-============================================================ */
-.section-title {
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* ==========================================================================
+   HOME PAGE DESIGN
+   ========================================================================== */
+
+.home-hero {
+    margin-bottom: 26px;
+}
+
+.home-hero h2 {
     font-size: 2rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    margin-bottom: 1.7rem;
-    color: #222;
-    text-align: left;
+    margin-bottom: 8px;
 }
 
-/* Container */
-.content-container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2.4rem 1.5rem;
+.home-hero p {
+    color: #46464a;
+    font-size: 1.1rem;
 }
 
-/* ============================================================
-   APP GRID — Apple App Store Look
-============================================================ */
-.app-grid {
+
+/* -----------------------------------
+   Feature cards & grids
+----------------------------------- */
+
+.featured-section h3 {
+    font-size: 1.5rem;
+    margin-bottom: 18px;
+}
+
+.card-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
-    gap: 2rem;
+    gap: 20px;
 }
 
-/* App Card */
 .app-card {
-    background: #ffffff;
-    padding: 1.8rem;
-    border-radius: 24px;
-    border: 1px solid rgba(0,0,0,0.07);
-    box-shadow:
-        0 8px 18px rgba(0,0,0,0.05),
-        0 2px 8px rgba(0,0,0,0.06);
-    transition: transform 0.22s ease, box-shadow 0.22s ease;
+    background: #ffffffcc;
+    backdrop-filter: blur(20px);
+    padding: 20px 22px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,.7);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.06);
 }
 
-/* Hover lift */
-.app-card:hover {
-    transform: translateY(-6px);
-    box-shadow:
-        0 14px 28px rgba(0,0,0,0.08),
-        0 4px 10px rgba(0,0,0,0.10);
-}
-
-.app-card h3 {
-    font-size: 1.35rem;
-    margin-bottom: 0.5rem;
+.app-card h4 {
+    font-size: 1.25rem;
+    margin-bottom: 6px;
 }
 
 .app-card p {
-    font-size: 1.05rem;
-    color: #4a4a4a;
-    line-height: 1.6;
-}
-
-/* Apple button */
-.apple-button {
-    display: inline-block;
-    margin-top: 1.2rem;
-    padding: 0.7rem 1.4rem;
-    background: #007aff;
-    color: white;
-    text-decoration: none;
-    border-radius: 12px;
     font-size: 1rem;
+    color: #555;
+    margin-bottom: 12px;
+}
+
+.app-launch {
+    display: inline-block;
+    padding: 10px 18px;
+    background: #007aff;
+    color: #fff;
+    border-radius: 12px;
+    font-size: 0.95rem;
     font-weight: 600;
-    box-shadow: 0 4px 10px rgba(0,122,255,0.25);
-    transition: background 0.2s ease, box-shadow 0.2s ease;
+    transition: background 0.2s ease;
 }
 
-.apple-button:hover {
+.app-launch:hover {
     background: #0062d6;
-    box-shadow: 0 4px 12px rgba(0,122,255,0.35);
 }
 
-/* ============================================================
-   SETTINGS CARD
-============================================================ */
-.settings-card {
-    background: white;
-    border-radius: 26px;
-    padding: 2rem;
-    border: 1px solid rgba(0,0,0,0.1);
-    box-shadow:
-        0 8px 20px rgba(0,0,0,0.05),
-        0 3px 6px rgba(0,0,0,0.08);
+
+/* ==========================================================================
+   GAMES PAGE
+   ========================================================================== */
+
+.page-header h2 {
+    font-size: 2rem;
+    margin-bottom: 6px;
 }
 
-/* ============================================================
-   RESPONSIVE (iPad + Mobile)
-============================================================ */
-@media (max-width: 600px) {
-    .apple-title {
-        font-size: 2.4rem;
-    }
-    .section-title {
-        font-size: 1.6rem;
-    }
-    .tab {
-        font-size: 0.9rem;
-    }
+.page-header p {
+    color: #505050;
+    margin-bottom: 20px;
 }
+
+.game-card {
+    background: #ffffffdd;
+    backdrop-filter: blur(16px);
+    padding: 22px;
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,0.65);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+}
+
+.game-card h4 {
+    font-size: 1.3rem;
+    margin-bottom: 6px;
+}
+
+.game-card p {
+    color: #555;
+    margin-bottom: 12px;
+}
+
+
+/* ==========================================================================
+   CONNECT PAGE
+   ========================================================================== */
+
+.connect-card {
+    background: #ffffffdd;
+    backdrop-filter: blur(15px);
+    padding: 20px 22px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255,255,255,0.65);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+}
+
+.connect-card h4 {
+    font-size: 1.3rem;
+    margin-bottom: 6px;
+}
+
+.connect-card p {
+    color: #555;
+    margin-bottom: 12px;
+}
+
+
+/* ==========================================================================
+   SPACING UTILITIES (optional)
+   ========================================================================== */
+
+.mt-1 { margin-top: 6px; }
+.mt-2 { margin-top: 12px; }
+.mt-3 { margin-top: 18px; }
+.mt-4 { margin-top: 24px; }
+
+.mb-1 { margin-bottom: 6px; }
+.mb-2 { margin-bottom: 12px; }
+.mb-3 { margin-bottom: 18px; }
+.mb-4 { margin-bottom: 24px; }
