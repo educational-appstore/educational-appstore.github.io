@@ -1,0 +1,17 @@
+body { font-family: Arial, sans-serif; margin: 0; text-align: center; background: linear-gradient(to bottom,#f0f8ff,#e6f7ff); color: #333; }
+header { padding: 15px; background: #1E90FF; color: white; position: sticky; top: 0; }
+#search { margin-top: 10px; padding: 7px; width: 90%; max-width: 300px; border-radius: 5px; border: none; }
+#categories { margin: 15px 0; }
+#categories button { margin: 0 5px; padding: 5px 12px; border-radius: 5px; border: none; background-color: #87CEFA; color: white; cursor: pointer; transition: 0.3s; }
+#categories button.active, #categories button:hover { background-color: #1E90FF; }
+.app-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 10px; }
+.app-card { width: 150px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); text-decoration: none; color: #333; transition: transform 0.2s, box-shadow 0.2s; }
+.app-card:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+.app-icon { font-size: 50px; margin-top: 10px; }
+.app-name { font-weight: bold; margin: 10px 0 5px 0; }
+.app-desc { font-size: 12px; color: #555; margin-bottom: 10px; padding: 0 5px; }
+button.open-btn { margin-bottom: 10px; padding: 5px 10px; border-radius: 5px; border: none; background-color: #1E90FF; color: white; cursor: pointer; }
+button.open-btn:hover { background-color: #104e8b; }
+#install-screen { padding: 20px; }
+.intro-animation { font-size: 24px; animation: bounce 1s infinite alternate; }
+@keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-10px); } }
