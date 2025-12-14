@@ -17,9 +17,7 @@
 
 <body>
 
-    <!-- ==========================================================
-         INSTALLATION SCREEN (Shown ONLY when NOT installed)
-    =========================================================== -->
+    <!-- INSTALLATION SCREEN -->
     <section data-screen="install" class="visible">
         <header class="install-header">
             <h1>Sawfish App Store</h1>
@@ -81,17 +79,15 @@
     </section>
 
 
-    <!-- ==========================================================
-         FULL APP SCREEN (Shown ONLY after PWA installation)
-    =========================================================== -->
+    <!-- FULL APP SCREEN -->
     <section data-screen="app">
 
-        <!-- TOP NAV (App Title) -->
+        <!-- TOP NAV -->
         <header class="app-header">
             <h1>Sawfish App Store</h1>
         </header>
 
-        <!-- TAB BAR (Home / Games / Connect / OS) -->
+        <!-- TAB BAR -->
         <nav class="tab-bar">
             <button data-tab="home" class="active">Home</button>
             <button data-tab="games">Games</button>
@@ -189,22 +185,21 @@
         <main data-page="os">
             <section class="page-header">
                 <h2>Operating Systems</h2>
-                <p>Preview OSes below. Interaction is disabled to allow adding to Home Screen.</p>
+                <p>Preview OSes below. Interaction is disabled in wrapper pages.</p>
             </section>
 
             <section class="os-list">
 
-                <!-- OS Card Example -->
                 <article class="os-card">
                     <h4>NovaOS</h4>
                     <div class="os-container">
                         <iframe src="https://runnova.github.io/NovaOS/" frameborder="0"></iframe>
                         <div class="overlay">
                             <h2>OS Preview Disabled</h2>
-                            <p>You cannot interact with this preview. Add to Home Screen to use fully.</p>
+                            <p>You cannot interact here. Add to Home Screen to use fully.</p>
                         </div>
                     </div>
-                    <a class="app-launch" href="https://runnova.github.io/NovaOS/" target="_blank" rel="noopener noreferrer">
+                    <a class="app-launch" href="novaos-wrapper.html" target="_blank" rel="noopener noreferrer">
                         Open NovaOS
                     </a>
                 </article>
@@ -215,10 +210,10 @@
                         <iframe src="https://os.prozilla.dev/" frameborder="0"></iframe>
                         <div class="overlay">
                             <h2>OS Preview Disabled</h2>
-                            <p>You cannot interact with this preview. Add to Home Screen to use fully.</p>
+                            <p>You cannot interact here. Add to Home Screen to use fully.</p>
                         </div>
                     </div>
-                    <a class="app-launch" href="https://os.prozilla.dev/" target="_blank" rel="noopener noreferrer">
+                    <a class="app-launch" href="prozillaos-wrapper.html" target="_blank" rel="noopener noreferrer">
                         Open ProzillaOS
                     </a>
                 </article>
@@ -229,10 +224,10 @@
                         <iframe src="https://ripenos.web.app/WinRipen/index.html" frameborder="0"></iframe>
                         <div class="overlay">
                             <h2>OS Preview Disabled</h2>
-                            <p>You cannot interact with this preview. Add to Home Screen to use fully.</p>
+                            <p>You cannot interact here. Add to Home Screen to use fully.</p>
                         </div>
                     </div>
-                    <a class="app-launch" href="https://ripenos.web.app/WinRipen/index.html" target="_blank" rel="noopener noreferrer">
+                    <a class="app-launch" href="winripen-wrapper.html" target="_blank" rel="noopener noreferrer">
                         Open WinRipen
                     </a>
                 </article>
@@ -243,10 +238,10 @@
                         <iframe src="https://ripenos.web.app/Ripenos/" frameborder="0"></iframe>
                         <div class="overlay">
                             <h2>OS Preview Disabled</h2>
-                            <p>You cannot interact with this preview. Add to Home Screen to use fully.</p>
+                            <p>You cannot interact here. Add to Home Screen to use fully.</p>
                         </div>
                     </div>
-                    <a class="app-launch" href="https://ripenos.web.app/Ripenos/" target="_blank" rel="noopener noreferrer">
+                    <a class="app-launch" href="ripenos-wrapper.html" target="_blank" rel="noopener noreferrer">
                         Open Ripenos
                     </a>
                 </article>
@@ -256,11 +251,11 @@
 
     </section>
 
-    <!-- SETUP SCRIPT -->
+    <!-- SCRIPTS -->
     <script>
         document.documentElement.classList.remove("loading");
 
-        // Show overlays after iframe loads
+        // Show overlays in OS tab after iframe loads
         document.querySelectorAll('.os-container iframe').forEach(iframe => {
             iframe.addEventListener('load', () => {
                 const overlay = iframe.parentElement.querySelector('.overlay');
