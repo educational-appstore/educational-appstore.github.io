@@ -19,13 +19,11 @@ const Screens = {
 const Tabs = Array.from(document.querySelectorAll("[data-tab]"));
 const Pages = Array.from(document.querySelectorAll("[data-page]"));
 
-
 /* ==========================================================================
    1 — PWA / HOME SCREEN DETECTION
    Returns true if the app is running as a standalone PWA
 =========================================================================== */
 function isPWAInstalled() {
-    // iOS standalone or standard PWA detection
     return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 }
 
@@ -44,7 +42,6 @@ function updateScreenState() {
     }
 }
 
-
 /* ==========================================================================
    3 — TAB NAVIGATION SYSTEM
    Handles tab clicks and page visibility
@@ -56,8 +53,9 @@ function setActiveTab(tabName) {
     // Show associated page
     Pages.forEach(page => page.classList.toggle('visible', page.dataset.page === tabName));
 
-    // Smooth scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Optional: scroll tab content to top
+    const activePage = document.querySelector(`[data-page='${tabName}']`);
+    if (activePage) activePage.scrollTop = 0;
 }
 
 function initializeTabs() {
@@ -67,7 +65,6 @@ function initializeTabs() {
         });
     });
 }
-
 
 /* ==========================================================================
    4 — VISIBILITY / FOCUS HANDLER
@@ -81,7 +78,6 @@ function handleVisibilityChange() {
     });
 }
 
-
 /* ==========================================================================
    5 — INITIALIZATION
 =========================================================================== */
@@ -90,7 +86,6 @@ function initializeApp() {
     initializeTabs();
     handleVisibilityChange();
 }
-
 
 /* ==========================================================================
    6 — START APPLICATION
