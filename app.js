@@ -1,5 +1,12 @@
 /* ==========================================================================
    SAWFISH APP STORE — FULL APP LOGIC
+   Handles:
+     • PWA / home screen detection
+     • Install screen vs app screen
+     • Tab navigation (Home, Games, Social, OS)
+     • Smooth page transitions
+     • Visibility/focus updates
+     • OS iframe overlays
 =========================================================================== */
 
 /* -----------------------------
@@ -18,13 +25,16 @@ const OSContainers = Array.from(document.querySelectorAll('.os-container'));
    1 — PWA / HOME SCREEN DETECTION
 =========================================================================== */
 function isPWAInstalled() {
+    // Detect standard PWA or iOS standalone
     return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 }
 
 function showAppScreen() {
     Screens.install.classList.remove('visible');
     Screens.app.classList.add('visible');
-    setActiveTab('home'); // default tab
+
+    // Set default tab to Home
+    setActiveTab('home');
 }
 
 function showInstallScreen() {
@@ -32,6 +42,7 @@ function showInstallScreen() {
     Screens.install.classList.add('visible');
 }
 
+/* Immediate enforcement to prevent website flash */
 function enforceAppView() {
     if (isPWAInstalled()) {
         document.documentElement.style.visibility = 'hidden';
@@ -52,12 +63,16 @@ function updateScreenState() {
 }
 
 /* ==========================================================================
-   3 — TAB NAVIGATION
+   3 — TAB NAVIGATION SYSTEM
 =========================================================================== */
 function setActiveTab(tabName) {
+    // Highlight active tab
     Tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.tab === tabName));
+
+    // Show corresponding page
     Pages.forEach(page => page.classList.toggle('visible', page.dataset.page === tabName));
 
+    // Scroll tab content to top
     const activePage = document.querySelector(`[data-page='${tabName}']`);
     if (activePage) activePage.scrollTop = 0;
 }
@@ -96,10 +111,10 @@ function handleVisibilityChange() {
    6 — INITIALIZATION
 =========================================================================== */
 function initializeApp() {
-    enforceAppView();        // Force PWA app view
+    enforceAppView();        // Immediate PWA enforcement
     initializeTabs();        // Enable tab switching
-    handleVisibilityChange(); // Visibility/focus updates
-    initializeOSOverlays();  // Activate OS overlays
+    handleVisibilityChange(); // Update screen on visibility change
+    initializeOSOverlays();  // Activate overlays on OS iframes
 }
 
 /* ==========================================================================
