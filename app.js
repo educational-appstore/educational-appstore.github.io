@@ -1,11 +1,11 @@
 /* ==========================================================================
-   SAWFISH APP STORE — MODULAR APP LOGIC
-   Fully rewritten for Apple-style PWA behavior
+   SAWFISH APP STORE — FULL APP LOGIC
    Handles:
-     • Install detection
-     • Screen switching
-     • Tab navigation
+     • PWA / home screen detection
+     • Install screen vs app screen
+     • Tab navigation (Home, Games, Social, OS)
      • Smooth page transitions
+     • Visibility/focus updates
 =========================================================================== */
 
 /* -----------------------------
@@ -21,60 +21,74 @@ const Pages = Array.from(document.querySelectorAll("[data-page]"));
 
 /* ==========================================================================
    1 — PWA / HOME SCREEN DETECTION
-   Returns true if the app is running as a standalone PWA
 =========================================================================== */
 function isPWAInstalled() {
+    // Detect standard PWA or iOS standalone
     return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+
+function showAppScreen() {
+    Screens.install.classList.remove('visible');
+    Screens.app.classList.add('visible');
+
+    // Set default tab to Home
+    const defaultTab = Tabs.find(tab => tab.dataset.tab === 'home');
+    if (defaultTab) setActiveTab('home');
+}
+
+function showInstallScreen() {
+    Screens.app.classList.remove('visible');
+    Screens.install.classList.add('visible');
+}
+
+/* Immediate enforcement to prevent website flash */
+function enforceAppView() {
+    if (isPWAInstalled()) {
+        // Hide content briefly while switching
+        document.documentElement.style.visibility = 'hidden';
+        showAppScreen();
+        document.documentElement.style.visibility = 'visible';
+    }
 }
 
 /* ==========================================================================
    2 — SCREEN STATE CONTROL
-   Shows install screen or app screen
 =========================================================================== */
 function updateScreenState() {
     if (isPWAInstalled()) {
-        Screens.install.classList.remove('visible');
-        Screens.app.classList.add('visible');
-        setActiveTab('home'); // default tab
+        showAppScreen();
     } else {
-        Screens.app.classList.remove('visible');
-        Screens.install.classList.add('visible');
+        showInstallScreen();
     }
 }
 
 /* ==========================================================================
    3 — TAB NAVIGATION SYSTEM
-   Handles tab clicks and page visibility
 =========================================================================== */
 function setActiveTab(tabName) {
     // Highlight active tab
     Tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.tab === tabName));
 
-    // Show associated page
+    // Show corresponding page
     Pages.forEach(page => page.classList.toggle('visible', page.dataset.page === tabName));
 
-    // Optional: scroll tab content to top
+    // Scroll tab content to top
     const activePage = document.querySelector(`[data-page='${tabName}']`);
     if (activePage) activePage.scrollTop = 0;
 }
 
 function initializeTabs() {
     Tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            setActiveTab(tab.dataset.tab);
-        });
+        tab.addEventListener('click', () => setActiveTab(tab.dataset.tab));
     });
 }
 
 /* ==========================================================================
    4 — VISIBILITY / FOCUS HANDLER
-   Updates screen state if the user switches apps or tabs
 =========================================================================== */
 function handleVisibilityChange() {
     document.addEventListener('visibilitychange', () => {
-        if (!document.hidden) {
-            updateScreenState();
-        }
+        if (!document.hidden) updateScreenState();
     });
 }
 
@@ -82,12 +96,12 @@ function handleVisibilityChange() {
    5 — INITIALIZATION
 =========================================================================== */
 function initializeApp() {
-    updateScreenState();
-    initializeTabs();
-    handleVisibilityChange();
+    enforceAppView();      // Immediate PWA enforcement
+    initializeTabs();      // Enable tab switching
+    handleVisibilityChange(); // Update screen on visibility change
 }
 
 /* ==========================================================================
    6 — START APPLICATION
 =========================================================================== */
-window.addEventListener('load', initializeApp);
+window.addEventListener('DOMContentLoaded', initializeApp);
