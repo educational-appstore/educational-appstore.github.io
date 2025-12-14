@@ -6,6 +6,7 @@
      • Tab navigation (Home, Games, Social, OS)
      • Smooth page transitions
      • Visibility/focus updates
+     • OS iframe overlays
 =========================================================================== */
 
 /* -----------------------------
@@ -18,6 +19,7 @@ const Screens = {
 
 const Tabs = Array.from(document.querySelectorAll("[data-tab]"));
 const Pages = Array.from(document.querySelectorAll("[data-page]"));
+const OSContainers = Array.from(document.querySelectorAll('.os-container'));
 
 /* ==========================================================================
    1 — PWA / HOME SCREEN DETECTION
@@ -32,8 +34,7 @@ function showAppScreen() {
     Screens.app.classList.add('visible');
 
     // Set default tab to Home
-    const defaultTab = Tabs.find(tab => tab.dataset.tab === 'home');
-    if (defaultTab) setActiveTab('home');
+    setActiveTab('home');
 }
 
 function showInstallScreen() {
@@ -44,7 +45,6 @@ function showInstallScreen() {
 /* Immediate enforcement to prevent website flash */
 function enforceAppView() {
     if (isPWAInstalled()) {
-        // Hide content briefly while switching
         document.documentElement.style.visibility = 'hidden';
         showAppScreen();
         document.documentElement.style.visibility = 'visible';
@@ -84,7 +84,22 @@ function initializeTabs() {
 }
 
 /* ==========================================================================
-   4 — VISIBILITY / FOCUS HANDLER
+   4 — OS IFRAME OVERLAYS
+=========================================================================== */
+function initializeOSOverlays() {
+    OSContainers.forEach(container => {
+        const iframe = container.querySelector('iframe');
+        const overlay = container.querySelector('.overlay');
+        if (iframe && overlay) {
+            iframe.addEventListener('load', () => {
+                overlay.classList.add('visible');
+            });
+        }
+    });
+}
+
+/* ==========================================================================
+   5 — VISIBILITY / FOCUS HANDLER
 =========================================================================== */
 function handleVisibilityChange() {
     document.addEventListener('visibilitychange', () => {
@@ -93,15 +108,16 @@ function handleVisibilityChange() {
 }
 
 /* ==========================================================================
-   5 — INITIALIZATION
+   6 — INITIALIZATION
 =========================================================================== */
 function initializeApp() {
-    enforceAppView();      // Immediate PWA enforcement
-    initializeTabs();      // Enable tab switching
+    enforceAppView();        // Immediate PWA enforcement
+    initializeTabs();        // Enable tab switching
     handleVisibilityChange(); // Update screen on visibility change
+    initializeOSOverlays();  // Activate overlays on OS iframes
 }
 
 /* ==========================================================================
-   6 — START APPLICATION
+   7 — START APPLICATION
 =========================================================================== */
 window.addEventListener('DOMContentLoaded', initializeApp);
