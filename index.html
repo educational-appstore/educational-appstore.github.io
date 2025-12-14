@@ -8,7 +8,7 @@
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
- 
+
     <!-- Apple icons -->
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <meta name="apple-mobile-web-app-status-bar" content="#ffffff">
@@ -86,16 +86,12 @@
     =========================================================== -->
     <section data-screen="app">
 
-        <!-- -------------------------------
-             TOP NAV (App Title)
-        ---------------------------------->
+        <!-- TOP NAV (App Title) -->
         <header class="app-header">
             <h1>Sawfish App Store</h1>
         </header>
 
-        <!-- -------------------------------
-             TAB BAR (Home / Games / Social / OS)
-        ---------------------------------->
+        <!-- TAB BAR (Home / Games / Connect / OS) -->
         <nav class="tab-bar">
             <button data-tab="home" class="active">Home</button>
             <button data-tab="games">Games</button>
@@ -103,9 +99,7 @@
             <button data-tab="os">OS</button>
         </nav>
 
-        <!-- -------------------------------
-             PAGE: HOME
-        ---------------------------------->
+        <!-- PAGE: HOME -->
         <main data-page="home" class="visible">
             <section class="home-hero">
                 <h2>Welcome</h2>
@@ -117,14 +111,12 @@
 
             <section class="featured-section">
                 <h3>Featured Apps</h3>
-
                 <div class="card-grid">
 
                     <article class="app-card">
                         <h4>Sawfish Game Portal</h4>
                         <p>A collection of school-friendly games.</p>
-                        <a class="app-launch" href="https://the-sawfish.github.io/game-portal/" target="_blank"
-                            rel="noopener noreferrer">
+                        <a class="app-launch" href="https://the-sawfish.github.io/game-portal/" target="_blank" rel="noopener noreferrer">
                             Open Game Portal
                         </a>
                     </article>
@@ -132,8 +124,7 @@
                     <article class="app-card">
                         <h4>Chat App</h4>
                         <p>Communicate with classmates in real-time.</p>
-                        <a class="app-launch" href="https://jimeneutron.github.io/chatapp/" target="_blank"
-                            rel="noopener noreferrer">
+                        <a class="app-launch" href="https://jimeneutron.github.io/chatapp/" target="_blank" rel="noopener noreferrer">
                             Open Chat App
                         </a>
                     </article>
@@ -141,8 +132,7 @@
                     <article class="app-card">
                         <h4>Call App</h4>
                         <p>Simple call interface for student communication.</p>
-                        <a class="app-launch" href="https://the-sawfish.github.io/call-app/?from=sawfish" target="_blank"
-                            rel="noopener noreferrer">
+                        <a class="app-launch" href="https://the-sawfish.github.io/call-app/?from=sawfish" target="_blank" rel="noopener noreferrer">
                             Open Call App
                         </a>
                     </article>
@@ -151,10 +141,7 @@
             </section>
         </main>
 
-
-        <!-- -------------------------------
-             PAGE: GAMES
-        ---------------------------------->
+        <!-- PAGE: GAMES -->
         <main data-page="games">
             <section class="page-header">
                 <h2>Games</h2>
@@ -165,18 +152,14 @@
                 <article class="game-card">
                     <h4>Sawfish Game Portal</h4>
                     <p>Instant access to all your school-friendly titles.</p>
-                    <a class="app-launch" href="https://the-sawfish.github.io/game-portal/" target="_blank"
-                        rel="noopener noreferrer">
+                    <a class="app-launch" href="https://the-sawfish.github.io/game-portal/" target="_blank" rel="noopener noreferrer">
                         Launch Game Portal
                     </a>
                 </article>
             </section>
         </main>
 
-
-        <!-- -------------------------------
-             PAGE: CONNECT
-        ---------------------------------->
+        <!-- PAGE: CONNECT -->
         <main data-page="connect">
             <section class="page-header">
                 <h2>Social</h2>
@@ -184,12 +167,10 @@
             </section>
 
             <section class="connect-list">
-
                 <article class="connect-card">
                     <h4>Chat App</h4>
                     <p>Real-time messaging for students.</p>
-                    <a class="app-launch" href="https://jimeneutron.github.io/chatapp/" target="_blank"
-                        rel="noopener noreferrer">
+                    <a class="app-launch" href="https://jimeneutron.github.io/chatapp/" target="_blank" rel="noopener noreferrer">
                         Open Chat
                     </a>
                 </article>
@@ -197,34 +178,31 @@
                 <article class="connect-card">
                     <h4>Call App</h4>
                     <p>Fast, simple calling interface.</p>
-                    <a class="app-launch" href="https://the-sawfish.github.io/call-app/?from=sawfish" target="_blank"
-                        rel="noopener noreferrer">
-                        Open Call
+                    <a class="app-launch" href="https://the-sawfish.github.io/call-app/?from=sawfish" target="_blank" rel="noopener noreferrer">
+                        Open Call App
                     </a>
                 </article>
-
             </section>
         </main>
 
-        <!-- -------------------------------
-             PAGE: OS
-        ---------------------------------->
+        <!-- PAGE: OS -->
         <main data-page="os">
             <section class="page-header">
                 <h2>Operating Systems</h2>
-                <p>Preview OSs below. Interaction is disabled; use "Add to Home Screen" to install.</p>
+                <p>Preview OSes below. Interaction is disabled to allow adding to Home Screen.</p>
             </section>
 
             <section class="os-list">
 
+                <!-- OS Card Example -->
                 <article class="os-card">
                     <h4>NovaOS</h4>
                     <div class="os-container">
+                        <iframe src="https://runnova.github.io/NovaOS/" frameborder="0"></iframe>
                         <div class="overlay">
                             <h2>OS Preview Disabled</h2>
-                            <p>You cannot interact with this preview. Install via "Add to Home Screen".</p>
+                            <p>You cannot interact with this preview. Add to Home Screen to use fully.</p>
                         </div>
-                        <iframe src="https://runnova.github.io/NovaOS/" frameborder="0"></iframe>
                     </div>
                     <a class="app-launch" href="https://runnova.github.io/NovaOS/" target="_blank" rel="noopener noreferrer">
                         Open NovaOS
@@ -234,11 +212,11 @@
                 <article class="os-card">
                     <h4>ProzillaOS</h4>
                     <div class="os-container">
+                        <iframe src="https://os.prozilla.dev/" frameborder="0"></iframe>
                         <div class="overlay">
                             <h2>OS Preview Disabled</h2>
-                            <p>You cannot interact with this preview. Install via "Add to Home Screen".</p>
+                            <p>You cannot interact with this preview. Add to Home Screen to use fully.</p>
                         </div>
-                        <iframe src="https://os.prozilla.dev/" frameborder="0"></iframe>
                     </div>
                     <a class="app-launch" href="https://os.prozilla.dev/" target="_blank" rel="noopener noreferrer">
                         Open ProzillaOS
@@ -248,11 +226,11 @@
                 <article class="os-card">
                     <h4>WinRipen</h4>
                     <div class="os-container">
+                        <iframe src="https://ripenos.web.app/WinRipen/index.html" frameborder="0"></iframe>
                         <div class="overlay">
                             <h2>OS Preview Disabled</h2>
-                            <p>You cannot interact with this preview. Install via "Add to Home Screen".</p>
+                            <p>You cannot interact with this preview. Add to Home Screen to use fully.</p>
                         </div>
-                        <iframe src="https://ripenos.web.app/WinRipen/index.html" frameborder="0"></iframe>
                     </div>
                     <a class="app-launch" href="https://ripenos.web.app/WinRipen/index.html" target="_blank" rel="noopener noreferrer">
                         Open WinRipen
@@ -262,11 +240,11 @@
                 <article class="os-card">
                     <h4>Ripenos</h4>
                     <div class="os-container">
+                        <iframe src="https://ripenos.web.app/Ripenos/" frameborder="0"></iframe>
                         <div class="overlay">
                             <h2>OS Preview Disabled</h2>
-                            <p>You cannot interact with this preview. Install via "Add to Home Screen".</p>
+                            <p>You cannot interact with this preview. Add to Home Screen to use fully.</p>
                         </div>
-                        <iframe src="https://ripenos.web.app/Ripenos/" frameborder="0"></iframe>
                     </div>
                     <a class="app-launch" href="https://ripenos.web.app/Ripenos/" target="_blank" rel="noopener noreferrer">
                         Open Ripenos
@@ -278,12 +256,17 @@
 
     </section>
 
-
-    <!-- ==========================================================
-         SETUP SCRIPT
-    =========================================================== -->
+    <!-- SETUP SCRIPT -->
     <script>
         document.documentElement.classList.remove("loading");
+
+        // Show overlays after iframe loads
+        document.querySelectorAll('.os-container iframe').forEach(iframe => {
+            iframe.addEventListener('load', () => {
+                const overlay = iframe.parentElement.querySelector('.overlay');
+                if (overlay) overlay.classList.add('visible');
+            });
+        });
     </script>
     <script src="app.js"></script>
 
