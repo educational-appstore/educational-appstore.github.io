@@ -149,28 +149,31 @@ if ("serviceWorker" in navigator) {
     });
 }
 
-window.addEventListener("DOMContentLoaded", () => {
-        // Select the full app section
-        const appSection = document.querySelector('[data-screen="app"]');
+// Password overlay logic
+const passwordScreen = document.getElementById("password-screen");
+const passwordInput = document.getElementById("app-password");
+const submitButton = document.getElementById("submit-password");
+const passwordError = document.getElementById("password-error");
+const correctPassword = "120622";
 
-        if (appSection) {
-            let accessGranted = false;
+// Show password overlay immediately when app loads
+if (Screens.app) Screens.app.style.display = "none";
+passwordScreen.style.display = "flex"; // show overlay
 
-            // Loop until correct password is entered
-            while (!accessGranted) {
-                let password = prompt("Enter the Sawfish App Store password:");
+submitButton.addEventListener("click", () => {
+    if (passwordInput.value === correctPassword) {
+        // Hide password overlay
+        passwordScreen.style.display = "none";
 
-                if (password === "120622") {
-                    accessGranted = true;
-                    alert("Access granted! Welcome to the app.");
-                } else {
-                    alert("Incorrect password. Try again.");
-                    // Optional: break loop after 3 attempts to prevent infinite prompts
-                    // Or redirect user elsewhere
-                }
-            }
-        }
-    });
+        // Show app
+        Screens.app.style.display = "block";
+    } else {
+        passwordError.style.display = "block";
+        passwordInput.value = "";
+        passwordInput.focus();
+    }
+});
+
 
 window.addEventListener("DOMContentLoaded", () => {
     const appMain = document.querySelector('[data-screen="app"] main');
