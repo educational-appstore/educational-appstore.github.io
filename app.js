@@ -171,3 +171,15 @@ window.addEventListener("DOMContentLoaded", () => {
             }
         }
     });
+
+window.addEventListener("DOMContentLoaded", () => {
+    const appMain = document.querySelector('[data-screen="app"] main');
+
+    if (appMain) {
+        // Scroll to the bottom immediately
+        appMain.scrollTop = appMain.scrollHeight;
+
+        // Lock scrolling
+        appMain.style.overflow = "hidden"; // disables scrolling
+    }
+});
