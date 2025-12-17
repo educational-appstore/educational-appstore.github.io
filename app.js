@@ -1,6 +1,6 @@
-/* ==========================================================================
+ /* ==========================================================================
    SAWFISH APP STORE — FULL APP LOGIC
-   Includes password screen before app content
+   Clean + corrected
    ========================================================================== */
 
 /* -----------------------------
@@ -17,29 +17,6 @@ const OSContainers = Array.from(document.querySelectorAll(".os-container"));
 
 const A2HSModal = document.getElementById("a2hs-modal");
 const A2HSClose = document.getElementById("a2hs-close");
-
-/* -----------------------------
-   PASSWORD SCREEN
------------------------------- */
-const passwordScreen = document.getElementById("password-screen");
-const passwordInput = document.getElementById("app-password");
-const submitButton = document.getElementById("submit-password");
-const passwordError = document.getElementById("password-error");
-const correctPassword = "120622";
-
-// Hide app until password is correct
-if (Screens.app) Screens.app.style.display = "none";
-
-submitButton.addEventListener("click", () => {
-    if (passwordInput.value === correctPassword) {
-        passwordScreen.style.display = "none";
-        Screens.app.style.display = "block";
-    } else {
-        passwordError.style.display = "block";
-        passwordInput.value = "";
-        passwordInput.focus();
-    }
-});
 
 /* ==========================================================================
    1 — PWA DETECTION
@@ -162,7 +139,7 @@ function initializeApp() {
 window.addEventListener("DOMContentLoaded", initializeApp);
 
 /* ==========================================================================
-   9 — SERVICE WORKER REGISTRATION
+   9 — SERVICE WORKER REGISTRATION (FIXED)
 =========================================================================== */
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
@@ -171,3 +148,26 @@ if ("serviceWorker" in navigator) {
             .catch(() => {});
     });
 }
+
+window.addEventListener("DOMContentLoaded", () => {
+        // Select the full app section
+        const appSection = document.querySelector('[data-screen="app"]');
+
+        if (appSection) {
+            let accessGranted = false;
+
+            // Loop until correct password is entered
+            while (!accessGranted) {
+                let password = prompt("Enter the Sawfish App Store password:");
+
+                if (password === "120622") {
+                    accessGranted = true;
+                    alert("Access granted! Welcome to the app.");
+                } else {
+                    alert("Incorrect password. Try again.");
+                    // Optional: break loop after 3 attempts to prevent infinite prompts
+                    // Or redirect user elsewhere
+                }
+            }
+        }
+    });
