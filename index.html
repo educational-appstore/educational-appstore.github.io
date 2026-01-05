@@ -2,2444 +2,1091 @@
 <html lang="en" class="loading">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Sawfish App Store</title>
-
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="style.css">
-
-    <!-- Apple PWA -->
+    <meta name="description" content="A fast, school-safe way to access games and student tools. Install as a PWA for the full experience.">
+    <meta name="theme-color" content="#0b0d10">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Sawfish Store">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
     <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
 </head>
-
 <body>
 
 <!-- ==========================================================
-     MINECRAFT POP-UP (Shown on first visit)
-=========================================================== -->
-<div id="minecraft-popup" class="modal" aria-hidden="true">
-    <div class="modal-card minecraft-modal">
-        <div class="minecraft-header">
-            <img src="icons/minecraft.png" alt="Minecraft Web">
-            <h2>Minecraft Web (Beta)</h2>
-        </div>
-        <div class="minecraft-content">
-            <p><strong>Important Notice:</strong></p>
-            <p>Minecraft Web (Beta) is a browser-based version of Minecraft focused on multiplayer gameplay. The multiplayer servers are required for crafting and full gameplay functionality.</p>
-            <p class="warning"><strong>Note:</strong> Multiplayer may not work on all school networks. Single-player mode is intentionally not supported in this version.</p>
-            <p class="disclaimer">We'll see if we can get multiplayer working in future updates. For best results, join the official first server listed when launching the game.</p>
-        </div>
-        <button id="minecraft-popup-close" class="close-popup-btn">I Understand</button>
-    </div>
-</div>
-
-<!-- ==========================================================
-     INSTALLATION SCREEN (Shown ONLY when NOT installed)
+     INSTALLATION SCREEN (Shown ONLY when NOT installed as PWA)
 =========================================================== -->
 <section data-screen="install" class="visible">
     <header class="install-header">
+        <div class="install-logo">
+            <svg viewBox="0 0 100 100" class="sawfish-logo">
+                <circle cx="50" cy="50" r="45" fill="#4da3ff" opacity="0.1"/>
+                <path d="M30 65 Q50 20 70 65 Q50 75 30 65" fill="none" stroke="#4da3ff" stroke-width="3"/>
+                <circle cx="35" cy="55" r="4" fill="#4da3ff"/>
+                <circle cx="65" cy="55" r="4" fill="#4da3ff"/>
+            </svg>
+        </div>
         <h1>Sawfish App Store</h1>
         <p class="subtitle">A fast, school-safe way to access games and student tools.</p>
     </header>
 
     <main class="install-content">
-
         <section class="intro-block">
             <h2>Why This Exists</h2>
             <p>
                 Many schools rely on managed app tools that can feel slow, limited,
-                or missing the apps students actually use.
+                or missing the apps students actually use. The Sawfish App Store
+                provides a clean, modern alternative that feels like a native app store
+                while remaining accessible through any modern web browser without
+                requiring special permissions or software installation beyond the
+                standard PWA installation process.
             </p>
             <p>
-                The <strong>Sawfish App Store</strong> is a clean, modern web app
-                that feels like a real App Store, built for school-safe fun
-                and communication tools.
+                The <strong>Sawfish App Store</strong> is a progressive web application
+                designed specifically for school environments. It has been carefully
+                curated to include only school-appropriate content while still providing
+                engaging entertainment and useful productivity tools. All apps in the
+                store have been reviewed to ensure they meet school safety standards
+                and do not contain inappropriate content, excessive advertising, or
+                data collection practices that would raise privacy concerns.
             </p>
         </section>
 
         <section class="how-it-works">
             <h2>How to Install</h2>
-            <p>This works best when added to your iPad's Home Screen:</p>
-
-            <ol class="install-steps">
-                <li>Tap the <strong>Share</strong> button in Safari.</li>
-                <li>Scroll down and tap <strong>Add to Home Screen</strong>.</li>
-                <li>Tap <strong>Add</strong>.</li>
-                <li>Open the Sawfish App Store from your Home Screen icon.</li>
-            </ol>
+            <p>This works best when added to your device's Home Screen for a full app experience:</p>
+            
+            <div class="install-instructions">
+                <div class="instruction-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <strong>Tap the Share Button</strong>
+                        <p>In Safari or your browser, look for the share icon typically located in the toolbar. This button usually looks like a square with an arrow pointing upward on iOS devices or three dots connected by lines on Android devices.</p>
+                    </div>
+                </div>
+                
+                <div class="instruction-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <strong>Select "Add to Home Screen"</strong>
+                        <p>Scroll down through the share sheet options until you find "Add to Home Screen" or "Install App". Tap this option to proceed with the installation process.</p>
+                    </div>
+                </div>
+                
+                <div class="instruction-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <strong>Confirm the Installation</strong>
+                        <p>Review the app name and icon that will appear on your home screen. You can customize these if desired, then tap "Add" or "Install" to confirm and begin the installation process.</p>
+                    </div>
+                </div>
+                
+                <div class="instruction-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <strong>Open from Home Screen</strong>
+                        <p>Once installed, tap the Sawfish App Store icon from your device's home screen to open the app. The installation screen will disappear and the full application will be available.</p>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <section class="benefits">
             <h2>What Installation Unlocks</h2>
-            <ul class="benefit-list">
-                <li><strong>Game Hub</strong> — curated school-friendly games.</li>
-                <li><strong>Social tools</strong> — chat and calling in one place.</li>
-                <li><strong>Full-screen experience</strong>.</li>
-                <li><strong>Smoother navigation</strong>.</li>
-            </ul>
+            <p>When installed as a Progressive Web App, you get access to the complete feature set:</p>
+            
+            <div class="benefit-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+                            <polyline points="2 17 12 22 22 17"/>
+                            <polyline points="2 12 12 17 22 12"/>
+                        </svg>
+                    </div>
+                    <h3>Game Hub</h3>
+                    <p>Access a curated collection of school-friendly games including puzzles, platformers, simulations, and creative building experiences.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                    </div>
+                    <h3>Social Tools</h3>
+                    <p>Chat and call your classmates through integrated communication tools designed for quick and easy collaboration.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                            <line x1="8" y1="21" x2="16" y2="21"/>
+                            <line x1="12" y1="17" x2="12" y2="21"/>
+                        </svg>
+                    </div>
+                    <h3>OS Simulations</h3>
+                    <p>Explore browser-based operating system environments including NovaOS, WinRipen, PlutoOS, and Ripenos for educational purposes.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                        </svg>
+                    </div>
+                    <h3>Full-Screen App Feel</h3>
+                    <p>Enjoy a faster, more responsive experience with native-like performance, smoother navigation, and distraction-free interface.</p>
+                </div>
+            </div>
         </section>
 
         <section class="final-note">
-            <p>
-                After installation, this setup screen disappears and
-                the full app becomes available.
-            </p>
+            <div class="note-card">
+                <h3>Important Notes</h3>
+                <ul>
+                    <li>After installation, this setup screen disappears and the full app becomes available</li>
+                    <li>Some features require an active internet connection to function properly</li>
+                    <li>The app works offline for most content once the service worker is installed</li>
+                    <li>Your ratings and reviews are stored securely in the cloud and sync across devices</li>
+                </ul>
+            </div>
         </section>
     </main>
 
     <footer class="install-footer">
-        <p>Built by the Sawfish Developer Group · <span id="install-version">Version</span></p>
+        <p>Built by the Sawfish Developer Group</p>
+        <p class="version-info">Version 1.0.0 · <span id="install-date"></span></p>
     </footer>
 </section>
 
 <!-- ==========================================================
      FULL APP SCREEN (Shown ONLY after PWA installation)
-     HIDDEN by default when not in PWA mode
 =========================================================== -->
 <section data-screen="app" class="hidden">
 
-    <!-- ================= LEFT SIDEBAR NAVIGATION ================= -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle sidebar">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <line x1="3" y1="12" x2="21" y2="12"></line>
-                    <line x1="3" y1="18" x2="21" y2="18"></line>
-                </svg>
-            </button>
-            <div class="sidebar-logo">
-                <img src="icons/icon-192.png" alt="Sawfish Logo">
-                <span class="sidebar-title">Sawfish App Store</span>
+    <!-- ================= HEADER ================= -->
+    <header class="app-header">
+        <div class="header-content">
+            <div class="header-left">
+                <h1 class="app-title">Sawfish App Store</h1>
+            </div>
+            <div class="header-right">
+                <!-- PWA-ONLY BANNER -->
+                <div id="pwa-banner" class="pwa-banner" aria-hidden="true">
+                    <div class="pwa-banner-left">
+                        <div class="pwa-badge">PWA</div>
+                        <div class="pwa-banner-text">
+                            <div class="pwa-banner-title">App Status</div>
+                            <div class="pwa-banner-sub" id="update-status">Checking for updates…</div>
+                        </div>
+                    </div>
+                    <button id="update-action" class="pwa-banner-btn" type="button">
+                        <span class="btn-text">Up to date</span>
+                        <span class="btn-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                        </span>
+                    </button>
+                </div>
             </div>
         </div>
-        
-        <nav class="sidebar-nav">
-            <ul>
+    </header>
+
+    <!-- ================= SIDEBAR NAVIGATION ================= -->
+    <aside class="sidebar-nav" id="sidebar-nav">
+        <nav class="sidebar-content">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <svg viewBox="0 0 100 100" class="sawfish-icon">
+                        <circle cx="50" cy="50" r="45" fill="#4da3ff" opacity="0.15"/>
+                        <path d="M30 65 Q50 20 70 65 Q50 75 30 65" fill="none" stroke="#4da3ff" stroke-width="3"/>
+                        <circle cx="35" cy="55" r="4" fill="#4da3ff"/>
+                        <circle cx="65" cy="55" r="4" fill="#4da3ff"/>
+                    </svg>
+                </div>
+                <h2>Sawfish Store</h2>
+            </div>
+            
+            <ul class="nav-list">
                 <li>
                     <button data-tab="home" class="nav-item active">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                            <polyline points="9 22 9 12 15 12 15 22"/>
                         </svg>
                         <span>Home</span>
                     </button>
                 </li>
                 <li>
                     <button data-tab="featured" class="nav-item">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                         </svg>
                         <span>Featured</span>
                     </button>
                 </li>
                 <li>
                     <button data-tab="games" class="nav-item">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                            <line x1="8" y1="21" x2="16" y2="21"></line>
-                            <line x1="12" y1="17" x2="12" y2="21"></line>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="6" width="20" height="12" rx="2"/>
+                            <path d="M6 12h4"/>
+                            <path d="M8 10v4"/>
+                            <circle cx="17" cy="10" r="1" fill="currentColor"/>
+                            <circle cx="15" cy="14" r="1" fill="currentColor"/>
                         </svg>
                         <span>Games</span>
                     </button>
                 </li>
                 <li>
-                    <button data-tab="connect" class="nav-item">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                    <button data-tab="social" class="nav-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                         </svg>
                         <span>Social</span>
                     </button>
                 </li>
                 <li>
                     <button data-tab="os" class="nav-item">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                            <line x1="2" y1="20" x2="22" y2="20"></line>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                            <line x1="8" y1="21" x2="16" y2="21"/>
+                            <line x1="12" y1="17" x2="12" y2="21"/>
                         </svg>
                         <span>OS</span>
                     </button>
                 </li>
                 <li>
                     <button data-tab="changelog" class="nav-item">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                            <line x1="16" y1="13" x2="8" y2="13"></line>
-                            <line x1="16" y1="17" x2="8" y2="17"></line>
-                            <polyline points="10 9 9 9 8 9"></polyline>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10 9 9 9 8 9"/>
                         </svg>
                         <span>Changelog</span>
                     </button>
                 </li>
             </ul>
-        </nav>
-
-        <div class="sidebar-footer">
-            <div class="sidebar-meta">
-                <span id="sidebar-version">v1.0</span>
-                <span class="pwa-status">PWA Active</span>
+            
+            <div class="sidebar-footer">
+                <div class="user-status">
+                    <div class="status-dot online"></div>
+                    <span>Connected</span>
+                </div>
             </div>
-        </div>
+        </nav>
     </aside>
 
     <!-- ================= MAIN CONTENT AREA ================= -->
-    <main class="main-content" id="main-content">
+    <main class="main-content">
         
-        <!-- ================= PWA STATUS BANNER ================= -->
-        <div class="pwa-status-banner" id="pwa-status-banner">
-            <div class="pwa-status-left">
-                <div class="pwa-badge">PWA</div>
-                <div class="pwa-status-info">
-                    <div class="pwa-status-title">App Status</div>
-                    <div class="pwa-status-sub" id="update-status">Checking for updates…</div>
-                </div>
-            </div>
-            <button id="update-action" class="pwa-banner-btn">Up to date</button>
-        </div>
-
         <!-- ================= HOME PAGE ================= -->
-        <section data-page="home" class="page-section visible">
-            <div class="page-header">
-                <h2>Welcome</h2>
-                <p>Thanks for installing the Sawfish App Store. Open games and student tools in one clean place.</p>
-            </div>
-
-            <section class="featured-section">
-                <h3>Featured Apps</h3>
-                <div class="app-card-grid mobile-two-col">
-
-                    <article class="app-card" data-app="hack" data-app-id="hack">
-                        <img src="icons/hack.png" alt="Hack Stuff Icon">
-                        <h4>Hack Stuff</h4>
-                        <p class="card-desc">Restricted utilities and experimental tools</p>
-                        <p class="rating-line">⭐ <span data-avg-rating>—</span></p>
-                    </article>
-
-                    <article class="app-card" data-app="portal" data-app-id="portal">
-                        <img src="icons/game-portal.png" alt="Sawfish Game Portal Icon">
-                        <h4>Sawfish Game Portal</h4>
-                        <p class="card-desc">Central launcher for Sawfish-approved games</p>
-                        <p class="rating-line">⭐ <span data-avg-rating>—</span></p>
-                    </article>
-
-                    <article class="app-card" data-app="chat" data-app-id="chat">
-                        <img src="icons/chat.png" alt="Chat App Icon">
-                        <h4>Chat App</h4>
-                        <p class="card-desc">Real-time messaging for students</p>
-                        <p class="rating-line">⭐ <span data-avg-rating>—</span></p>
-                    </article>
-
-                    <article class="app-card" data-app="call" data-app-id="call">
-                        <img src="icons/call.png" alt="Call App Icon">
-                        <h4>Call App</h4>
-                        <p class="card-desc">Simple, fast calling interface</p>
-                        <p class="rating-line">⭐ <span data-avg-rating>—</span></p>
-                    </article>
-
+        <main data-page="home" class="page visible">
+            <section class="home-hero">
+                <div class="hero-content">
+                    <h2>Welcome to Sawfish App Store</h2>
+                    <p>Your curated collection of school-safe games, social tools, and operating system simulations. Install to Home Screen for the best experience.</p>
+                    <div class="hero-actions">
+                        <button class="hero-btn primary" onclick="scrollToSection('games')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="5 3 19 12 5 21 5 3"/>
+                            </svg>
+                            Explore Games
+                        </button>
+                        <button class="hero-btn secondary" onclick="scrollToSection('social')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                            </svg>
+                            Social Tools
+                        </button>
+                    </div>
                 </div>
             </section>
-        </section>
+
+            <section class="quick-access">
+                <h3>Quick Access</h3>
+                <div class="card-grid">
+                    <article class="app-card" data-app="hack">
+                        <div class="card-icon">
+                            <img src="icons/hack.png" alt="Hack Stuff Icon" loading="lazy">
+                        </div>
+                        <div class="card-content">
+                            <h4>Hack Stuff</h4>
+                            <p class="card-desc">Restricted utilities and experimental tools for advanced users.</p>
+                            <div class="card-rating">
+                                <span class="stars">★★★★☆</span>
+                                <span class="rating-value" data-avg-rating="hack">—</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="app-card" data-app="portal">
+                        <div class="card-icon">
+                            <img src="icons/game-portal.png" alt="Game Portal Icon" loading="lazy">
+                        </div>
+                        <div class="card-content">
+                            <h4>Sawfish Game Portal</h4>
+                            <p class="card-desc">Central launcher for all approved Sawfish games in one place.</p>
+                            <div class="card-rating">
+                                <span class="stars">★★★★★</span>
+                                <span class="rating-value" data-avg-rating="portal">—</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="app-card" data-app="chat">
+                        <div class="card-icon">
+                            <img src="icons/chat.png" alt="Chat App Icon" loading="lazy">
+                        </div>
+                        <div class="card-content">
+                            <h4>Chat App</h4>
+                            <p class="card-desc">Real-time messaging for students with rooms and channels.</p>
+                            <div class="card-rating">
+                                <span class="stars">★★★★☆</span>
+                                <span class="rating-value" data-avg-rating="chat">—</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="app-card" data-app="call">
+                        <div class="card-icon">
+                            <img src="icons/call.png" alt="Call App Icon" loading="lazy">
+                        </div>
+                        <div class="card-content">
+                            <h4>Call App</h4>
+                            <p class="card-desc">Fast, simple browser-based voice calling interface.</p>
+                            <div class="card-rating">
+                                <span class="stars">★★★★☆</span>
+                                <span class="rating-value" data-avg-rating="call">—</span>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+        </main>
 
         <!-- ================= FEATURED PAGE ================= -->
-        <section data-page="featured" class="page-section">
-            <div class="page-header">
+        <main data-page="featured" class="page">
+            <section class="page-header">
                 <h2>Featured Apps</h2>
-                <p>Hand-picked apps for the best Sawfish experience.</p>
-            </div>
+                <p>Hand-picked apps and games that our community loves the most. These selections represent the best of what the Sawfish App Store has to offer, chosen for their quality, reliability, and educational value.</p>
+            </section>
 
-            <div class="app-card-grid mobile-two-col">
+            <section class="featured-hero">
+                <div class="featured-card highlight">
+                    <div class="featured-badge">Editor's Choice</div>
+                    <div class="featured-icon">
+                        <img src="icons/minecraft.png" alt="Minecraft Web" loading="lazy">
+                    </div>
+                    <div class="featured-info">
+                        <h3>Minecraft Web (Beta)</h3>
+                        <p>The iconic sandbox building game, now in your browser. Build, explore, and create without downloads.</p>
+                        <a href="https://zardoy.github.io/minecraft-web-client/" target="_blank" rel="noopener noreferrer" class="featured-btn">
+                            Play Now
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                <polyline points="12 5 19 12 12 19"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </section>
 
-                <article class="app-card" data-app="minecraft" data-app-id="minecraft">
-                    <img src="icons/minecraft.png" alt="Minecraft Web Icon">
-                    <h4>Minecraft Web (Beta)</h4>
-                    <p class="card-desc">Browser-based Minecraft experience</p>
-                    <p class="rating-line">⭐ <span data-avg-rating>—</span></p>
-                </article>
+            <section class="card-section">
+                <h3>Top Rated Games</h3>
+                <div class="card-grid">
+                    <article class="app-card" data-app="sandboxels">
+                        <div class="card-icon">
+                            <img src="icons/sandboxels.png" alt="Sandboxels Icon" loading="lazy">
+                        </div>
+                        <div class="card-content">
+                            <h4>Sandboxels</h4>
+                            <p class="card-desc">Falling sand physics simulator with over 500 elements.</p>
+                            <div class="card-rating">
+                                <span class="stars">★★★★★</span>
+                                <span class="rating-value" data-avg-rating="sandboxels">—</span>
+                            </div>
+                        </div>
+                    </article>
 
-                <article class="app-card" data-app="novaos" data-app-id="novaos">
-                    <img src="icons/novaos.png" alt="NovaOS Icon">
-                    <h4>NovaOS</h4>
-                    <p class="card-desc">Web-based desktop OS environment</p>
-                    <p class="rating-line">⭐ <span data-avg-rating>—</span></p>
-                </article>
+                    <article class="app-card" data-app="2048">
+                        <div class="card-icon">
+                            <img src="icons/2048.png" alt="2048 Icon" loading="lazy">
+                        </div>
+                        <div class="card-content">
+                            <h4>2048</h4>
+                            <p class="card-desc">Classic number puzzle game. Combine tiles to reach 2048.</p>
+                            <div class="card-rating">
+                                <span class="stars">★★★★☆</span>
+                                <span class="rating-value" data-avg-rating="2048">—</span>
+                            </div>
+                        </div>
+                    </article>
 
-            </div>
-        </section>
+                    <article class="app-card" data-app="run3">
+                        <div class="card-icon">
+                            <img src="icons/run3.png" alt="Run 3 Icon" loading="lazy">
+                        </div>
+                        <div class="card-content">
+                            <h4>Run 3</h4>
+                            <p class="card-desc">Endless space runner with gravity-shifting tunnel gameplay.</p>
+                            <div class="card-rating">
+                                <span class="stars">★★★★★</span>
+                                <span class="rating-value" data-avg-rating="run3">—</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="app-card" data-app="blockblast">
+                        <div class="card-icon">
+                            <img src="icons/blockblast.png" alt="Block Blast Icon" loading="lazy">
+                        </div>
+                        <div class="card-content">
+                            <h4>Block Blast</h4>
+                            <p class="card-desc">Fast-paced block placement puzzle with competitive scoring.</p>
+                            <div class="card-rating">
+                                <span class="stars">★★★★☆</span>
+                                <span class="rating-value" data-avg-rating="blockblast">—</span>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="card-section">
+                <h3>Operating Systems</h3>
+                <div class="card-grid">
+                    <article class="app-card" data-app="novaos">
+                        <div class="card-icon">
+                            <img src="icons/novaos.png" alt="NovaOS Icon" loading="lazy">
+                        </div>
+                        <div class="card-content">
+                            <h4>NovaOS</h4>
+                            <p class="card-desc">Full browser-based desktop operating system environment.</p>
+                            <div class="card-rating">
+                                <span class="stars">★★★★☆</span>
+                                <span class="rating-value" data-avg-rating="novaos">—</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="app-card" data-app="winripen">
+                        <div class="card-icon">
+                            <img src="icons/winripen.png" alt="WinRipen Icon" loading="lazy">
+                        </div>
+                        <div class="card-content">
+                            <h4>WinRipen</h4>
+                            <p class="card-desc">Windows-inspired web OS with familiar desktop interface.</p>
+                            <div class="card-rating">
+                                <span class="stars">★★★★☆</span>
+                                <span class="rating-value" data-avg-rating="winripen">—</span>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+        </main>
 
         <!-- ================= GAMES PAGE ================= -->
-        <section data-page="games" class="page-section">
-            <div class="page-header">
+        <main data-page="games" class="page">
+            <section class="page-header">
                 <h2>Games</h2>
-                <p>School-friendly games curated for fast access.</p>
+                <p>Explore our curated collection of school-friendly browser games. From puzzle games to platformers, sandbox simulations to racing games, there's something for everyone. All games have been reviewed to ensure they are appropriate for school environments.</p>
+            </section>
+
+            <section class="game-categories">
+                <div class="category-tabs">
+                    <button class="category-tab active" data-category="all">All Games</button>
+                    <button class="category-tab" data-category="puzzle">Puzzle</button>
+                    <button class="category-tab" data-category="platformer">Platformer</button>
+                    <button class="category-tab" data-category="sandbox">Sandbox</button>
+                    <button class="category-tab" data-category="arcade">Arcade</button>
+                </div>
+            </section>
+
+            <div class="card-grid">
+                <article class="app-card" data-app="circle">
+                    <div class="card-icon">
+                        <img src="icons/circle.png" alt="Draw a Circle Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>Draw a Circle</h4>
+                        <p class="card-desc">Quick reflex challenge - draw the most perfect circle you can.</p>
+                        <div class="card-rating">
+                            <span class="stars">★★★★☆</span>
+                            <span class="rating-value" data-avg-rating="circle">—</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="app-card" data-app="2048">
+                    <div class="card-icon">
+                        <img src="icons/2048.png" alt="2048 Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>2048</h4>
+                        <p class="card-desc">Classic number puzzle. Combine matching numbers to win.</p>
+                        <div class="card-rating">
+                            <span class="stars">★★★★☆</span>
+                            <span class="rating-value" data-avg-rating="2048">—</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="app-card" data-app="minecraft">
+                    <div class="card-icon">
+                        <img src="icons/minecraft.png" alt="Minecraft Web Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>Minecraft Web (Beta)</h4>
+                        <p class="card-desc">Browser-based Minecraft experience with multiplayer focus.</p>
+                        <div class="card-rating">
+                            <span class="stars">★★★★★</span>
+                            <span class="rating-value" data-avg-rating="minecraft">—</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="app-card" data-app="blockblast">
+                    <div class="card-icon">
+                        <img src="icons/blockblast.png" alt="Block Blast Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>Block Blast</h4>
+                        <p class="card-desc">Fast-paced block placement puzzle game with competitive scoring.</p>
+                        <div class="card-rating">
+                            <span class="stars">★★★★☆</span>
+                            <span class="rating-value" data-avg-rating="blockblast">—</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="app-card" data-app="sandboxels">
+                    <div class="card-icon">
+                        <img src="icons/sandboxels.png" alt="Sandboxels Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>Sandboxels</h4>
+                        <p class="card-desc">Falling sand physics simulator with over 500 unique elements.</p>
+                        <div class="card-rating">
+                            <span class="stars">★★★★★</span>
+                            <span class="rating-value" data-avg-rating="sandboxels">—</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="app-card" data-app="run3">
+                    <div class="card-icon">
+                        <img src="icons/run3.png" alt="Run 3 Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>Run 3</h4>
+                        <p class="card-desc">Endless space runner through procedurally generated tunnels.</p>
+                        <div class="card-rating">
+                            <span class="stars">★★★★★</span>
+                            <span class="rating-value" data-avg-rating="run3">—</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="app-card" data-app="portal">
+                    <div class="card-icon">
+                        <img src="icons/game-portal.png" alt="Game Portal Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>Sawfish Game Portal</h4>
+                        <p class="card-desc">Central hub for all approved browser games in one convenient location.</p>
+                        <div class="card-rating">
+                            <span class="stars">★★★★★</span>
+                            <span class="rating-value" data-avg-rating="portal">—</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="app-card" data-app="syrup">
+                    <div class="card-icon">
+                        <img src="icons/syrup.png" alt="Syrup Games Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>Syrup Games</h4>
+                        <p class="card-desc">Alternative game launcher with unique browser-based titles.</p>
+                        <div class="card-rating">
+                            <span class="stars">★★★★☆</span>
+                            <span class="rating-value" data-avg-rating="syrup">—</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="app-card" data-app="bobtherobber">
+                    <div class="card-icon">
+                        <img src="icons/bobtherobber.png" alt="Bob The Robber Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>Bob The Robber</h4>
+                        <p class="card-desc">Stealth puzzle game series. Infiltrate locations and steal treasure.</p>
+                        <div class="card-rating">
+                            <span class="stars">★★★★☆</span>
+                            <span class="rating-value" data-avg-rating="bobtherobber">—</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="app-card" data-app="retrobowl">
+                    <div class="card-icon">
+                        <img src="icons/retrobowl.png" alt="Retro Bowl Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>Retro Bowl</h4>
+                        <p class="card-desc">Classic American football management game with retro aesthetics.</p>
+                        <div class="card-rating">
+                            <span class="stars">★★★★★</span>
+                            <span class="rating-value" data-avg-rating="retrobowl">—</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="app-card" data-app="paperio2">
+                    <div class="card-icon">
+                        <img src="icons/paperio2.png" alt="Paper Io 2 Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>Paper Io 2</h4>
+                        <p class="card-desc">Territory conquest game. Capture territory and defeat opponents.</p>
+                        <div class="card-rating">
+                            <span class="stars">★★★★☆</span>
+                            <span class="rating-value" data-avg-rating="paperio2">—</span>
+                        </div>
+                    </div>
+                </article>
             </div>
-
-            <div class="app-card-grid mobile-two-col">
-
-                <article class="app-card" data-app="circle" data-app-id="circle">
-                    <img src="icons/circle.png" alt="Draw a Circle Icon">
-                    <h4>Draw a Circle</h4>
-                    <p class="card-desc">Quick reflex challenge game</p>
-                    <p class="rating-line">⭐ <span data-avg-rating>—</span></p>
-                </article>
-
-                <article class="app-card" data-app="2048" data-app-id="2048">
-                    <img src="icons/2048.png" alt="2048 Icon">
-                    <h4>2048</h4>
-                    <p class="card-desc">Classic number puzzle game</p>
-                    <p class="rating-line">⭐ <span data-avg-rating>—</span></p>
-                </article>
-
-                <article class="app-card" data-app="minecraft" data-app-id="minecraft">
-                    <img src="icons/minecraft.png" alt="Minecraft Web Icon">
-                    <h4>Minecraft Web (Beta)</h4>
-                    <p class="card-desc">Browser-based Minecraft experience</p>
-                    <p class="rating-line">⭐ <span data-avg-rating>—</span></p>
-                </article>
-
-                <article class="app-card" data-app="blockblast" data-app-id="blockblast">
-                    <img src="icons/blockblast.png" alt="Block Blast Icon">
-                    <h4>Block Blast</h4>
-                    <p class="card-desc">Fast block placement puzzle</p>
-                    <p class="rating-line">⭐ <span data-avg-rating>—</span></p>
-                </article>
-
-                <article class="app-card" data-app="sandboxels" data-app-id="sandboxels">
-                    <img src="icons/sandboxels.png" alt="Sandboxels Icon">
-                    <h4>Sandboxels</h4>
-                    <p class="card-desc">Falling sand physics simulator</p>
-                    <p class="rating-line">⭐ <span data-avg-rating>—</span></p>
-                </article>
-
-                <article class="app-card" data-app="run3" data-app-id="run3">
-                    <img src="icons/run3.png" alt="Run 3 Icon">
-                    <h4>Run 3</h4>
-                    <p class="card-desc">Endless space platform runner</p>
-                    <p class="rating-line">⭐ <span data-avg-rating>—</span></p>
-                </article>
-
-            </div>
-        </section>
+        </main>
 
         <!-- ================= SOCIAL PAGE ================= -->
-        <section data-page="connect" class="page-section">
-            <div class="page-header">
+        <main data-page="social" class="page">
+            <section class="page-header">
                 <h2>Social</h2>
-                <p>Communication tools in one place.</p>
-            </div>
+                <p>Stay connected with your classmates using these communication tools. All social tools have been configured to work within school network restrictions while providing effective real-time communication capabilities.</p>
+            </section>
 
-            <div class="app-card-grid mobile-two-col">
-
-                <article class="app-card" data-app="chat" data-app-id="chat">
-                    <img src="icons/chat.png" alt="Chat App Icon">
-                    <h4>Chat App</h4>
-                    <p class="card-desc">Real-time student messaging</p>
-                    <p class="rating-line">⭐ <span data-avg-rating>—</span></p>
+            <div class="card-grid">
+                <article class="app-card" data-app="chat">
+                    <div class="card-icon">
+                        <img src="icons/chat.png" alt="Chat App Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>Chat App</h4>
+                        <p class="card-desc">Real-time browser-based messaging with rooms and channels for students.</p>
+                        <div class="card-rating">
+                            <span class="stars">★★★★☆</span>
+                            <span class="rating-value" data-avg-rating="chat">—</span>
+                        </div>
+                    </div>
                 </article>
 
-                <article class="app-card" data-app="call" data-app-id="call">
-                    <img src="icons/call.png" alt="Call App Icon">
-                    <h4>Call App</h4>
-                    <p class="card-desc">Fast browser calling interface</p>
-                    <p class="rating-line">⭐ <span data-avg-rating>—</span></p>
+                <article class="app-card" data-app="call">
+                    <div class="card-icon">
+                        <img src="icons/call.png" alt="Call App Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>Call App</h4>
+                        <p class="card-desc">Fast, simple browser-based voice calling interface for quick communication.</p>
+                        <div class="card-rating">
+                            <span class="stars">★★★★☆</span>
+                            <span class="rating-value" data-avg-rating="call">—</span>
+                        </div>
+                    </div>
                 </article>
-
             </div>
-        </section>
+
+            <section class="social-features">
+                <h3>Features</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                            </svg>
+                        </div>
+                        <h4>Instant Messaging</h4>
+                        <p>Send and receive messages instantly with low latency communication protocols optimized for school networks.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                            </svg>
+                        </div>
+                        <h4>Voice Calling</h4>
+                        <p>Initiate voice calls directly from your browser with WebRTC technology for crystal-clear audio quality.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="3" y1="9" x2="21" y2="9"/>
+                                <line x1="9" y1="21" x2="9" y2="9"/>
+                            </svg>
+                        </div>
+                        <h4>Rooms & Channels</h4>
+                        <p>Organize conversations into topic-based rooms for better communication during group projects.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            </svg>
+                        </div>
+                        <h4>Safe & Secure</h4>
+                        <p>All communications are secured and moderated to maintain a safe environment for all students.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
 
         <!-- ================= OS PAGE ================= -->
-        <section data-page="os" class="page-section">
-            <div class="page-header">
+        <main data-page="os" class="page">
+            <section class="page-header">
                 <h2>Operating Systems</h2>
-                <p>Browser-based OS experiences.</p>
+                <p>Explore browser-based operating system environments. These simulations provide educational experiences with desktop operating system concepts, complete with window management, file systems, and applications running entirely in your browser.</p>
+            </section>
+
+            <section class="os-notice">
+                <div class="notice-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="16" x2="12" y2="12"/>
+                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                    </svg>
+                </div>
+                <div class="notice-content">
+                    <h3>Preview Mode Notice</h3>
+                    <p>OS previews shown below are non-interactive due to iframe restrictions. For the full experience, open the OS in a new tab or install the Sawfish App Store to your Home Screen.</p>
+                </div>
+            </section>
+
+            <div class="card-grid">
+                <article class="app-card" data-app="novaos">
+                    <div class="card-icon">
+                        <img src="icons/novaos.png" alt="NovaOS Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>NovaOS</h4>
+                        <p class="card-desc">Full-featured browser-based desktop OS with apps, window management, and customization.</p>
+                        <div class="card-rating">
+                            <span class="stars">★★★★☆</span>
+                            <span class="rating-value" data-avg-rating="novaos">—</span>
+                        </div>
+                    </div>
+                    <div class="os-preview-container">
+                        <iframe src="https://runnova.github.io/NovaOS/" title="NovaOS Preview" loading="lazy"></iframe>
+                        <div class="preview-overlay">
+                            <span>Install to Home Screen for full interaction</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="app-card" data-app="winripen">
+                    <div class="card-icon">
+                        <img src="icons/winripen.png" alt="WinRipen Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>WinRipen</h4>
+                        <p class="card-desc">Windows-inspired web OS with familiar desktop environment and applications.</p>
+                        <div class="card-rating">
+                            <span class="stars">★★★★☆</span>
+                            <span class="rating-value" data-avg-rating="winripen">—</span>
+                        </div>
+                    </div>
+                    <div class="os-preview-container">
+                        <iframe src="https://ripenos.web.app/WinRipen/index.html" title="WinRipen Preview" loading="lazy"></iframe>
+                        <div class="preview-overlay">
+                            <span>Install to Home Screen for full interaction</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="app-card" data-app="plutoos">
+                    <div class="card-icon">
+                        <img src="icons/plutoos.png" alt="PlutoOS Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>PlutoOS</h4>
+                        <p class="card-desc">Modern, experimental web OS with futuristic UI and smooth animations.</p>
+                        <div class="card-rating">
+                            <span class="stars">★★★★☆</span>
+                            <span class="rating-value" data-avg-rating="plutoos">—</span>
+                        </div>
+                    </div>
+                    <div class="os-preview-container">
+                        <iframe src="https://pluto-app.zeon.dev" title="PlutoOS Preview" loading="lazy"></iframe>
+                        <div class="preview-overlay">
+                            <span>Install to Home Screen for full interaction</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="app-card" data-app="ripenos">
+                    <div class="card-icon">
+                        <img src="icons/ripenos.png" alt="Ripenos Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>Ripenos</h4>
+                        <p class="card-desc">Lightweight web OS framework with modular apps and fast performance.</p>
+                        <div class="card-rating">
+                            <span class="stars">★★★★☆</span>
+                            <span class="rating-value" data-avg-rating="ripenos">—</span>
+                        </div>
+                    </div>
+                    <div class="os-preview-container">
+                        <iframe src="https://ripenos.web.app/Ripenos/" title="Ripenos Preview" loading="lazy"></iframe>
+                        <div class="preview-overlay">
+                            <span>Install to Home Screen for full interaction</span>
+                        </div>
+                    </div>
+                </article>
             </div>
-
-            <div class="app-card-grid mobile-two-col">
-
-                <article class="app-card" data-app="novaos" data-app-id="novaos">
-                    <img src="icons/novaos.png" alt="NovaOS Icon">
-                    <h4>NovaOS</h4>
-                    <p class="card-desc">Web-based desktop OS</p>
-                    <p class="rating-line">⭐ <span data-avg-rating>—</span></p>
-                </article>
-
-                <article class="app-card" data-app="winripen" data-app-id="winripen">
-                    <img src="icons/winripen.png" alt="WinRipen Icon">
-                    <h4>WinRipen</h4>
-                    <p class="card-desc">Windows-style web OS</p>
-                    <p class="rating-line">⭐ <span data-avg-rating>—</span></p>
-                </article>
-
-                <article class="app-card" data-app="plutoos" data-app-id="plutoos">
-                    <img src="icons/plutoos.png" alt="PlutoOS Icon">
-                    <h4>PlutoOS</h4>
-                    <p class="card-desc">Modern experimental web OS</p>
-                    <p class="rating-line">⭐ <span data-avg-rating>—</span></p>
-                </article>
-
-                <article class="app-card" data-app="ripenos" data-app-id="ripenos">
-                    <img src="icons/ripenos.png" alt="Ripenos Icon">
-                    <h4>Ripenos</h4>
-                    <p class="card-desc">Lightweight web OS framework</p>
-                    <p class="rating-line">⭐ <span data-avg-rating>—</span></p>
-                </article>
-
-            </div>
-        </section>
+        </main>
 
         <!-- ================= CHANGELOG PAGE ================= -->
-        <section data-page="changelog" class="page-section">
-            <div class="page-header">
+        <main data-page="changelog" class="page">
+            <section class="page-header">
                 <h2>Changelog</h2>
-                <p>Track all updates and changes to the Sawfish App Store.</p>
-            </div>
+                <p>Track all the updates, improvements, and fixes made to the Sawfish App Store. This section documents the evolution of the application and helps users understand what's new in each version.</p>
+            </section>
 
-            <div class="changelog-meta">
-                <span class="meta-chip" id="app-version-chip">Version 1.0</span>
-                <span class="meta-chip" id="last-check-chip">Last check: —</span>
-            </div>
+            <section class="changelog-meta">
+                <div class="meta-card">
+                    <div class="meta-label">Current Version</div>
+                    <div class="meta-value" id="changelog-version">1.0.0</div>
+                </div>
+                <div class="meta-card">
+                    <div class="meta-label">Last Updated</div>
+                    <div class="meta-value" id="changelog-date">January 6, 2026</div>
+                </div>
+                <div class="meta-card">
+                    <div class="meta-label">Total Changes</div>
+                    <div class="meta-value">47</div>
+                </div>
+            </section>
 
-            <div class="app-card-grid mobile-two-col">
-
-                <article class="app-card changelog-card">
-                    <img src="icons/update.png" alt="Latest Update">
-                    <h4>Latest Update</h4>
-                    <p class="card-desc">New sidebar navigation, mobile layout improvements, detailed app views, Firebase ratings integration.</p>
+            <section class="changelog-timeline">
+                <article class="changelog-entry latest">
+                    <div class="entry-header">
+                        <div class="entry-version">v1.0.0</div>
+                        <div class="entry-date">January 6, 2026</div>
+                        <div class="entry-badge major">Major Release</div>
+                    </div>
+                    <div class="entry-content">
+                        <h4>New Features</h4>
+                        <ul>
+                            <li>Complete redesign with Apple App Store-inspired dark mode interface</li>
+                            <li>Added sidebar navigation with expandable/collapsible design</li>
+                            <li>Implemented Firestore integration for cross-platform ratings and reviews</li>
+                            <li>Created detailed expanded descriptions for all 18+ apps</li>
+                            <li>Added PWA installation detection and installation screen</li>
+                            <li>Implemented real-time rating updates using Firebase Firestore</li>
+                            <li>Added comprehensive rating and review submission system</li>
+                            <li>Created mobile-responsive 2-card wide layout for app grid</li>
+                            <li>Added OS preview functionality with iframe overlays</li>
+                            <li>Implemented category filtering for games section</li>
+                            <li>Added welcome modal with important app guidelines</li>
+                            <li>Created featured apps section with highlighted content</li>
+                        </ul>
+                        <h4>Improvements</h4>
+                        <ul>
+                            <li>Optimized performance for smoother animations and transitions</li>
+                            <li>Improved accessibility with proper ARIA labels and semantic HTML</li>
+                            <li>Enhanced mobile experience with touch-friendly interactions</li>
+                            <li>Better offline support with comprehensive service worker caching</li>
+                            <li>Improved visual hierarchy and information architecture</li>
+                            <li>Added loading states and skeleton screens for better UX</li>
+                            <li>Enhanced icon system with consistent SVG styling</li>
+                        </ul>
+                        <h4>Bug Fixes</h4>
+                        <ul>
+                            <li>Fixed issues with expanded view rendering in PWA mode</li>
+                            <li>Resolved duplicate App Store display problems in web preview</li>
+                            <li>Fixed rating display inconsistencies across different pages</li>
+                            <li>Resolved navigation issues when switching between tabs</li>
+                            <li>Fixed iframe loading issues in OS preview section</li>
+                            <li>Resolved mobile layout issues on various screen sizes</li>
+                        </ul>
+                    </div>
                 </article>
 
-                <article class="app-card changelog-card">
-                    <img src="icons/history.png" alt="Previous Changes">
-                    <h4>Previous Changes</h4>
-                    <p class="card-desc">Initial release, PWA support, basic app store functionality, installation screens.</p>
+                <article class="changelog-entry">
+                    <div class="entry-header">
+                        <div class="entry-version">v0.9.0</div>
+                        <div class="entry-date">December 16, 2025</div>
+                        <div class="entry-badge">Beta</div>
+                    </div>
+                    <div class="entry-content">
+                        <h4>Initial Release</h4>
+                        <ul>
+                            <li>Launched Sawfish App Store with basic PWA functionality</li>
+                            <li>Added installation detection and screen</li>
+                            <li>Implemented tab-based navigation (Home, Games, Social, OS)</li>
+                            <li>Added 18+ apps with basic card displays</li>
+                            <li>Implemented service worker for offline caching</li>
+                            <li>Added manifest.json for PWA installability</li>
+                            <li>Created initial dark theme styling</li>
+                        </ul>
+                    </div>
                 </article>
-
-            </div>
-        </section>
-
+            </section>
+        </main>
     </main>
 
-</section>
-
-<!-- ==========================================================
-     EXPANDED APP DETAIL VIEWS
-     All detailed views written directly in HTML
-=========================================================== -->
-
-<!-- ==========================================================
-     HACK STUFF - EXPANDED VIEW
-=========================================================== -->
-<article class="expanded-app-detail" data-expanded-app="hack" hidden>
-    <header class="expanded-header">
-        <img src="icons/hack.png" alt="Hack Stuff Logo" class="expanded-logo">
-        <div class="expanded-title-area">
-            <h2>Hack Stuff</h2>
-            <p class="expanded-developer">By Sawfish Developer Group</p>
-        </div>
-    </header>
-
-    <section class="expanded-screenshots">
-        <div class="screenshot-grid">
-            <div class="screenshot-item">
-                <img src="icons/hack.png" alt="Hack Stuff Interface 1">
+    <!-- ================= EXPANDED APP DETAILS OVERLAY ================= -->
+    <div id="expanded-overlay" class="expanded-overlay hidden" aria-hidden="true">
+        <div class="expanded-backdrop"></div>
+        <div class="expanded-container">
+            <div class="expanded-header-bar">
+                <button class="expanded-close-btn" aria-label="Close expanded view">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="expanded-content-wrapper" id="expanded-content-wrapper">
+                <!-- Expanded content will be injected here -->
             </div>
-            <div class="screenshot-item">
-                <img src="icons/hack.png" alt="Hack Stuff Interface 2">
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-ratings-section">
-        <div class="ratings-summary">
-            <div class="rating-big">
-                <span class="rating-number" data-avg-rating>—</span>
-                <span class="rating-stars">⭐</span>
-            </div>
-            <div class="rating-details">
-                <p class="total-reviews">Total Reviews: <span data-review-count>0</span></p>
-                <div class="rating-bars">
-                    <div class="rating-bar-row">
-                        <span class="star-label">5 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-5></div></div>
-                        <span class="rating-count" data-count-5>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">4 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-4></div></div>
-                        <span class="rating-count" data-count-4>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">3 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-3></div></div>
-                        <span class="rating-count" data-count-3>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">2 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-2></div></div>
-                        <span class="rating-count" data-count-2>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">1 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-1></div></div>
-                        <span class="rating-count" data-count-1>0</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-description">
-        <h3>About This App</h3>
-        <p>
-            Hack Stuff represents a collection of advanced utilities and experimental tools designed specifically for students 
-            who are interested in understanding how technology works at a deeper level. This application provides access to 
-            low-level system information, debugging interfaces, and various experimental features that are typically not 
-            available in standard consumer applications. The tools included range from network diagnostic utilities to system 
-            information viewers, file format analyzers, and even some sandboxed experiments that allow users to explore 
-            programming concepts in a safe environment. The primary goal of Hack Stuff is educational. It aims to provide 
-            a learning platform for students who want to develop technical skills, understand computer systems better, 
-            and explore the boundaries of what's possible with web technologies. The tools are carefully curated to ensure 
-            they remain educational while avoiding any potentially harmful functionality. All experiments run in sandboxed 
-            environments that prevent accidental system damage or data loss.
-        </p>
-        <p>
-            Access to certain advanced features may be limited based on device restrictions or school network policies. 
-            This is intentional and helps maintain a safe computing environment while still providing valuable learning 
-            opportunities. Some features require elevated permissions that may not be available on managed school devices, 
-            but even without these, there are plenty of tools that provide insight into how computers and networks function. 
-            The Sawfish Developer Group has worked carefully to ensure that even the most advanced tools available through 
-            Hack Stuff remain safe for use in educational settings, with multiple layers of protection against misuse.
-        </p>
-        <p>
-            It's important to note that misuse of these tools may violate school policies or acceptable use agreements. 
-            The tools are provided with the expectation that users will use them responsibly for learning and educational 
-            purposes only. Users should familiarize themselves with their school's technology policies before using 
-            advanced features. The Sawfish Developer Group does not condone any use of these tools that violates laws, 
-            regulations, or institutional policies. The educational value comes from understanding how systems work, 
-            not from attempting to bypass security measures or access restricted resources.
-        </p>
-        <p>
-            Each tool within Hack Stuff includes documentation and guidance on how to use it effectively for learning. 
-            The interface presents information in a clear, accessible manner that helps demystify complex technical 
-            concepts. Whether you're interested in learning about network protocols, exploring how files are structured, 
-            or understanding the principles behind encryption, Hack Stuff provides a safe and controlled environment 
-            for experimentation. Regular updates add new tools and expand existing ones based on user feedback and 
-            emerging educational needs.
-        </p>
-    </section>
-
-    <section class="expanded-actions">
-        <a href="https://the-sawfish.github.io/hack/" target="_blank" class="visit-link">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                <polyline points="15 3 21 3 21 9"></polyline>
-                <line x1="10" y1="14" x2="21" y2="3"></line>
-            </svg>
-            Visit Hack Stuff
-        </a>
-        <button class="preview-btn" data-iframe="hack">Open Preview</button>
-    </section>
-
-    <section class="expanded-comments-section">
-        <h3>User Reviews & Comments</h3>
-        
-        <div class="comments-display" id="comments-hack">
-            <p class="loading-comments">Loading reviews...</p>
-        </div>
-
-        <form class="comment-form" data-app-form="hack">
-            <h4>Submit Your Review</h4>
-            <div class="form-rating">
-                <label>Your Rating:</label>
-                <div class="star-rating-input">
-                    <input type="radio" name="rating-hack" value="5" id="hack-star-5"><label for="hack-star-5">★</label>
-                    <input type="radio" name="rating-hack" value="4" id="hack-star-4"><label for="hack-star-4">★</label>
-                    <input type="radio" name="rating-hack" value="3" id="hack-star-3"><label for="hack-star-3">★</label>
-                    <input type="radio" name="rating-hack" value="2" id="hack-star-2"><label for="hack-star-2">★</label>
-                    <input type="radio" name="rating-hack" value="1" id="hack-star-1"><label for="hack-star-1">★</label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="comment-hack">Your Review:</label>
-                <textarea id="comment-hack" placeholder="Share your experience with Hack Stuff..." required></textarea>
-            </div>
-            <button type="submit" class="submit-review-btn">Submit Review</button>
-        </form>
-    </section>
-</article>
-
-<!-- ==========================================================
-     SAWFISH GAME PORTAL - EXPANDED VIEW
-=========================================================== -->
-<article class="expanded-app-detail" data-expanded-app="portal" hidden>
-    <header class="expanded-header">
-        <img src="icons/game-portal.png" alt="Sawfish Game Portal Logo" class="expanded-logo">
-        <div class="expanded-title-area">
-            <h2>Sawfish Game Portal</h2>
-            <p class="expanded-developer">By Sawfish Developer Group</p>
-        </div>
-    </header>
-
-    <section class="expanded-screenshots">
-        <div class="screenshot-grid">
-            <div class="screenshot-item">
-                <img src="icons/game-portal.png" alt="Game Portal Interface 1">
-            </div>
-            <div class="screenshot-item">
-                <img src="icons/game-portal.png" alt="Game Portal Interface 2">
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-ratings-section">
-        <div class="ratings-summary">
-            <div class="rating-big">
-                <span class="rating-number" data-avg-rating>—</span>
-                <span class="rating-stars">⭐</span>
-            </div>
-            <div class="rating-details">
-                <p class="total-reviews">Total Reviews: <span data-review-count>0</span></p>
-                <div class="rating-bars">
-                    <div class="rating-bar-row">
-                        <span class="star-label">5 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-5></div></div>
-                        <span class="rating-count" data-count-5>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">4 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-4></div></div>
-                        <span class="rating-count" data-count-4>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">3 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-3></div></div>
-                        <span class="rating-count" data-count-3>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">2 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-2></div></div>
-                        <span class="rating-count" data-count-2>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">1 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-1></div></div>
-                        <span class="rating-count" data-count-1>0</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-description">
-        <h3>About This App</h3>
-        <p>
-            The Sawfish Game Portal represents the central hub for all games within the Sawfish ecosystem, providing a unified 
-            and organized interface for students to access their favorite browser-based games without needing to manage dozens 
-            of individual bookmarks or remember multiple URLs. Rather than searching through browser history or maintaining 
-            long lists of favorites, students can access everything from one clean, well-organized portal that groups games 
-            by category, popularity, and recommended age appropriateness. This portal serves as more than just a collection 
-            of links. It includes game previews, screenshots, descriptions, and user ratings for each title, helping students 
-            discover new games they might enjoy. The interface is designed to be fast and responsive, even on slower school 
-            networks, and works seamlessly on both desktop and mobile devices. Each game launches directly within an 
-            integrated preview window when possible, or opens in a new tab with the appropriate settings for the best experience.
-        </p>
-        <p>
-            All games available through the Sawfish Game Portal have undergone a thorough review process to ensure they meet 
-            strict standards for school appropriateness. This means they are free from excessive violence, inappropriate 
-            content, excessive advertising, and features that might be distracting during class time. The selection is curated 
-            to include games that are both entertaining and educationally beneficial, including puzzle games that develop 
-            problem-solving skills, strategy games that encourage planning and critical thinking, and multiplayer games that 
-            promote social interaction in a controlled environment. The review process considers not just the game content 
-            itself, but also the network and performance requirements to ensure games remain playable on school devices.
-        </p>
-        <p>
-            The portal is continuously updated with new games as they are reviewed and approved. Suggestions for games to 
-            include are welcome from the student community, and there is a submission process for developers who want their 
-            games considered for inclusion. Each submission goes through the same rigorous review process to ensure quality 
-            and appropriateness. The Sawfish Developer Group maintains final editorial control over which games are included 
-            in the portal, balancing community requests with the need to maintain a safe and productive learning environment.
-        </p>
-        <p>
-            User ratings and reviews play an important role in the Game Portal ecosystem. Students can rate games they've 
-            played and leave reviews that help other students discover quality games. The rating system uses a weighted 
-            average to ensure that recent reviews and reviews from verified users carry appropriate influence. This creates 
-            a community-driven quality control system that complements the editorial review process, helping to surface the 
-            best games while providing feedback to developers about what students enjoy most.
-        </p>
-    </section>
-
-    <section class="expanded-actions">
-        <a href="https://the-sawfish.github.io/game-portal/" target="_blank" class="visit-link">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                <polyline points="15 3 21 3 21 9"></polyline>
-                <line x1="10" y1="14" x2="21" y2="3"></line>
-            </svg>
-            Visit Sawfish Game Portal
-        </a>
-        <button class="preview-btn" data-iframe="portal">Open Preview</button>
-    </section>
-
-    <section class="expanded-comments-section">
-        <h3>User Reviews & Comments</h3>
-        
-        <div class="comments-display" id="comments-portal">
-            <p class="loading-comments">Loading reviews...</p>
-        </div>
-
-        <form class="comment-form" data-app-form="portal">
-            <h4>Submit Your Review</h4>
-            <div class="form-rating">
-                <label>Your Rating:</label>
-                <div class="star-rating-input">
-                    <input type="radio" name="rating-portal" value="5" id="portal-star-5"><label for="portal-star-5">★</label>
-                    <input type="radio" name="rating-portal" value="4" id="portal-star-4"><label for="portal-star-4">★</label>
-                    <input type="radio" name="rating-portal" value="3" id="portal-star-3"><label for="portal-star-3">★</label>
-                    <input type="radio" name="rating-portal" value="2" id="portal-star-2"><label for="portal-star-2">★</label>
-                    <input type="radio" name="rating-portal" value="1" id="portal-star-1"><label for="portal-star-1">★</label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="comment-portal">Your Review:</label>
-                <textarea id="comment-portal" placeholder="Share your experience with Sawfish Game Portal..." required></textarea>
-            </div>
-            <button type="submit" class="submit-review-btn">Submit Review</button>
-        </form>
-    </section>
-</article>
-
-<!-- ==========================================================
-     CHAT APP - EXPANDED VIEW
-=========================================================== -->
-<article class="expanded-app-detail" data-expanded-app="chat" hidden>
-    <header class="expanded-header">
-        <img src="icons/chat.png" alt="Chat App Logo" class="expanded-logo">
-        <div class="expanded-title-area">
-            <h2>Chat App</h2>
-            <p class="expanded-developer">By Jimeneutron</p>
-        </div>
-    </header>
-
-    <section class="expanded-screenshots">
-        <div class="screenshot-grid">
-            <div class="screenshot-item">
-                <img src="icons/chat.png" alt="Chat App Interface 1">
-            </div>
-            <div class="screenshot-item">
-                <img src="icons/chat.png" alt="Chat App Interface 2">
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-ratings-section">
-        <div class="ratings-summary">
-            <div class="rating-big">
-                <span class="rating-number" data-avg-rating>—</span>
-                <span class="rating-stars">⭐</span>
-            </div>
-            <div class="rating-details">
-                <p class="total-reviews">Total Reviews: <span data-review-count>0</span></p>
-                <div class="rating-bars">
-                    <div class="rating-bar-row">
-                        <span class="star-label">5 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-5></div></div>
-                        <span class="rating-count" data-count-5>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">4 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-4></div></div>
-                        <span class="rating-count" data-count-4>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">3 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-3></div></div>
-                        <span class="rating-count" data-count-3>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">2 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-2></div></div>
-                        <span class="rating-count" data-count-2>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">1 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-1></div></div>
-                        <span class="rating-count" data-count-1>0</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-description">
-        <h3>About This App</h3>
-        <p>
-            The Chat App is a real-time messaging platform designed specifically for students to communicate with each other 
-            within a school-appropriate environment. Built with simplicity and reliability in mind, this application provides 
-            a clean, minimal interface that focuses on what matters most: getting messages delivered quickly and reliably 
-            without unnecessary distractions or complications. The interface follows familiar chat conventions while 
-            maintaining a distinctly modern and responsive design that works well on touch screens, trackpads, and mice. 
-            Messages are delivered instantly through efficient real-time synchronization, ensuring that conversations feel 
-            natural and responsive. The application supports organized communication through rooms or channels, allowing 
-            users to separate discussions by topic, class, project, or any other organizational scheme that makes sense for 
-            their community. This channel-based organization helps reduce noise and keeps relevant conversations focused, 
-            making it easier to find important messages in busy group settings.
-        </p>
-        <p>
-            Designed from the ground up to work well on managed school networks, the Chat App has been optimized to function 
-            reliably even in environments with strict firewalls, proxy servers, and content filtering systems. The developers 
-            have worked to ensure that the application uses standard web protocols and ports that are typically allowed through 
-            school network policies, maximizing the chance that students can use the application regardless of their school's 
-            technology infrastructure. Connection reliability is a top priority, with intelligent reconnection logic that 
-            automatically restores communication if the network connection is temporarily lost.
-        </p>
-        <p>
-            Privacy and safety are built into the core design of the application. The Chat App includes features that help 
-            maintain a positive communication environment, including moderation tools for designated administrators, reporting 
-            mechanisms for inappropriate content, and safeguards against spam and abuse. While the application is designed 
-            to be lightweight and fast, it does not compromise on security, using modern encryption standards to protect 
-            messages during transmission. The application does not require extensive personal information to get started, 
-            respecting student privacy while still providing a complete chat experience. Users can create accounts with 
-            just a username, keeping personal information separate from their communication identity.
-        </p>
-        <p>
-            The application includes thoughtful features that enhance the chat experience without complicating it. Users can 
-            see when other users are online, get delivery confirmations for their messages, and receive notifications for 
-            mentions or direct messages. File sharing capabilities allow students to collaborate on projects by sharing 
-            documents and images within the chat environment. The interface is fully accessible, with support for screen 
-            readers and keyboard navigation, ensuring that all students can participate fully regardless of their abilities 
-            or assistive technology needs.
-        </p>
-    </section>
-
-    <section class="expanded-actions">
-        <a href="https://jimeneutron.github.io/chatapp/" target="_blank" class="visit-link">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                <polyline points="15 3 21 3 21 9"></polyline>
-                <line x1="10" y1="14" x2="21" y2="3"></line>
-            </svg>
-            Visit Chat App
-        </a>
-        <button class="preview-btn" data-iframe="chat">Open Preview</button>
-    </section>
-
-    <section class="expanded-comments-section">
-        <h3>User Reviews & Comments</h3>
-        
-        <div class="comments-display" id="comments-chat">
-            <p class="loading-comments">Loading reviews...</p>
-        </div>
-
-        <form class="comment-form" data-app-form="chat">
-            <h4>Submit Your Review</h4>
-            <div class="form-rating">
-                <label>Your Rating:</label>
-                <div class="star-rating-input">
-                    <input type="radio" name="rating-chat" value="5" id="chat-star-5"><label for="chat-star-5">★</label>
-                    <input type="radio" name="rating-chat" value="4" id="chat-star-4"><label for="chat-star-4">★</label>
-                    <input type="radio" name="rating-chat" value="3" id="chat-star-3"><label for="chat-star-3">★</label>
-                    <input type="radio" name="rating-chat" value="2" id="chat-star-2"><label for="chat-star-2">★</label>
-                    <input type="radio" name="rating-chat" value="1" id="chat-star-1"><label for="chat-star-1">★</label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="comment-chat">Your Review:</label>
-                <textarea id="comment-chat" placeholder="Share your experience with Chat App..." required></textarea>
-            </div>
-            <button type="submit" class="submit-review-btn">Submit Review</button>
-        </form>
-    </section>
-</article>
-
-<!-- ==========================================================
-     CALL APP - EXPANDED VIEW
-=========================================================== -->
-<article class="expanded-app-detail" data-expanded-app="call" hidden>
-    <header class="expanded-header">
-        <img src="icons/call.png" alt="Call App Logo" class="expanded-logo">
-        <div class="expanded-title-area">
-            <h2>Call App</h2>
-            <p class="expanded-developer">By Sawfish Developer Group</p>
-        </div>
-    </header>
-
-    <section class="expanded-screenshots">
-        <div class="screenshot-grid">
-            <div class="screenshot-item">
-                <img src="icons/call.png" alt="Call App Interface 1">
-            </div>
-            <div class="screenshot-item">
-                <img src="icons/call.png" alt="Call App Interface 2">
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-ratings-section">
-        <div class="ratings-summary">
-            <div class="rating-big">
-                <span class="rating-number" data-avg-rating>—</span>
-                <span class="rating-stars">⭐</span>
-            </div>
-            <div class="rating-details">
-                <p class="total-reviews">Total Reviews: <span data-review-count>0</span></p>
-                <div class="rating-bars">
-                    <div class="rating-bar-row">
-                        <span class="star-label">5 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-5></div></div>
-                        <span class="rating-count" data-count-5>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">4 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-4></div></div>
-                        <span class="rating-count" data-count-4>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">3 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-3></div></div>
-                        <span class="rating-count" data-count-3>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">2 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-2></div></div>
-                        <span class="rating-count" data-count-2>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">1 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-1></div></div>
-                        <span class="rating-count" data-count-1>0</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-description">
-        <h3>About This App</h3>
-        <p>
-            The Call App provides a fast and minimal interface for initiating voice calls directly through the web browser, 
-            enabling students to communicate with each other using voice without needing to install any additional software 
-            or deal with complex setup processes. The application is designed with simplicity as its core principle, 
-            presenting users with nothing more than the essential controls needed to make and receive calls quickly and 
-            efficiently. This makes it particularly well-suited for the quick communication needs that arise during school 
-            days, where time is often limited and users need to connect with classmates rapidly. The technical implementation 
-            uses modern web technologies to establish peer-to-peer voice connections between users, minimizing latency and 
-            providing high-quality audio while reducing the load on central servers.
-        </p>
-        <p>
-            The application works reliably on managed school networks that might otherwise interfere with more complex 
-            communication protocols, thanks to careful engineering to work within common network constraints and firewall 
-            configurations. This means that students can use the Call App to quickly connect with classmates even on 
-            networks that block many other communication tools. The peer-to-peer architecture also means that call quality 
-            is often better than server-based alternatives, as the audio doesn't need to be routed through intermediate 
-            servers that can introduce latency and potential points of failure.
-        </p>
-        <p>
-            Intended primarily for quick, efficient communication rather than extended calls, the Call App excels at 
-            situations where a brief voice conversation is more appropriate than typing out a lengthy message. This 
-            includes coordinating group projects, clarifying quick questions about assignments, or simply checking in 
-            with classmates about upcoming events or changes to plans. The application does not include video calling 
-            features, focusing instead on providing excellent voice quality and a reliable connection. This focused 
-            approach allows the application to be lighter weight and more reliable than comprehensive video calling 
-            solutions.
-        </p>
-        <p>
-            The user interface is deliberately minimal to reduce cognitive load and ensure that even first-time users 
-            can make calls without any learning curve. A simple dial pad or contact list allows users to initiate calls 
-            with just a few taps, and incoming calls are handled with a clean notification system that works even when 
-            the browser is in the background. The application includes basic call controls such as mute and end call 
-            functionality, but avoids the complexity of features that would be unnecessary for the app's intended use 
-            case. This design philosophy extends to the notification system, which provides clear audio and visual 
-            alerts without being intrusive or disruptive to others nearby.
-        </p>
-    </section>
-
-    <section class="expanded-actions">
-        <a href="https://the-sawfish.github.io/call-app/?from=sawfish" target="_blank" class="visit-link">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                <polyline points="15 3 21 3 21 9"></polyline>
-                <line x1="10" y1="14" x2="21" y2="3"></line>
-            </svg>
-            Visit Call App
-        </a>
-        <button class="preview-btn" data-iframe="call">Open Preview</button>
-    </section>
-
-    <section class="expanded-comments-section">
-        <h3>User Reviews & Comments</h3>
-        
-        <div class="comments-display" id="comments-call">
-            <p class="loading-comments">Loading reviews...</p>
-        </div>
-
-        <form class="comment-form" data-app-form="call">
-            <h4>Submit Your Review</h4>
-            <div class="form-rating">
-                <label>Your Rating:</label>
-                <div class="star-rating-input">
-                    <input type="radio" name="rating-call" value="5" id="call-star-5"><label for="call-star-5">★</label>
-                    <input type="radio" name="rating-call" value="4" id="call-star-4"><label for="call-star-4">★</label>
-                    <input type="radio" name="rating-call" value="3" id="call-star-3"><label for="call-star-3">★</label>
-                    <input type="radio" name="rating-call" value="2" id="call-star-2"><label for="call-star-2">★</label>
-                    <input type="radio" name="rating-call" value="1" id="call-star-1"><label for="call-star-1">★</label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="comment-call">Your Review:</label>
-                <textarea id="comment-call" placeholder="Share your experience with Call App..." required></textarea>
-            </div>
-            <button type="submit" class="submit-review-btn">Submit Review</button>
-        </form>
-    </section>
-</article>
-
-<!-- ==========================================================
-     DRAW A CIRCLE - EXPANDED VIEW
-=========================================================== -->
-<article class="expanded-app-detail" data-expanded-app="circle" hidden>
-    <header class="expanded-header">
-        <img src="icons/circle.png" alt="Draw a Circle Logo" class="expanded-logo">
-        <div class="expanded-title-area">
-            <h2>Draw a Circle</h2>
-            <p class="expanded-developer">By Sawfish Developer Group</p>
-        </div>
-    </header>
-
-    <section class="expanded-screenshots">
-        <div class="screenshot-grid">
-            <div class="screenshot-item">
-                <img src="icons/circle.png" alt="Draw a Circle Interface 1">
-            </div>
-            <div class="screenshot-item">
-                <img src="icons/circle.png" alt="Draw a Circle Interface 2">
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-ratings-section">
-        <div class="ratings-summary">
-            <div class="rating-big">
-                <span class="rating-number" data-avg-rating>—</span>
-                <span class="rating-stars">⭐</span>
-            </div>
-            <div class="rating-details">
-                <p class="total-reviews">Total Reviews: <span data-review-count>0</span></p>
-                <div class="rating-bars">
-                    <div class="rating-bar-row">
-                        <span class="star-label">5 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-5></div></div>
-                        <span class="rating-count" data-count-5>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">4 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-4></div></div>
-                        <span class="rating-count" data-count-4>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">3 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-3></div></div>
-                        <span class="rating-count" data-count-3>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">2 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-2></div></div>
-                        <span class="rating-count" data-count-2>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">1 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-1></div></div>
-                        <span class="rating-count" data-count-1>0</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-description">
-        <h3>About This App</h3>
-        <p>
-            Draw a Circle is a deceptively simple yet compelling challenge that tests your hand-eye coordination and 
-            drawing precision in a unique way. The concept is straightforward: you must draw a circle on the screen 
-            using only your finger or mouse, without any assistance or guidance lines. The closer your drawing is to 
-            a perfect circle, the higher your score. What seems like an easy task becomes surprisingly challenging 
-            when you realize how difficult it is to draw a truly circular shape without visual feedback during the 
-            drawing process. The game employs sophisticated mathematical algorithms to analyze your drawing and 
-            calculate how close it is to a perfect circle, considering multiple factors including circularity, 
-            consistency of radius throughout the drawing, and overall shape perfection.
-        </p>
-        <p>
-            This game is particularly well-suited for quick sessions during breaks or between classes, as each round 
-            takes only seconds to complete. The lack of time pressure allows players to focus entirely on the precision 
-            of their drawing, making it a calming yet engaging experience. The simple nature of the game means it loads 
-            almost instantly and works reliably on any device with a web browser, making it accessible in almost any 
-            situation. The result is a precise score that reflects your drawing accuracy, allowing you to compete 
-            against yourself for better scores or challenge friends and classmates to see who can draw the most 
-            perfect circle.
-        </p>
-        <p>
-            When installed as a Progressive Web App, Draw a Circle provides an even better experience with full-screen 
-            drawing that removes browser chrome and distractions. This PWA mode is highly recommended for the best 
-            drawing experience, as it allows for more precise input and a more immersive feel. The game tracks your 
-            best scores locally, allowing you to see improvement over time as you develop better control and precision 
-            in your drawings. The score tracking system allows you to see your progress over days, weeks, and months, 
-            providing long-term motivation to improve your drawing skills.
-        </p>
-        <p>
-            The game includes various difficulty modes and challenges that add variety to the experience. Advanced 
-            players can attempt to draw circles with their non-dominant hand, or compete against friends in head-to-head 
-            challenges to see who can achieve the highest accuracy score. The game's simple premise belies a deep 
-            well of competitive potential, as even small improvements in accuracy feel meaningful and worth pursuing. 
-            This combination of simplicity and depth makes Draw a Circle a game that can be enjoyed casually or 
-            taken seriously by those seeking to master the art of the perfect circle.
-        </p>
-    </section>
-
-    <section class="expanded-actions">
-        <a href="https://the-sawfish.github.io/circle/" target="_blank" class="visit-link">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                <polyline points="15 3 21 3 21 9"></polyline>
-                <line x1="10" y1="14" x2="21" y2="3"></line>
-            </svg>
-            Play Draw a Circle
-        </a>
-        <button class="preview-btn" data-iframe="circle">Open Preview</button>
-    </section>
-
-    <section class="expanded-comments-section">
-        <h3>User Reviews & Comments</h3>
-        
-        <div class="comments-display" id="comments-circle">
-            <p class="loading-comments">Loading reviews...</p>
-        </div>
-
-        <form class="comment-form" data-app-form="circle">
-            <h4>Submit Your Review</h4>
-            <div class="form-rating">
-                <label>Your Rating:</label>
-                <div class="star-rating-input">
-                    <input type="radio" name="rating-circle" value="5" id="circle-star-5"><label for="circle-star-5">★</label>
-                    <input type="radio" name="rating-circle" value="4" id="circle-star-4"><label for="circle-star-4">★</label>
-                    <input type="radio" name="rating-circle" value="3" id="circle-star-3"><label for="circle-star-3">★</label>
-                    <input type="radio" name="rating-circle" value="2" id="circle-star-2"><label for="circle-star-2">★</label>
-                    <input type="radio" name="rating-circle" value="1" id="circle-star-1"><label for="circle-star-1">★</label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="comment-circle">Your Review:</label>
-                <textarea id="comment-circle" placeholder="Share your experience with Draw a Circle..." required></textarea>
-            </div>
-            <button type="submit" class="submit-review-btn">Submit Review</button>
-        </form>
-    </section>
-</article>
-
-<!-- ==========================================================
-     2048 - EXPANDED VIEW
-=========================================================== -->
-<article class="expanded-app-detail" data-expanded-app="2048" hidden>
-    <header class="expanded-header">
-        <img src="icons/2048.png" alt="2048 Logo" class="expanded-logo">
-        <div class="expanded-title-area">
-            <h2>2048</h2>
-            <p class="expanded-developer">By Sawfish Developer Group</p>
-        </div>
-    </header>
-
-    <section class="expanded-screenshots">
-        <div class="screenshot-grid">
-            <div class="screenshot-item">
-                <img src="icons/2048.png" alt="2048 Interface 1">
-            </div>
-            <div class="screenshot-item">
-                <img src="icons/2048.png" alt="2048 Interface 2">
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-ratings-section">
-        <div class="ratings-summary">
-            <div class="rating-big">
-                <span class="rating-number" data-avg-rating>—</span>
-                <span class="rating-stars">⭐</span>
-            </div>
-            <div class="rating-details">
-                <p class="total-reviews">Total Reviews: <span data-review-count>0</span></p>
-                <div class="rating-bars">
-                    <div class="rating-bar-row">
-                        <span class="star-label">5 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-5></div></div>
-                        <span class="rating-count" data-count-5>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">4 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-4></div></div>
-                        <span class="rating-count" data-count-4>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">3 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-3></div></div>
-                        <span class="rating-count" data-count-3>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">2 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-2></div></div>
-                        <span class="rating-count" data-count-2>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">1 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-1></div></div>
-                        <span class="rating-count" data-count-1>0</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-description">
-        <h3>About This App</h3>
-        <p>
-            2048 is a classic sliding tile puzzle game that has captivated millions of players worldwide with its elegant 
-            simplicity and deceptive depth. The game presents a 4x4 grid filled with numbered tiles, and the player's 
-            goal is to slide these tiles in four directions to merge matching numbers. When two tiles with the same 
-            number collide, they combine into a single tile with double the value. The ultimate objective is to create 
-            a tile with the value 2048, though many players continue playing to achieve even higher numbers. The 
-            strategic depth of 2048 comes from the need to plan several moves ahead while managing the limited space 
-            on the grid, with every move affecting the entire board in ways that require careful consideration.
-        </p>
-        <p>
-            The game rewards patient, systematic play and the ability to visualize how the board will change after 
-            each move. It's an excellent way to develop and practice strategic thinking skills while enjoying a 
-            relaxing puzzle experience. Each decision has consequences that ripple through subsequent moves, 
-            teaching players to think about the long-term implications of their choices rather than focusing 
-            only on immediate gratification. This makes 2048 not just a game, but a tool for developing 
-            analytical thinking and planning skills that can transfer to academic and professional contexts.
-        </p>
-        <p>
-            This version of 2048 has been specifically optimized for school devices and touch input, ensuring smooth 
-            performance even on older hardware or underpowered tablets commonly found in educational settings. The 
-            controls have been refined for touch swipe gestures, making it easy to play with a finger rather than 
-            requiring precise mouse movements. The visual design maintains the clean, minimalist aesthetic of the 
-            original game while incorporating modern design elements that fit seamlessly with the Sawfish App Store 
-            aesthetic. Color schemes and animations have been carefully tuned to be visually appealing without 
-            being distracting or attention-grabbing.
-        </p>
-        <p>
-            The game includes local score tracking so you can compete against yourself for higher scores, though progress 
-            is stored locally on your device and does not sync across different browsers or devices. This approach 
-            ensures that the game remains functional even in environments with limited network connectivity while 
-            still providing the satisfaction of tracking improvement over time. The familiar tile colors and smooth 
-            animations make each move satisfying, and the game is designed to be quick to start and easy to pause, 
-            fitting well into the rhythms of school life. High score tracking encourages players to improve their 
-            strategies and achieve better results with continued play.
-        </p>
-    </section>
-
-    <section class="expanded-actions">
-        <a href="https://the-sawfish.github.io/2048/" target="_blank" class="visit-link">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                <polyline points="15 3 21 3 21 9"></polyline>
-                <line x1="10" y1="14" x2="21" y2="3"></line>
-            </svg>
-            Play 2048
-        </a>
-        <button class="preview-btn" data-iframe="2048">Open Preview</button>
-    </section>
-
-    <section class="expanded-comments-section">
-        <h3>User Reviews & Comments</h3>
-        
-        <div class="comments-display" id="comments-2048">
-            <p class="loading-comments">Loading reviews...</p>
-        </div>
-
-        <form class="comment-form" data-app-form="2048">
-            <h4>Submit Your Review</h4>
-            <div class="form-rating">
-                <label>Your Rating:</label>
-                <div class="star-rating-input">
-                    <input type="radio" name="rating-2048" value="5" id="2048-star-5"><label for="2048-star-5">★</label>
-                    <input type="radio" name="rating-2048" value="4" id="2048-star-4"><label for="2048-star-4">★</label>
-                    <input type="radio" name="rating-2048" value="3" id="2048-star-3"><label for="2048-star-3">★</label>
-                    <input type="radio" name="rating-2048" value="2" id="2048-star-2"><label for="2048-star-2">★</label>
-                    <input type="radio" name="rating-2048" value="1" id="2048-star-1"><label for="2048-star-1">★</label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="comment-2048">Your Review:</label>
-                <textarea id="comment-2048" placeholder="Share your experience with 2048..." required></textarea>
-            </div>
-            <button type="submit" class="submit-review-btn">Submit Review</button>
-        </form>
-    </section>
-</article>
-
-<!-- ==========================================================
-     MINECRAFT WEB (BETA) - EXPANDED VIEW
-=========================================================== -->
-<article class="expanded-app-detail" data-expanded-app="minecraft" hidden>
-    <header class="expanded-header">
-        <img src="icons/minecraft.png" alt="Minecraft Web Logo" class="expanded-logo">
-        <div class="expanded-title-area">
-            <h2>Minecraft Web (Beta)</h2>
-            <p class="expanded-developer">By Zardoy</p>
-        </div>
-    </header>
-
-    <section class="expanded-screenshots">
-        <div class="screenshot-grid">
-            <div class="screenshot-item">
-                <img src="icons/minecraft.png" alt="Minecraft Web Interface 1">
-            </div>
-            <div class="screenshot-item">
-                <img src="icons/minecraft.png" alt="Minecraft Web Interface 2">
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-ratings-section">
-        <div class="ratings-summary">
-            <div class="rating-big">
-                <span class="rating-number" data-avg-rating>—</span>
-                <span class="rating-stars">⭐</span>
-            </div>
-            <div class="rating-details">
-                <p class="total-reviews">Total Reviews: <span data-review-count>0</span></p>
-                <div class="rating-bars">
-                    <div class="rating-bar-row">
-                        <span class="star-label">5 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-5></div></div>
-                        <span class="rating-count" data-count-5>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">4 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-4></div></div>
-                        <span class="rating-count" data-count-4>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">3 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-3></div></div>
-                        <span class="rating-count" data-count-3>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">2 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-2></div></div>
-                        <span class="rating-count" data-count-2>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">1 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-1></div></div>
-                        <span class="rating-count" data-count-1>0</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-description">
-        <h3>About This App</h3>
-        <p>
-            Minecraft Web (Beta) brings the beloved sandbox game experience directly to your web browser, allowing players 
-            to explore, build, and create in a blocky world without the need to download or install any additional software. 
-            This browser-based implementation captures the essence of Minecraft's creative and survival gameplay modes, 
-            translated into a format that runs on virtually any device with a modern web browser. The project represents 
-            an impressive technical achievement in web-based game development, utilizing advanced web technologies to 
-            render the familiar Minecraft world in real-time. Players can experience the joy of mining, crafting, and 
-            building in an immersive 3D environment directly from their browser.
-        </p>
-        <p>
-            This version of Minecraft focuses primarily on multiplayer gameplay, where players can join servers to 
-            collaborate with others, share their creations, and explore worlds together. Multiplayer servers are 
-            essential for the full crafting and gameplay experience, as the game is designed around the social 
-            interaction and collaboration that has made Minecraft so popular. When you launch the game, you'll 
-            typically have the option to join one of several available servers, each offering different experiences, 
-            rules, and communities. Server selection allows players to find communities that match their interests, 
-            whether they prefer creative building, survival challenges, or role-playing experiences.
-        </p>
-        <p class="warning-text">
-            <strong>Important Note Regarding Multiplayer:</strong> Multiplayer functionality relies on external servers 
-            and network connectivity. On some school networks with strict firewalls or content filtering, multiplayer 
-            features may not work properly. Additionally, server availability can vary, and some servers may be 
-            temporarily offline or at capacity. The developers are working to improve server reliability and expand 
-            the number of available servers, but please understand that multiplayer functionality depends on factors 
-            outside of the app's direct control. Network restrictions at school may prevent connection to servers, 
-            in which case the game may not be playable until you have access to a less restricted network.
-        </p>
-        <p>
-            <strong>Regarding Single Player Mode:</strong> Unlike the traditional Minecraft experience, this web-based 
-            version intentionally does not include a traditional single-player mode. The focus on multiplayer means 
-            that crafting, resource gathering, and building are all designed to be social experiences. This design 
-            decision was made to simplify the technical implementation while creating a more community-focused 
-            experience. For the best results, we recommend joining the official first server listed when launching 
-            the game, as this typically offers the most stable connection and the most active community. We'll see 
-            if we can get single-player mode working in future updates, but for now, the multiplayer experience 
-            is where the full game is available.
-        </p>
-        <p>
-            Performance can vary depending on your device capabilities and network connection. The game requires a 
-            relatively modern web browser and decent internet connectivity for the best experience. On older devices 
-            or slower connections, you may experience reduced visual quality, longer loading times, or occasional 
-            lag. The game is optimized to run as efficiently as possible in a browser environment, but there are 
-            inherent limitations compared to native applications. Graphics settings can be adjusted to improve 
-            performance on lower-powered devices, though this may reduce visual fidelity.
-        </p>
-    </section>
-
-    <section class="expanded-actions">
-        <a href="https://zardoy.github.io/minecraft-web-client/" target="_blank" class="visit-link">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                <polyline points="15 3 21 3 21 9"></polyline>
-                <line x1="10" y1="14" x2="21" y2="3"></line>
-            </svg>
-            Play Minecraft Web
-        </a>
-        <button class="preview-btn" data-iframe="minecraft">Open Preview</button>
-    </section>
-
-    <section class="expanded-comments-section">
-        <h3>User Reviews & Comments</h3>
-        
-        <div class="comments-display" id="comments-minecraft">
-            <p class="loading-comments">Loading reviews...</p>
-        </div>
-
-        <form class="comment-form" data-app-form="minecraft">
-            <h4>Submit Your Review</h4>
-            <div class="form-rating">
-                <label>Your Rating:</label>
-                <div class="star-rating-input">
-                    <input type="radio" name="rating-minecraft" value="5" id="minecraft-star-5"><label for="minecraft-star-5">★</label>
-                    <input type="radio" name="rating-minecraft" value="4" id="minecraft-star-4"><label for="minecraft-star-4">★</label>
-                    <input type="radio" name="rating-minecraft" value="3" id="minecraft-star-3"><label for="minecraft-star-3">★</label>
-                    <input type="radio" name="rating-minecraft" value="2" id="minecraft-star-2"><label for="minecraft-star-2">★</label>
-                    <input type="radio" name="rating-minecraft" value="1" id="minecraft-star-1"><label for="minecraft-star-1">★</label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="comment-minecraft">Your Review:</label>
-                <textarea id="comment-minecraft" placeholder="Share your experience with Minecraft Web..." required></textarea>
-            </div>
-            <button type="submit" class="submit-review-btn">Submit Review</button>
-        </form>
-    </section>
-</article>
-
-<!-- ==========================================================
-     BLOCK BLAST - EXPANDED VIEW
-=========================================================== -->
-<article class="expanded-app-detail" data-expanded-app="blockblast" hidden>
-    <header class="expanded-header">
-        <img src="icons/blockblast.png" alt="Block Blast Logo" class="expanded-logo">
-        <div class="expanded-title-area">
-            <h2>Block Blast</h2>
-            <p class="expanded-developer">By AAPPQQ</p>
-        </div>
-    </header>
-
-    <section class="expanded-screenshots">
-        <div class="screenshot-grid">
-            <div class="screenshot-item">
-                <img src="icons/blockblast.png" alt="Block Blast Interface 1">
-            </div>
-            <div class="screenshot-item">
-                <img src="icons/blockblast.png" alt="Block Blast Interface 2">
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-ratings-section">
-        <div class="ratings-summary">
-            <div class="rating-big">
-                <span class="rating-number" data-avg-rating>—</span>
-                <span class="rating-stars">⭐</span>
-            </div>
-            <div class="rating-details">
-                <p class="total-reviews">Total Reviews: <span data-review-count>0</span></p>
-                <div class="rating-bars">
-                    <div class="rating-bar-row">
-                        <span class="star-label">5 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-5></div></div>
-                        <span class="rating-count" data-count-5>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">4 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-4></div></div>
-                        <span class="rating-count" data-count-4>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">3 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-3></div></div>
-                        <span class="rating-count" data-count-3>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">2 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-2></div></div>
-                        <span class="rating-count" data-count-2>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">1 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-1></div></div>
-                        <span class="rating-count" data-count-1>0</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-description">
-        <h3>About This App</h3>
-        <p>
-            Block Blast is a fast-paced block placement puzzle game that challenges players to strategically fit various 
-            shaped blocks into a grid without running out of space. Similar in concept to classic block puzzle games, 
-            but with its own unique mechanics and presentation, Block Blast requires quick thinking and pattern recognition 
-            as blocks continuously appear and must be placed before time runs out or the grid fills up. The game is 
-            designed for short, intense sessions that are perfect for quick breaks between classes or during lunch, 
-            providing a satisfying puzzle experience that doesn't require a significant time commitment.
-        </p>
-        <p>
-            The core gameplay loop involves receiving random block shapes that must be placed somewhere on the grid. 
-            Each block can be rotated before placement, and players must consider not just where the block fits now, 
-            but how it affects future placement options. Completing full rows or columns clears those lines and frees 
-            up space, but the game becomes progressively more difficult as more blocks are placed. Strategic players 
-            learn to create gaps that can accommodate multiple future shapes rather than simply filling the first 
-            available space. This requires developing spatial reasoning skills and the ability to mentally rotate 
-            and arrange shapes before committing to a placement.
-        </p>
-        <p>
-            The game emphasizes quick thinking and adaptive strategy. Unlike slower puzzle games that allow unlimited 
-            time to consider moves, Block Blast creates pressure through continuous play. This makes it an excellent 
-            training ground for developing rapid decision-making skills and the ability to think several moves ahead 
-            under time constraints. The competitive scoring system, which rewards efficiency and long survival streaks, 
-            motivates players to improve their strategies and achieve higher scores with each attempt. High scores 
-            can be shared with friends, adding a social competitive element that encourages repeated play.
-        </p>
-        <p>
-            The visual presentation is clean and modern, with colorful block designs that make it easy to distinguish 
-            between different shapes at a glance. The interface is optimized for both mouse and touch input, ensuring 
-            that players can enjoy the same experience whether using a desktop computer or a tablet device. Smooth 
-            animations and satisfying sound effects accompany successful placements and line clears, providing 
-            positive feedback that makes the game enjoyable to play repeatedly. The color palette is designed to 
-            be visually appealing without being overly stimulating, making the game suitable for extended play 
-            sessions without causing eye strain or fatigue.
-        </p>
-    </section>
-
-    <section class="expanded-actions">
-        <a href="https://aappqq.github.io/BlockBlast/index.html" target="_blank" class="visit-link">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                <polyline points="15 3 21 3 21 9"></polyline>
-                <line x1="10" y1="14" x2="21" y2="3"></line>
-            </svg>
-            Play Block Blast
-        </a>
-        <button class="preview-btn" data-iframe="blockblast">Open Preview</button>
-    </section>
-
-    <section class="expanded-comments-section">
-        <h3>User Reviews & Comments</h3>
-        
-        <div class="comments-display" id="comments-blockblast">
-            <p class="loading-comments">Loading reviews...</p>
-        </div>
-
-        <form class="comment-form" data-app-form="blockblast">
-            <h4>Submit Your Review</h4>
-            <div class="form-rating">
-                <label>Your Rating:</label>
-                <div class="star-rating-input">
-                    <input type="radio" name="rating-blockblast" value="5" id="blockblast-star-5"><label for="blockblast-star-5">★</label>
-                    <input type="radio" name="rating-blockblast" value="4" id="blockblast-star-4"><label for="blockblast-star-4">★</label>
-                    <input type="radio" name="rating-blockblast" value="3" id="blockblast-star-3"><label for="blockblast-star-3">★</label>
-                    <input type="radio" name="rating-blockblast" value="2" id="blockblast-star-2"><label for="blockblast-star-2">★</label>
-                    <input type="radio" name="rating-blockblast" value="1" id="blockblast-star-1"><label for="blockblast-star-1">★</label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="comment-blockblast">Your Review:</label>
-                <textarea id="comment-blockblast" placeholder="Share your experience with Block Blast..." required></textarea>
-            </div>
-            <button type="submit" class="submit-review-btn">Submit Review</button>
-        </form>
-    </section>
-</article>
-
-<!-- ==========================================================
-     SANDBOXELS - EXPANDED VIEW
-=========================================================== -->
-<article class="expanded-app-detail" data-expanded-app="sandboxels" hidden>
-    <header class="expanded-header">
-        <img src="icons/sandboxels.png" alt="Sandboxels Logo" class="expanded-logo">
-        <div class="expanded-title-area">
-            <h2>Sandboxels</h2>
-            <p class="expanded-developer">By R74n</p>
-        </div>
-    </header>
-
-    <section class="expanded-screenshots">
-        <div class="screenshot-grid">
-            <div class="screenshot-item">
-                <img src="icons/sandboxels.png" alt="Sandboxels Interface 1">
-            </div>
-            <div class="screenshot-item">
-                <img src="icons/sandboxels.png" alt="Sandboxels Interface 2">
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-ratings-section">
-        <div class="ratings-summary">
-            <div class="rating-big">
-                <span class="rating-number" data-avg-rating>—</span>
-                <span class="rating-stars">⭐</span>
-            </div>
-            <div class="rating-details">
-                <p class="total-reviews">Total Reviews: <span data-review-count>0</span></p>
-                <div class="rating-bars">
-                    <div class="rating-bar-row">
-                        <span class="star-label">5 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-5></div></div>
-                        <span class="rating-count" data-count-5>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">4 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-4></div></div>
-                        <span class="rating-count" data-count-4>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">3 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-3></div></div>
-                        <span class="rating-count" data-count-3>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">2 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-2></div></div>
-                        <span class="rating-count" data-count-2>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">1 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-1></div></div>
-                        <span class="rating-count" data-count-1>0</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-description">
-        <h3>About This App</h3>
-        <p>
-            Sandboxels is an advanced physics-based falling sand simulator that allows users to experiment with hundreds 
-            of different elements, each behaving according to unique physical properties. At its core, this application 
-            is a digital playground where you can pour sand, spray water, ignite fires, grow plants, create electricity, 
-            and much more. The simulation runs in real-time, with each element interacting with others based on complex 
-            rules that approximate real-world physics, creating emergent behavior that is both educational and endlessly 
-            entertaining. Watching these elements interact with each other provides fascinating insights into how 
-            physical systems work, making complex scientific concepts tangible and accessible.
-        </p>
-        <p>
-            The simulator includes an impressive variety of elements organized into categories including basic materials 
-            like sand, water, stone, and metal, as well as more complex substances like fire, smoke, acid, lava, and 
-            various organic materials. Each element has been carefully programmed to behave in ways that reflect its 
-            real-world properties: sand falls and piles up, water flows and evaporates, fire spreads and burns fuel, 
-            plants grow and respond to their environment. This attention to physical accuracy means that users can 
-            experiment with realistic scenarios and observe outcomes that match their expectations based on real-world 
-            experience, building intuition for how different materials and systems behave.
-        </p>
-        <p>
-            Beyond being simply a toy, Sandboxels serves as an excellent educational tool for understanding cause-and-effect 
-            relationships and the principles of physics. Students can experiment with concepts like gravity, pressure, 
-            temperature, and chemical reactions in a safe, controlled environment. The visual nature of the simulation 
-            makes abstract concepts concrete and tangible, helping learners develop intuition for how different systems 
-            behave. Teachers have found the simulator useful for demonstrating physics concepts in engaging ways that 
-            capture student interest and provide memorable visual demonstrations of otherwise abstract ideas.
-        </p>
-        <p>
-            The application encourages creativity and experimentation. Users can build elaborate machines using basic 
-            elements, create art by manipulating materials in interesting ways, or just relax by watching complex 
-            simulations unfold. The sandbox nature of the experience means there are no goals or scores, just endless 
-            possibilities for exploration. Performance is significantly improved when the app is installed as a PWA 
-            for full-screen operation, and the app includes features for saving and sharing your creations with others 
-            in the community. Users can export their simulations as images or animated GIFs to share their creative 
-            work with friends and on social media.
-        </p>
-    </section>
-
-    <section class="expanded-actions">
-        <a href="https://the-sawfish.github.io/sandboxels/" target="_blank" class="visit-link">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                <polyline points="15 3 21 3 21 9"></polyline>
-                <line x1="10" y1="14" x2="21" y2="3"></line>
-            </svg>
-            Launch Sandboxels
-        </a>
-        <button class="preview-btn" data-iframe="sandboxels">Open Preview</button>
-    </section>
-
-    <section class="expanded-comments-section">
-        <h3>User Reviews & Comments</h3>
-        
-        <div class="comments-display" id="comments-sandboxels">
-            <p class="loading-comments">Loading reviews...</p>
-        </div>
-
-        <form class="comment-form" data-app-form="sandboxels">
-            <h4>Submit Your Review</h4>
-            <div class="form-rating">
-                <label>Your Rating:</label>
-                <div class="star-rating-input">
-                    <input type="radio" name="rating-sandboxels" value="5" id="sandboxels-star-5"><label for="sandboxels-star-5">★</label>
-                    <input type="radio" name="rating-sandboxels" value="4" id="sandboxels-star-4"><label for="sandboxels-star-4">★</label>
-                    <input type="radio" name="rating-sandboxels" value="3" id="sandboxels-star-3"><label for="sandboxels-star-3">★</label>
-                    <input type="radio" name="rating-sandboxels" value="2" id="sandboxels-star-2"><label for="sandboxels-star-2">★</label>
-                    <input type="radio" name="rating-sandboxels" value="1" id="sandboxels-star-1"><label for="sandboxels-star-1">★</label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="comment-sandboxels">Your Review:</label>
-                <textarea id="comment-sandboxels" placeholder="Share your experience with Sandboxels..." required></textarea>
-            </div>
-            <button type="submit" class="submit-review-btn">Submit Review</button>
-        </form>
-    </section>
-</article>
-
-<!-- ==========================================================
-     RUN 3 - EXPANDED VIEW
-=========================================================== -->
-<article class="expanded-app-detail" data-expanded-app="run3" hidden>
-    <header class="expanded-header">
-        <img src="icons/run3.png" alt="Run 3 Logo" class="expanded-logo">
-        <div class="expanded-title-area">
-            <h2>Run 3</h2>
-            <p class="expanded-developer">By Joseph Cloutier</p>
-        </div>
-    </header>
-
-    <section class="expanded-screenshots">
-        <div class="screenshot-grid">
-            <div class="screenshot-item">
-                <img src="icons/run3.png" alt="Run 3 Interface 1">
-            </div>
-            <div class="screenshot-item">
-                <img src="icons/run3.png" alt="Run 3 Interface 2">
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-ratings-section">
-        <div class="ratings-summary">
-            <div class="rating-big">
-                <span class="rating-number" data-avg-rating>—</span>
-                <span class="rating-stars">⭐</span>
-            </div>
-            <div class="rating-details">
-                <p class="total-reviews">Total Reviews: <span data-review-count>0</span></p>
-                <div class="rating-bars">
-                    <div class="rating-bar-row">
-                        <span class="star-label">5 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-5></div></div>
-                        <span class="rating-count" data-count-5>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">4 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-4></div></div>
-                        <span class="rating-count" data-count-4>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">3 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-3></div></div>
-                        <span class="rating-count" data-count-3>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">2 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-2></div></div>
-                        <span class="rating-count" data-count-2>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">1 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-1></div></div>
-                        <span class="rating-count" data-count-1>0</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-description">
-        <h3>About This App</h3>
-        <p>
-            Run 3 is an addictive endless runner platformer set in the unique environment of outer space, where players 
-            guide characters through procedurally generated tunnel systems that twist and turn in zero gravity. Unlike 
-            traditional runners that only move forward on a flat surface, Run 3 challenges players to navigate in all 
-            directions within cylindrical tunnels, with gravity shifting dynamically as the character runs around the 
-            inside and outside of the tunnel walls. This innovative mechanic creates a gameplay experience that is 
-            both familiar and refreshingly different, offering a unique challenge that keeps players engaged for 
-            hours as they perfect their tunnel-running skills.
-        </p>
-        <p>
-            The core gameplay involves running continuously while avoiding gaps, obstacles, and pits in the tunnel floor. 
-            Because the tunnel is circular and can be traversed from both the inside and outside, players must constantly 
-            adjust their position to find safe paths. Some sections require running on the interior of the tunnel, while 
-            others require switching to the exterior to avoid obstacles. The dynamic gravity means that falling doesn't 
-            necessarily mean game over if you can quickly find a solid surface to run on. This adds an extra layer of 
-            strategy to the game, as skilled players can recover from seemingly impossible situations.
-        </p>
-        <p>
-            The game features multiple characters to unlock and play with, each having slightly different characteristics 
-            that affect gameplay. There are also various power-ups and special abilities that can be collected to help 
-            navigate particularly difficult sections. The level design becomes progressively more challenging, introducing 
-            new obstacle types and more complex tunnel layouts as players advance. Special levels with unique goals provide 
-            additional variety beyond the standard endless mode, including time trials, obstacle courses, and challenge 
-            levels that test specific skills.
-        </p>
-        <p>
-            Progress is saved locally on your device, allowing you to continue from where you left off and track your 
-            improvement over time. The game includes an achievements system that rewards players for reaching specific 
-            milestones and completing challenges. With its smooth controls, engaging gameplay loop, and procedurally 
-            generated levels, Run 3 provides endless entertainment for players who enjoy reflex-based challenges that 
-            reward practice and mastery. The simple one-button control scheme makes the game accessible to players 
-            of all skill levels, while the depth of skill ceiling ensures that even experienced players continue 
-            to find new challenges and improvements in their gameplay.
-        </p>
-    </section>
-
-    <section class="expanded-actions">
-        <a href="https://the-sawfish.github.io/Run3Final/" target="_blank" class="visit-link">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                <polyline points="15 3 21 3 21 9"></polyline>
-                <line x1="10" y1="14" x2="21" y2="3"></line>
-            </svg>
-            Play Run 3
-        </a>
-        <button class="preview-btn" data-iframe="run3">Open Preview</button>
-    </section>
-
-    <section class="expanded-comments-section">
-        <h3>User Reviews & Comments</h3>
-        
-        <div class="comments-display" id="comments-run3">
-            <p class="loading-comments">Loading reviews...</p>
-        </div>
-
-        <form class="comment-form" data-app-form="run3">
-            <h4>Submit Your Review</h4>
-            <div class="form-rating">
-                <label>Your Rating:</label>
-                <div class="star-rating-input">
-                    <input type="radio" name="rating-run3" value="5" id="run3-star-5"><label for="run3-star-5">★</label>
-                    <input type="radio" name="rating-run3" value="4" id="run3-star-4"><label for="run3-star-4">★</label>
-                    <input type="radio" name="rating-run3" value="3" id="run3-star-3"><label for="run3-star-3">★</label>
-                    <input type="radio" name="rating-run3" value="2" id="run3-star-2"><label for="run3-star-2">★</label>
-                    <input type="radio" name="rating-run3" value="1" id="run3-star-1"><label for="run3-star-1">★</label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="comment-run3">Your Review:</label>
-                <textarea id="comment-run3" placeholder="Share your experience with Run 3..." required></textarea>
-            </div>
-            <button type="submit" class="submit-review-btn">Submit Review</button>
-        </form>
-    </section>
-</article>
-
-<!-- ==========================================================
-     NOVAOS - EXPANDED VIEW
-=========================================================== -->
-<article class="expanded-app-detail" data-expanded-app="novaos" hidden>
-    <header class="expanded-header">
-        <img src="icons/novaos.png" alt="NovaOS Logo" class="expanded-logo">
-        <div class="expanded-title-area">
-            <h2>NovaOS</h2>
-            <p class="expanded-developer">By RunNova</p>
-        </div>
-    </header>
-
-    <section class="expanded-screenshots">
-        <div class="screenshot-grid">
-            <div class="screenshot-item">
-                <img src="icons/novaos.png" alt="NovaOS Interface 1">
-            </div>
-            <div class="screenshot-item">
-                <img src="icons/novaos.png" alt="NovaOS Interface 2">
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-ratings-section">
-        <div class="ratings-summary">
-            <div class="rating-big">
-                <span class="rating-number" data-avg-rating>—</span>
-                <span class="rating-stars">⭐</span>
-            </div>
-            <div class="rating-details">
-                <p class="total-reviews">Total Reviews: <span data-review-count>0</span></p>
-                <div class="rating-bars">
-                    <div class="rating-bar-row">
-                        <span class="star-label">5 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-5></div></div>
-                        <span class="rating-count" data-count-5>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">4 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-4></div></div>
-                        <span class="rating-count" data-count-4>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">3 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-3></div></div>
-                        <span class="rating-count" data-count-3>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">2 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-2></div></div>
-                        <span class="rating-count" data-count-2>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">1 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-1></div></div>
-                        <span class="rating-count" data-count-1>0</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-description">
-        <h3>About This App</h3>
-        <p>
-            NovaOS is a comprehensive web-based operating system simulation that brings the desktop computing experience 
-            directly into your web browser. This impressive project replicates many features of modern desktop operating 
-            systems, including a functional desktop environment with draggable windows, a taskbar, system settings, and 
-            various built-in applications. The goal of NovaOS is to provide a realistic operating system experience 
-            without requiring any installation or specific hardware, demonstrating what is possible with modern web 
-            technologies. It creates a convincing illusion of a desktop environment entirely within the browser, 
-            allowing users to experience operating system concepts without any risk to their actual computer.
-        </p>
-        <p>
-            The desktop environment features a clean, modern interface that will feel familiar to anyone who has used 
-            Windows, macOS, or Linux. You can create and arrange multiple windows, resize them by dragging corners, 
-            minimize and maximize them using the taskbar, and switch between open applications. The OS includes a 
-            file management system that allows you to create, rename, and organize files in folders, with a visual 
-            file explorer that displays your virtual file system. Window management includes features like snap-to-grid, 
-            cascade and tile arrangements, and proper z-ordering for overlapping windows.
-        </p>
-        <p>
-            Built-in applications expand the functionality beyond just being a desktop simulation. These include a 
-            text editor for creating and editing documents, a calculator for quick calculations, a terminal emulator 
-            for those interested in command-line interfaces, a music player, image viewer, and web browser integration. 
-            The terminal application in particular provides an educational experience for those wanting to learn 
-            command-line skills in a safe environment where no real system files can be harmed. Other applications 
-            include a calendar, notepad, settings panel, and various utility apps that demonstrate the possibilities 
-            of web-based software.
-        </p>
-        <p>
-            NovaOS is primarily intended as a demonstration platform and educational tool rather than a replacement 
-            for actual operating systems or a productivity environment. While it provides impressive functionality 
-            for a web application, it cannot match the performance, capability, or security of a real operating system. 
-            The project demonstrates the potential of web technologies to create rich, interactive experiences and 
-            serves as an inspiration for what future web applications might achieve. It's an excellent way to explore 
-            operating system concepts without any risk to your actual computer, and it can help users become more 
-            comfortable with desktop computing concepts before transitioning to real operating systems.
-        </p>
-    </section>
-
-    <section class="expanded-actions">
-        <a href="https://runnova.github.io/NovaOS/" target="_blank" class="visit-link">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                <polyline points="15 3 21 3 21 9"></polyline>
-                <line x1="10" y1="14" x2="21" y2="3"></line>
-            </svg>
-            Open NovaOS
-        </a>
-        <button class="preview-btn" data-iframe="novaos">Open Preview</button>
-    </section>
-
-    <section class="expanded-comments-section">
-        <h3>User Reviews & Comments</h3>
-        
-        <div class="comments-display" id="comments-novaos">
-            <p class="loading-comments">Loading reviews...</p>
-        </div>
-
-        <form class="comment-form" data-app-form="novaos">
-            <h4>Submit Your Review</h4>
-            <div class="form-rating">
-                <label>Your Rating:</label>
-                <div class="star-rating-input">
-                    <input type="radio" name="rating-novaos" value="5" id="novaos-star-5"><label for="novaos-star-5">★</label>
-                    <input type="radio" name="rating-novaos" value="4" id="novaos-star-4"><label for="novaos-star-4">★</label>
-                    <input type="radio" name="rating-novaos" value="3" id="novaos-star-3"><label for="novaos-star-3">★</label>
-                    <input type="radio" name="rating-novaos" value="2" id="novaos-star-2"><label for="novaos-star-2">★</label>
-                    <input type="radio" name="rating-novaos" value="1" id="novaos-star-1"><label for="novaos-star-1">★</label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="comment-novaos">Your Review:</label>
-                <textarea id="comment-novaos" placeholder="Share your experience with NovaOS..." required></textarea>
-            </div>
-            <button type="submit" class="submit-review-btn">Submit Review</button>
-        </form>
-    </section>
-</article>
-
-<!-- ==========================================================
-     WINRIPEN - EXPANDED VIEW
-=========================================================== -->
-<article class="expanded-app-detail" data-expanded-app="winripen" hidden>
-    <header class="expanded-header">
-        <img src="icons/winripen.png" alt="WinRipen Logo" class="expanded-logo">
-        <div class="expanded-title-area">
-            <h2>WinRipen</h2>
-            <p class="expanded-developer">By Ripenos</p>
-        </div>
-    </header>
-
-    <section class="expanded-screenshots">
-        <div class="screenshot-grid">
-            <div class="screenshot-item">
-                <img src="icons/winripen.png" alt="WinRipen Interface 1">
-            </div>
-            <div class="screenshot-item">
-                <img src="icons/winripen.png" alt="WinRipen Interface 2">
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-ratings-section">
-        <div class="ratings-summary">
-            <div class="rating-big">
-                <span class="rating-number" data-avg-rating>—</span>
-                <span class="rating-stars">⭐</span>
-            </div>
-            <div class="rating-details">
-                <p class="total-reviews">Total Reviews: <span data-review-count>0</span></p>
-                <div class="rating-bars">
-                    <div class="rating-bar-row">
-                        <span class="star-label">5 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-5></div></div>
-                        <span class="rating-count" data-count-5>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">4 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-4></div></div>
-                        <span class="rating-count" data-count-4>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">3 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-3></div></div>
-                        <span class="rating-count" data-count-3>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">2 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-2></div></div>
-                        <span class="rating-count" data-count-2>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">1 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-1></div></div>
-                        <span class="rating-count" data-count-1>0</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-description">
-        <h3>About This App</h3>
-        <p>
-            WinRipen is a web-based operating system environment designed to replicate the look, feel, and functionality 
-            of classic Windows operating systems while running entirely within a web browser. This project recreates the 
-            familiar Windows desktop experience, including the taskbar, start menu, window management system, and various 
-            built-in applications. The attention to detail in mimicking Windows conventions makes it immediately 
-            familiar to anyone who has used Windows computers, providing a nostalgic yet novel experience that 
-            demonstrates how web technologies can recreate complex desktop experiences in the browser environment.
-        </p>
-        <p>
-            The desktop environment features realistic window behaviors including draggable title bars, minimize, maximize, 
-            and close buttons, resize handles on window edges, and proper layering so that active windows appear on top. 
-            The taskbar displays running applications and provides quick access to the start menu, mimicking the Windows 
-            10 and Windows 11 taskbar experience. Start menu functionality allows you to browse and launch installed 
-            applications within the simulated environment. The visual design carefully recreates the Windows aesthetic, 
-            from the blue-themed title bars to the characteristic application icons.
-        </p>
-        <p>
-            Included applications provide basic productivity and entertainment functionality. These include a notepad 
-            application for text editing, a calculator, image viewer, file manager for browsing the virtual file system, 
-            and even a Minesweeper game that faithfully recreates the classic Windows experience. The terminal application 
-            offers a command-line interface for those interested in learning command prompt commands without affecting 
-            their real computer. Each application is designed to look and behave like its Windows counterpart, 
-            creating an immersive experience that can help users become familiar with Windows conventions.
-        </p>
-        <p>
-            WinRipen is intended for experimentation, learning, and exploration rather than daily productivity use. While 
-            it successfully replicates many aspects of the Windows experience, there are inherent limitations to what 
-            can be achieved in a web browser environment. Performance may vary depending on your device capabilities 
-            and browser. Full interaction with all features requires opening WinRipen directly in a new tab rather than 
-            using the preview mode within the Sawfish App Store. This OS is excellent for educational purposes, 
-            understanding operating system concepts, or simply enjoying the nostalgia of a familiar interface without 
-            needing access to an actual Windows computer.
-        </p>
-    </section>
-
-    <section class="expanded-actions">
-        <a href="https://ripenos.web.app/WinRipen/index.html" target="_blank" class="visit-link">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                <polyline points="15 3 21 3 21 9"></polyline>
-                <line x1="10" y1="14" x2="21" y2="3"></line>
-            </svg>
-            Open WinRipen
-        </a>
-        <button class="preview-btn" data-iframe="winripen">Open Preview</button>
-    </section>
-
-    <section class="expanded-comments-section">
-        <h3>User Reviews & Comments</h3>
-        
-        <div class="comments-display" id="comments-winripen">
-            <p class="loading-comments">Loading reviews...</p>
-        </div>
-
-        <form class="comment-form" data-app-form="winripen">
-            <h4>Submit Your Review</h4>
-            <div class="form-rating">
-                <label>Your Rating:</label>
-                <div class="star-rating-input">
-                    <input type="radio" name="rating-winripen" value="5" id="winripen-star-5"><label for="winripen-star-5">★</label>
-                    <input type="radio" name="rating-winripen" value="4" id="winripen-star-4"><label for="winripen-star-4">★</label>
-                    <input type="radio" name="rating-winripen" value="3" id="winripen-star-3"><label for="winripen-star-3">★</label>
-                    <input type="radio" name="rating-winripen" value="2" id="winripen-star-2"><label for="winripen-star-2">★</label>
-                    <input type="radio" name="rating-winripen" value="1" id="winripen-star-1"><label for="winripen-star-1">★</label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="comment-winripen">Your Review:</label>
-                <textarea id="comment-winripen" placeholder="Share your experience with WinRipen..." required></textarea>
-            </div>
-            <button type="submit" class="submit-review-btn">Submit Review</button>
-        </form>
-    </section>
-</article>
-
-<!-- ==========================================================
-     PLUTOOS - EXPANDED VIEW
-=========================================================== -->
-<article class="expanded-app-detail" data-expanded-app="plutoos" hidden>
-    <header class="expanded-header">
-        <img src="icons/plutoos.png" alt="PlutoOS Logo" class="expanded-logo">
-        <div class="expanded-title-area">
-            <h2>PlutoOS</h2>
-            <p class="expanded-developer">By Zeon</p>
-        </div>
-    </header>
-
-    <section class="expanded-screenshots">
-        <div class="screenshot-grid">
-            <div class="screenshot-item">
-                <img src="icons/plutoos.png" alt="PlutoOS Interface 1">
-            </div>
-            <div class="screenshot-item">
-                <img src="icons/plutoos.png" alt="PlutoOS Interface 2">
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-ratings-section">
-        <div class="ratings-summary">
-            <div class="rating-big">
-                <span class="rating-number" data-avg-rating>—</span>
-                <span class="rating-stars">⭐</span>
-            </div>
-            <div class="rating-details">
-                <p class="total-reviews">Total Reviews: <span data-review-count>0</span></p>
-                <div class="rating-bars">
-                    <div class="rating-bar-row">
-                        <span class="star-label">5 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-5></div></div>
-                        <span class="rating-count" data-count-5>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">4 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-4></div></div>
-                        <span class="rating-count" data-count-4>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">3 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-3></div></div>
-                        <span class="rating-count" data-count-3>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">2 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-2></div></div>
-                        <span class="rating-count" data-count-2>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">1 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-1></div></div>
-                        <span class="rating-count" data-count-1>0</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-description">
-        <h3>About This App</h3>
-        <p>
-            PlutoOS represents a futuristic approach to web-based operating system design, implementing an entirely 
-            browser-based operating system environment that prioritizes smooth animations, modern UI elements, and 
-            modular app-like components. Unlike more traditional OS simulations that attempt to replicate existing 
-            desktop operating systems, PlutoOS charts its own course, creating a unique interface experience that 
-            feels fresh and modern while remaining fully functional within a web browser. The design philosophy 
-            emphasizes experimentation and interface fluidity, pushing the boundaries of what web technologies 
-            can achieve in terms of visual polish and user experience.
-        </p>
-        <p>
-            The design philosophy behind PlutoOS emphasizes experimentation and interface fluidity. The interface 
-            features smooth transitions between states, modern typography and iconography, and a clean visual 
-            aesthetic that distinguishes it from traditional desktop metaphors. Window management incorporates 
-            gestures and animations that feel natural on touch devices while remaining accessible via mouse and 
-            keyboard input. The modular architecture allows for easy expansion with additional applications and 
-            features, making PlutoOS not just a simulation but a platform for building web-based operating system 
-            experiences.
-        </p>
-        <p>
-            Built-in applications include essential utilities for productivity and entertainment within the simulated 
-            environment. These applications are designed with the same modern aesthetic as the core OS, creating a 
-            cohesive experience throughout. The file system integration allows for basic document creation and 
-            management, while integrated tools provide functionality for notes, calculations, and media consumption. 
-            Each application is designed with attention to user experience, incorporating modern design patterns 
-            and interaction models that feel intuitive and responsive.
-        </p>
-        <p>
-            Due to the inherent limitations of browser-based implementations, performance may vary across different 
-            devices and browsers. More powerful devices with modern browsers will provide the smoothest experience, 
-            while older or less capable hardware may experience some limitations in animation smoothness or 
-            application responsiveness. Preview interaction is disabled within the Sawfish App Store wrapper; for 
-            the full experience, PlutoOS should be opened directly in a new browser tab. This project serves as 
-            both a functional tool and a demonstration of what modern web technologies can achieve when pushed to 
-            their limits, showcasing the potential of web-based interfaces for creating rich, immersive experiences.
-        </p>
-    </section>
-
-    <section class="expanded-actions">
-        <a href="https://pluto-app.zeon.dev" target="_blank" class="visit-link">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                <polyline points="15 3 21 3 21 9"></polyline>
-                <line x1="10" y1="14" x2="21" y2="3"></line>
-            </svg>
-            Run PlutoOS
-        </a>
-        <button class="preview-btn" data-iframe="plutoos">Open Preview</button>
-    </section>
-
-    <section class="expanded-comments-section">
-        <h3>User Reviews & Comments</h3>
-        
-        <div class="comments-display" id="comments-plutoos">
-            <p class="loading-comments">Loading reviews...</p>
-        </div>
-
-        <form class="comment-form" data-app-form="plutoos">
-            <h4>Submit Your Review</h4>
-            <div class="form-rating">
-                <label>Your Rating:</label>
-                <div class="star-rating-input">
-                    <input type="radio" name="rating-plutoos" value="5" id="plutoos-star-5"><label for="plutoos-star-5">★</label>
-                    <input type="radio" name="rating-plutoos" value="4" id="plutoos-star-4"><label for="plutoos-star-4">★</label>
-                    <input type="radio" name="rating-plutoos" value="3" id="plutoos-star-3"><label for="plutoos-star-3">★</label>
-                    <input type="radio" name="rating-plutoos" value="2" id="plutoos-star-2"><label for="plutoos-star-2">★</label>
-                    <input type="radio" name="rating-plutoos" value="1" id="plutoos-star-1"><label for="plutoos-star-1">★</label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="comment-plutoos">Your Review:</label>
-                <textarea id="comment-plutoos" placeholder="Share your experience with PlutoOS..." required></textarea>
-            </div>
-            <button type="submit" class="submit-review-btn">Submit Review</button>
-        </form>
-    </section>
-</article>
-
-<!-- ==========================================================
-     RIPENOS - EXPANDED VIEW
-=========================================================== -->
-<article class="expanded-app-detail" data-expanded-app="ripenos" hidden>
-    <header class="expanded-header">
-        <img src="icons/ripenos.png" alt="Ripenos Logo" class="expanded-logo">
-        <div class="expanded-title-area">
-            <h2>Ripenos</h2>
-            <p class="expanded-developer">By Ripenos</p>
-        </div>
-    </header>
-
-    <section class="expanded-screenshots">
-        <div class="screenshot-grid">
-            <div class="screenshot-item">
-                <img src="icons/ripenos.png" alt="Ripenos Interface 1">
-            </div>
-            <div class="screenshot-item">
-                <img src="icons/ripenos.png" alt="Ripenos Interface 2">
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-ratings-section">
-        <div class="ratings-summary">
-            <div class="rating-big">
-                <span class="rating-number" data-avg-rating>—</span>
-                <span class="rating-stars">⭐</span>
-            </div>
-            <div class="rating-details">
-                <p class="total-reviews">Total Reviews: <span data-review-count>0</span></p>
-                <div class="rating-bars">
-                    <div class="rating-bar-row">
-                        <span class="star-label">5 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-5></div></div>
-                        <span class="rating-count" data-count-5>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">4 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-4></div></div>
-                        <span class="rating-count" data-count-4>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">3 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-3></div></div>
-                        <span class="rating-count" data-count-3>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">2 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-2></div></div>
-                        <span class="rating-count" data-count-2>0</span>
-                    </div>
-                    <div class="rating-bar-row">
-                        <span class="star-label">1 ⭐</span>
-                        <div class="rating-bar"><div class="rating-fill" data-rating-1></div></div>
-                        <span class="rating-count" data-count-1>0</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="expanded-description">
-        <h3>About This App</h3>
-        <p>
-            Ripenos is a lightweight, fast, and modular browser-based operating system framework designed to provide 
-            a minimal but functional desktop environment entirely within a web browser. Unlike more elaborate web-based 
-            operating systems that attempt to replicate complex desktop environments, Ripenos focuses on simplicity 
-            and performance, making it suitable for lower-powered devices and educational settings where resources 
-            may be limited. The project serves as both a demonstration of web technology capabilities and a practical 
-            tool for learning about operating system concepts, providing a clean starting point for understanding 
-            how desktop environments are structured and organized.
-        </p>
-        <p>
-            The core design philosophy prioritizes speed and efficiency. The OS loads quickly and remains responsive 
-            even on older browsers or less powerful hardware. The modular architecture means that features can be 
-            added or removed as needed, allowing users to customize their experience based on their needs and the 
-            capabilities of their device. This approach also makes the system more maintainable and easier to 
-            understand for those interested in learning how operating systems are structured. The code is designed 
-            to be readable and educational, serving as a reference implementation for web-based OS development.
-        </p>
-        <p>
-            Included functionality provides the essentials of a desktop computing experience without overwhelming 
-            users with features they may not need. The file management system allows for basic organization of 
-            documents and files within the virtual environment. Window management provides the ability to open, 
-            arrange, and close multiple application windows. Built-in applications include a text editor, calculator, 
-            and other utility programs that demonstrate how application interfaces can be built for web environments. 
-            Each component is designed to be simple yet functional, providing the core features users expect from 
-            a desktop environment without unnecessary complexity.
-        </p>
-        <p>
-            Ripenos is particularly well-suited for educational purposes, providing a safe environment for students 
-            to explore operating system concepts without risk of damaging actual computer systems. The modular nature 
-            also makes it an excellent platform for learning web development, as interested students can examine 
-            the source code to understand how different components are implemented. Full interaction requires 
-            opening Ripenos directly in a new browser tab rather than using the preview mode within the Sawfish 
-            App Store. The project continues to evolve, with new features and improvements being added based on 
-            community feedback and contributions. Users are encouraged to experiment with the code and create their 
-            own extensions and modifications.
-        </p>
-    </section>
-
-    <section class="expanded-actions">
-        <a href="https://ripenos.web.app/Ripenos/" target="_blank" class="visit-link">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                <polyline points="15 3 21 3 21 9"></polyline>
-                <line x1="10" y1="14" x2="21" y2="3"></line>
-            </svg>
-            Open Ripenos
-        </a>
-        <button class="preview-btn" data-iframe="ripenos">Open Preview</button>
-    </section>
-
-    <section class="expanded-comments-section">
-        <h3>User Reviews & Comments</h3>
-        
-        <div class="comments-display" id="comments-ripenos">
-            <p class="loading-comments">Loading reviews...</p>
-        </div>
-
-        <form class="comment-form" data-app-form="ripenos">
-            <h4>Submit Your Review</h4>
-            <div class="form-rating">
-                <label>Your Rating:</label>
-                <div class="star-rating-input">
-                    <input type="radio" name="rating-ripenos" value="5" id="ripenos-star-5"><label for="ripenos-star-5">★</label>
-                    <input type="radio" name="rating-ripenos" value="4" id="ripenos-star-4"><label for="ripenos-star-4">★</label>
-                    <input type="radio" name="rating-ripenos" value="3" id="ripenos-star-3"><label for="ripenos-star-3">★</label>
-                    <input type="radio" name="rating-ripenos" value="2" id="ripenos-star-2"><label for="ripenos-star-2">★</label>
-                    <input type="radio" name="rating-ripenos" value="1" id="ripenos-star-1"><label for="ripenos-star-1">★</label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="comment-ripenos">Your Review:</label>
-                <textarea id="comment-ripenos" placeholder="Share your experience with Ripenos..." required></textarea>
-            </div>
-            <button type="submit" class="submit-review-btn">Submit Review</button>
-        </form>
-    </section>
-</article>
-
-<!-- ==========================================================
-     IFRAME PREVIEW MODAL
-=========================================================== -->
-<section id="iframe-modal" class="iframe-modal hidden" aria-hidden="true">
-    <div class="iframe-container">
-        <div class="iframe-header">
-            <span class="iframe-title">App Preview</span>
-            <button class="iframe-close" aria-label="Close preview">&times;</button>
-        </div>
-        <div class="iframe-content">
-            <iframe id="preview-iframe" src="" frameborder="0"></iframe>
         </div>
     </div>
+
+    <!-- ================= WELCOME MODAL (PWA Only) ================= -->
+    <div id="welcome-modal" class="modal-overlay hidden" aria-hidden="true">
+        <div class="modal-backdrop"></div>
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 id="welcome-title">Read This First</h2>
+                <p class="modal-subtitle">Important guidelines for the best experience</p>
+            </div>
+            
+            <div class="modal-body">
+                <div class="modal-scroll-content" id="modal-scroll-content">
+                    <div class="guideline-section">
+                        <h3>Minecraft Web Important Rule</h3>
+                        <p>
+                            In Minecraft Web, <strong>do not use single player</strong>. You 
+                            <strong>must use a multiplayer server</strong> to be able to craft.
+                            The single player mode in this web version does not include
+                            crafting functionality. Prefer the <strong>official first server</strong>
+                            when available for the best multiplayer experience with other players.
+                            The developers are working on enabling single player crafting, but
+                            for now, multiplayer is required for full functionality.
+                        </p>
+                    </div>
+                    
+                    <div class="guideline-section">
+                        <h3>Add Apps for Best Experience</h3>
+                        <p>
+                            For the smoothest experience, add important apps to your Home Screen
+                            when possible. Some apps require installation to work well including
+                            fullscreen mode, faster load times, and better reliability on school
+                            networks. The installation process is quick and easy, requiring only
+                            a few taps in your browser's share menu.
+                        </p>
+                    </div>
+                    
+                    <div class="guideline-section">
+                        <h3>Social Tools Usage</h3>
+                        <p>
+                            The Chat App and Call App are designed for legitimate educational
+                            and social purposes. Please use these tools responsibly and respect
+                            other users. Harassment, bullying, or inappropriate content may
+                            result in temporary or permanent loss of access to these services.
+                            All messages are logged for safety purposes.
+                        </p>
+                    </div>
+                    
+                    <div class="guideline-section">
+                        <h3>Changelog & Updates</h3>
+                        <p>
+                            This app improves over time. Check the <strong>Changelog</strong>
+                            tab to see what's new in each version. If you ever see old content
+                            or experience issues, use the <strong>Update</strong> button in
+                            the top banner to refresh the application cache and get the latest
+                            version. Updates are typically deployed weekly with new features
+                            and bug fixes.
+                        </p>
+                    </div>
+                    
+                    <div class="guideline-section">
+                        <h3>Rating and Reviews</h3>
+                        <p>
+                            Your feedback helps improve the app store experience for everyone.
+                            Rate your favorite apps and leave reviews to help other students
+                            discover great content. All ratings and reviews are stored in the
+                            cloud and sync across all devices. Please leave honest and helpful
+                            reviews that benefit the community.
+                        </p>
+                    </div>
+                    
+                    <div class="scroll-indicator">
+                        <span>Scroll to continue</span>
+                        <div class="scroll-arrow"></div>
+                    </div>
+                </div>
+                
+                <div class="modal-returning-content hidden" id="modal-returning-content">
+                    <p>Welcome back! Tap Continue to enter the app.</p>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <label class="ack-checkbox-row hidden" id="ack-checkbox-row">
+                    <input type="checkbox" id="welcome-ack">
+                    <span>I understand and agree to follow these guidelines</span>
+                </label>
+                <button id="welcome-continue" class="modal-continue-btn" type="button" disabled>
+                    Continue
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= FIRESTORE RATINGS DISPLAY ================= -->
+    <div id="ratings-display" class="ratings-display hidden">
+        <!-- Ratings will be loaded dynamically for each app -->
+    </div>
+
 </section>
 
-<!-- ==========================================================
-     JAVASCRIPT INITIALIZATION
-=========================================================== -->
+<!-- ================= FIREBASE SDK ================= -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<!-- ================= APPLICATION SCRIPTS ================= -->
 <script>
-    // Remove "loading" class from <html>
-    document.documentElement.classList.remove("loading");
+    // Version and date info
+    document.getElementById('install-date')?.textContent = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    document.getElementById('changelog-date').textContent = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
 </script>
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-
-<!-- Main Application JavaScript -->
 <script src="app.js"></script>
 
 </body>
