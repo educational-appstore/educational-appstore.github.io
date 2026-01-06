@@ -895,17 +895,18 @@ const AppState = {
 };
 
 // ============================================================
-// APP DATA - Including new recommended apps
+// APP DATA - Complete with new recommended apps
 // ============================================================
 const appData = {
+    // Original Apps (1-18)
     hack: {
         name: "Hack Stuff",
         developer: "Sawfish Developer Group",
         icon: "icons/hack.png",
         category: "Utilities / Experimental",
-        description: "Hack Stuff is a collection of advanced utilities and experimental tools designed specifically for students and developers who need access to low-level functionality within their browser environment.",
-        features: "The Hack Stuff suite includes HTML and CSS inspectors, JavaScript consoles, network request monitors, and various debugging utilities.",
-        additional: "Please note that access to certain advanced features may be restricted based on school network policies.",
+        description: "Hack Stuff is a comprehensive collection of advanced utilities and experimental tools designed specifically for students and developers who need access to low-level functionality within their browser environment.",
+        features: "The Hack Stuff suite includes HTML and CSS inspectors, JavaScript consoles, network request monitors, and various debugging utilities. It also features a collection of educational coding challenges, API testing tools, and data format converters.",
+        additional: "Please note that access to certain advanced features may be restricted based on school network policies. All tools are designed to be safe and educational, with no malicious capabilities.",
         link: "https://the-sawfish.github.io/hack/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Hack+Stuff+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Development+Tools"]
     },
@@ -914,9 +915,9 @@ const appData = {
         developer: "Sawfish Developer Group",
         icon: "icons/game-portal.png",
         category: "Games Hub",
-        description: "The Sawfish Game Portal serves as a unified launcher and collection point for all approved browser-based games available through the Sawfish ecosystem.",
-        features: "The portal features a sophisticated categorization system that organizes games by genre, difficulty, and playtime.",
-        additional: "All games available through the portal have been vetted for age-appropriate content.",
+        description: "The Sawfish Game Portal serves as a unified launcher and collection point for all approved browser-based games available through the Sawfish ecosystem. It provides a centralized hub for discovering and accessing entertaining games.",
+        features: "The portal features a sophisticated categorization system that organizes games by genre, difficulty, playtime, and number of players. It includes user ratings, playtime tracking, and personalized recommendations.",
+        additional: "All games available through the portal have been vetted for age-appropriate content and are regularly updated to ensure compatibility and safety.",
         link: "https://the-sawfish.github.io/game-portal/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Game+Portal+Home", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Game+Categories"]
     },
@@ -925,9 +926,9 @@ const appData = {
         developer: "Sawfish Developer Group",
         icon: "icons/circle.png",
         category: "Games / Skill",
-        description: "Draw a Circle is a deceptively simple yet endlessly engaging reflex and precision challenge that tests your ability to create the most perfect circle possible.",
-        features: "The game employs sophisticated geometric analysis algorithms that measure circularity from multiple angles.",
-        additional: "The game is particularly popular as a quick break activity during study sessions.",
+        description: "Draw a Circle is a deceptively simple yet endlessly engaging reflex and precision challenge that tests your ability to create the most perfect circle possible. This game has become a favorite quick-break activity for students worldwide.",
+        features: "The game employs sophisticated geometric analysis algorithms that measure circularity from multiple angles, providing instant feedback on your drawing accuracy. Features include scoring history, achievement badges, and global leaderboards.",
+        additional: "The game is particularly popular as a quick break activity during study sessions. Research has shown that such precision tasks can help improve focus and fine motor skills.",
         link: "https://the-sawfish.github.io/circle/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Draw+a+Circle+Game", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Precision+Scoring"]
     },
@@ -936,9 +937,9 @@ const appData = {
         developer: "Sawfish Developer Group",
         icon: "icons/2048.png",
         category: "Games / Puzzle",
-        description: "2048 is the iconic sliding tile puzzle game that took the world by storm, now available optimized for school browsers and touch devices.",
-        features: "This implementation features touch-optimized controls that make swiping on tablets and touchscreens feel natural and responsive.",
-        additional: "The game has been optimized for school networks, with no external dependencies and minimal data usage.",
+        description: "2048 is the iconic sliding tile puzzle game that took the world by storm, now available optimized for school browsers and touch devices. This addictive puzzle challenges your strategic thinking and number sense.",
+        features: "This implementation features touch-optimized controls that make swiping on tablets and touchscreens feel natural and responsive. Includes undo functionality, multiple board sizes, and daily challenges.",
+        additional: "The game has been optimized for school networks, with no external dependencies and minimal data usage. It's completely self-contained and loads instantly.",
         link: "https://the-sawfish.github.io/2048/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=2048+Game+Board", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Tile+Merging"]
     },
@@ -947,9 +948,9 @@ const appData = {
         developer: "Zardoy",
         icon: "icons/minecraft.png",
         category: "Games / Sandbox",
-        description: "Experience the boundless creativity of the world's best-selling game directly in your browser with Minecraft Web (Beta).",
-        features: "The Beta version introduces optimized rendering engines specifically tuned for web performance.",
-        additional: "IMPORTANT: In this web version, single player mode does not include crafting functionality. You MUST use a multiplayer server.",
+        description: "Experience the boundless creativity of the world's best-selling game directly in your browser with Minecraft Web (Beta). Build, mine, and explore in a blocky world without any downloads or installation required.",
+        features: "The Beta version introduces optimized rendering engines specifically tuned for web performance. Features include multiplayer servers, various game modes, and a selection of texture packs to customize your experience.",
+        additional: "IMPORTANT: In this web version, single player mode does not include crafting functionality. You MUST use a multiplayer server. We recommend joining the official first server for the best experience with other players.",
         link: "https://zardoy.github.io/minecraft-web-client/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Minecraft+Web+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Multiplayer+Servers"]
     },
@@ -958,9 +959,9 @@ const appData = {
         developer: "AAPPQQ",
         icon: "icons/blockblast.png",
         category: "Games / Puzzle",
-        description: "Block Blast is a fast-paced, addictive puzzle game that challenges your spatial reasoning and strategic planning skills.",
-        features: "Block Blast features multiple game modes including classic endless play, timed challenges, and daily puzzle modes.",
-        additional: "The game has been optimized to run smoothly on school devices with minimal performance requirements.",
+        description: "Block Blast is a fast-paced, addictive puzzle game that challenges your spatial reasoning and strategic planning skills. Clear blocks before they reach the top in this Tetris-style game.",
+        features: "Block Blast features multiple game modes including classic endless play, timed challenges, daily puzzle modes, and competitive versus mode. Includes stunning visual effects and satisfying sound design.",
+        additional: "The game has been optimized to run smoothly on school devices with minimal performance requirements. Features an offline mode that works without internet connection.",
         link: "https://aappqq.github.io/BlockBlast/index.html",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Block+Blast+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Combo+System"]
     },
@@ -969,9 +970,9 @@ const appData = {
         developer: "R74n",
         icon: "icons/sandboxels.png",
         category: "Games / Simulation",
-        description: "Sandboxels is an extraordinary physics-based falling sand simulation that offers an almost endless sandbox for creativity and experimentation.",
-        features: "The simulation includes elements in multiple categories: basic materials, liquids, gases, fire, electrical components, plants, and creatures.",
-        additional: "Sandboxels is particularly valuable as an educational tool.",
+        description: "Sandboxels is an extraordinary physics-based falling sand simulation that offers an almost endless sandbox for creativity and experimentation. Watch as different elements interact in realistic ways.",
+        features: "The simulation includes elements in multiple categories: basic materials (sand, water, stone, metal), liquids, gases, fire, electrical components, plants, and creatures. Users can create complex machines and artistic patterns.",
+        additional: "Sandboxels is particularly valuable as an educational tool, teaching concepts of chemistry, physics, and emergent behavior. It's also just incredibly satisfying to watch and play with.",
         link: "https://the-sawfish.github.io/sandboxels/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Sandboxels+Simulation", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Element+Interactions"]
     },
@@ -980,9 +981,9 @@ const appData = {
         developer: "Joseph Cloutier",
         icon: "icons/run3.png",
         category: "Games / Platformer",
-        description: "Run 3 is an incredibly addictive endless runner that takes place in the unique environment of procedurally generated space tunnels.",
-        features: "The game features multiple game modes including the classic endless run, the challenging tunnel run mode with a finish line, and the time attack mode.",
-        additional: "As you progress, the game introduces new challenges including crumbling tiles, portals, and sections where the tunnel rotates.",
+        description: "Run 3 is an incredibly addictive endless runner that takes place in the unique environment of procedurally generated space tunnels. Navigate through endless tunnels while avoiding gaps and obstacles.",
+        features: "The game features multiple game modes including the classic endless run, the challenging tunnel run mode with a finish line, and the time attack mode. Features smooth controls and progressively harder challenges.",
+        additional: "As you progress, the game introduces new challenges including crumbling tiles, portals, and sections where the tunnel rotates. The game is completely free with no ads or microtransactions.",
         link: "https://the-sawfish.github.io/Run3Final/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Run+3+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Space+Tunnels"]
     },
@@ -991,9 +992,9 @@ const appData = {
         developer: "Jimeneutron",
         icon: "icons/chat.png",
         category: "Social / Messaging",
-        description: "Chat App provides a clean, efficient platform for real-time messaging designed specifically for student communication needs.",
-        features: "The app features topic-based rooms where students can join discussions relevant to their classes, projects, or interests.",
-        additional: "The Chat App is designed to work within school network restrictions.",
+        description: "Chat App provides a clean, efficient platform for real-time messaging designed specifically for student communication needs. Connect with classmates instantly in topic-based rooms.",
+        features: "The app features topic-based rooms where students can join discussions relevant to their classes, projects, or interests. Includes direct messaging, file sharing, and customizable chat backgrounds.",
+        additional: "The Chat App is designed to work within school network restrictions. All conversations are moderated and recorded for safety purposes. Students are expected to use the app responsibly.",
         link: "https://jimeneutron.github.io/chatapp/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Chat+App+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Chat+Rooms"]
     },
@@ -1002,9 +1003,9 @@ const appData = {
         developer: "Sawfish Developer Group",
         icon: "icons/call.png",
         category: "Social / Communication",
-        description: "Call App offers a fast, minimal browser-based voice calling interface that enables quick communication between students.",
-        features: "The calling system supports direct calls between users who share a room code. Call quality adapts to network conditions.",
-        additional: "The Call App is intended for quick, efficient communication.",
+        description: "Call App offers a fast, minimal browser-based voice calling interface that enables quick communication between students. Just share a room code and start talking.",
+        features: "The calling system supports direct calls between users who share a room code. Call quality adapts to network conditions, and the interface is designed for quick, efficient communication.",
+        additional: "The Call App is intended for quick, efficient communication. Please use responsibly and respect others. All calls are logged for safety and security purposes.",
         link: "https://the-sawfish.github.io/call-app/?from=sawfish",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Call+App+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Call+Controls"]
     },
@@ -1013,9 +1014,9 @@ const appData = {
         developer: "RunNova",
         icon: "icons/novaos.png",
         category: "Operating System",
-        description: "NovaOS is a full-featured browser-based desktop operating system environment that brings the concept of a web OS to life.",
-        features: "The OS features a customizable desktop, window management, file manager, text editor, calculator, and app store.",
-        additional: "For the full NovaOS experience, we recommend opening the OS directly in a new tab.",
+        description: "NovaOS is a full-featured browser-based desktop operating system environment that brings the concept of a web OS to life. Experience a complete desktop interface running entirely in your browser.",
+        features: "The OS features a customizable desktop with drag-and-drop widgets, window management with minimize/maximize/close, file manager, text editor, calculator, music player, and a built-in app store.",
+        additional: "For the full NovaOS experience, we recommend opening the OS directly in a new tab. This provides better performance and more screen space for the desktop environment.",
         link: "https://runnova.github.io/NovaOS/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=NovaOS+Desktop", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=NovaOS+Apps"]
     },
@@ -1024,9 +1025,9 @@ const appData = {
         developer: "Ripenos",
         icon: "icons/winripen.png",
         category: "Operating System",
-        description: "WinRipen is a web-based operating system that recreates the familiar look and feel of classic Windows operating systems.",
-        features: "The OS features authentic-looking windows with title bars, minimize/maximize/close buttons, and resizing handles.",
-        additional: "Due to browser security restrictions, full interaction with WinRipen requires opening it directly.",
+        description: "WinRipen is a web-based operating system that recreates the familiar look and feel of classic Windows operating systems. Relive the Windows experience right in your browser.",
+        features: "The OS features authentic-looking windows with title bars, minimize/maximize/close buttons, and resizing handles. Includes a start menu, taskbar, desktop icons, and several built-in applications.",
+        additional: "Due to browser security restrictions, full interaction with WinRipen requires opening it directly in a new tab. This provides access to all features without iframe limitations.",
         link: "https://ripenos.web.app/WinRipen/index.html",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=WinRipen+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Windows+Apps"]
     },
@@ -1035,9 +1036,9 @@ const appData = {
         developer: "Zeon",
         icon: "icons/plutoos.png",
         category: "Operating System",
-        description: "PlutoOS represents a futuristic vision of what a web-based operating system could be, with a focus on modern design aesthetics.",
-        features: "The OS features a modular design with glass-morphism effects, smooth gradients, and subtle shadows.",
-        additional: "PlutoOS is an experimental project that demonstrates the cutting edge of browser-based computing.",
+        description: "PlutoOS represents a futuristic vision of what a web-based operating system could be, with a focus on modern design aesthetics and smooth user interactions. Experience the next generation of web operating systems.",
+        features: "The OS features a modular design with glass-morphism effects, smooth gradients, subtle shadows, and fluid animations. Includes customizable themes, widget support, and a sleek application launcher.",
+        additional: "PlutoOS is an experimental project that demonstrates the cutting edge of browser-based computing. While it's primarily for exploration, it shows what's possible with modern web technologies.",
         link: "https://pluto-app.zeon.dev",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=PlutoOS+Modern+UI", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Fluid+Animations"]
     },
@@ -1046,9 +1047,9 @@ const appData = {
         developer: "Ripenos",
         icon: "icons/ripenos.png",
         category: "Operating System",
-        description: "Ripenos is a lightweight, modular web-based operating system framework designed for speed and efficiency.",
-        features: "The core OS provides essential desktop functionality including window management, app launching, and system settings.",
-        additional: "Ripenos is particularly suitable for educational environments where performance on varied hardware is important.",
+        description: "Ripenos is a lightweight, modular web-based operating system framework designed for speed and efficiency. Experience a clean, fast desktop environment in your browser.",
+        features: "The core OS provides essential desktop functionality including window management, app launching, system settings, and file management. Its modular architecture allows for easy customization and extension.",
+        additional: "Ripenos is particularly suitable for educational environments where performance on varied hardware is important. It loads quickly and runs smoothly even on older devices.",
         link: "https://ripenos.web.app/Ripenos/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Ripenos+Desktop", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Modular+Apps"]
     },
@@ -1057,9 +1058,9 @@ const appData = {
         developer: "Jimeneutron",
         icon: "icons/syrup.png",
         category: "Games / Launcher",
-        description: "Syrup Games is an alternative game launcher that provides access to a curated collection of unique browser-based games.",
-        features: "The launcher features a clean, modern interface that makes it easy to browse and discover new games.",
-        additional: "Syrup Games complements the main Sawfish Game Portal.",
+        description: "Syrup Games is an alternative game launcher that provides access to a curated collection of unique browser-based games. Discover indie games and experimental titles you won't find elsewhere.",
+        features: "The launcher features a clean, modern interface that makes it easy to browse and discover new games. Includes game ratings, playtime tracking, and curated collections based on mood and difficulty.",
+        additional: "Syrup Games complements the main Sawfish Game Portal by offering access to indie and experimental titles. All games are tested for school appropriateness.",
         link: "https://jimeneutron.github.io/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Syrup+Games+Launcher", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Game+Collection"]
     },
@@ -1068,9 +1069,9 @@ const appData = {
         developer: "GameDevelop",
         icon: "icons/bobtherobber.png",
         category: "Games / Stealth",
-        description: "Bob The Robber is a stealth puzzle game series that challenges players to infiltrate various locations and avoid detection.",
-        features: "Each level presents a unique location with different security systems, guard placements, and objectives.",
-        additional: "The Bob The Robber series has multiple installments.",
+        description: "Bob The Robber is a stealth puzzle game series that challenges players to infiltrate various locations, avoid security systems, and steal treasure without getting caught.",
+        features: "Each level presents a unique location with different security systems, guard placements, and objectives. Features include multiple difficulty levels, unlockable upgrades, and engaging story progression.",
+        additional: "The Bob The Robber series has multiple installments, each offering new challenges and environments. The games are designed to exercise problem-solving skills and strategic thinking.",
         link: "https://bobtherobberunblocked.github.io/2/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Bob+The+Robber+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Stealth+Puzzles"]
     },
@@ -1079,9 +1080,9 @@ const appData = {
         developer: "Coloso",
         icon: "icons/retrobowl.png",
         category: "Games / Sports",
-        description: "Retro Bowl brings the classic American football video game experience to your browser with charming pixel-art graphics.",
-        features: "The gameplay combines strategy and action with management elements including player contracts and draft systems.",
-        additional: "Retro Bowl has been optimized for browser play.",
+        description: "Retro Bowl brings the classic American football video game experience to your browser with charming pixel-art graphics and addictive gameplay. Lead your team to championship glory.",
+        features: "The gameplay combines strategy and action with management elements including player contracts, draft systems, and team customization. Features include season mode, playoffs, and challenging opponents.",
+        additional: "Retro Bowl has been optimized for browser play with touch-friendly controls and responsive gameplay. The game captures the magic of classic football video games.",
         link: "https://the-sawfish.github.io/seraph/games/retrobowl/index.html",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Retro+Bowl+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Football+Action"]
     },
@@ -1090,56 +1091,150 @@ const appData = {
         developer: "Voodoo",
         icon: "icons/paperio2.png",
         category: "Games / Arcade",
-        description: "Paper Io 2 is an addictive territory conquest game where you control a character to capture territory.",
-        features: "The game features both single-player mode against AI opponents and multiplayer mode against real players.",
-        additional: "Paper Io 2 is designed for quick, exciting matches.",
+        description: "Paper Io 2 is an addictive territory conquest game where you control a character to capture territory, expand your kingdom, and compete against other players in fast-paced battles.",
+        features: "The game features both single-player mode against AI opponents and multiplayer mode against real players. Includes daily challenges, seasonal events, and unlockable skins and achievements.",
+        additional: "Paper Io 2 is designed for quick, exciting matches that can be played in short bursts. The simple controls make it accessible while the strategy depth keeps it engaging.",
         link: "https://the-sawfish.github.io/seraph/games/paperio2/index.html",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Paper+Io+2+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Territory+Capture"]
     },
-    // NEW RECOMMENDED APPS (3-4 from GitHub/sources)
-    photopea: {
-        name: "Photopea",
-        developer: "Ivan Kuckir",
-        icon: "icons/photopea.png",
-        category: "Productivity / Graphics",
-        description: "Photopea is a powerful online image editor that works directly in your browser. It supports PSD, AI, and Sketch files, making it a great free alternative to Photoshop.",
-        features: "Layer support, filters, brushes, text tools, and more. Works offline once loaded.",
-        additional: "All processing happens in your browser - no uploads required.",
-        link: "https://www.photopea.com/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Photopea+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Image+Editing"]
-    },
+    
+    // NEW RECOMMENDED APPS (From GitHub and other sources)
+    // Apps #3 and #4 - Visible in normal tabs
     monkeytype: {
         name: "Monkeytype",
         developer: "Miodec",
         icon: "icons/monkeytype.png",
         category: "Educational / Typing",
-        description: "Monkeytype is a minimalist, customizable typing test that helps you improve your typing speed and accuracy.",
-        features: "Customizable themes, difficulty levels, and feedback. Shows WPM, accuracy, and other statistics.",
-        additional: "Open source and ad-free. Great for practice during study breaks.",
+        description: "Monkeytype is a minimalist, customizable typing test that helps you improve your typing speed and accuracy. Practice typing with beautiful themes and detailed statistics while tracking your progress over time.",
+        features: "Features customizable themes, difficulty levels (easy, normal, hard, expert), typing modes (time, words, quotes,zen), and comprehensive statistics showing WPM, accuracy, character count, and key distributions.",
+        additional: "Open source and completely ad-free. Great for practice during study breaks. The minimal design eliminates distractions so you can focus entirely on your typing practice.",
         link: "https://monkeytype.com/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Monkeytype+Typing", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Typing+Stats"]
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Monkeytype+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Typing+Statistics"]
     },
     lichess: {
         name: "Lichess",
         developer: "Lichess Team",
         icon: "icons/lichess.png",
         category: "Games / Strategy",
-        description: "Lichess is a free, open-source chess platform with no ads and no tracking. Play against AI or real opponents worldwide.",
-        features: "Multiple game modes, puzzles, tournaments, and learning resources. Beautiful analysis boards.",
-        additional: "One of the least blocked chess sites on school networks due to its educational nature.",
+        description: "Lichess is a free, open-source chess platform with no ads, no tracking, and completely free to play. Challenge AI opponents, play with friends, or compete against chess players worldwide.",
+        features: "Multiple game modes including blitz, rapid, classical, and correspondence chess. Features puzzles, tactics training, analysis boards with Stockfish integration, tournaments, and team championships.",
+        additional: "One of the least blocked chess sites on school networks due to its educational nature. The site is entirely supported by donations and has no commercial interests.",
         link: "https://lichess.org/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Lichess+Chess", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Chess+Analysis"]
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Lichess+Chess+Board", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Chess+Analysis"]
+    },
+    
+    // Apps #8 and #9 - Developer-only apps
+    piskel: {
+        name: "Piskel",
+        developer: "Piskel Team",
+        icon: "icons/piskel.png",
+        category: "Developer Tools / Graphics",
+        description: "Piskel is a free online editor for creating animated sprites, pixel art, and static images. Create pixel-perfect artwork with powerful drawing tools and export to various formats.",
+        features: "Features include layers, advanced color palettes, onion skinning for animation, frame management, various brush types, and export options including GIF, PNG spritesheets, and APNG.",
+        additional: "Perfect for creating game assets, avatars, and pixel art. Works offline once loaded and all processing happens in your browser for privacy.",
+        link: "https://www.piskelapp.com/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Piskel+Pixel+Editor", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Animation+Timeline"]
+    },
+    vscodeweb: {
+        name: "VS Code Web",
+        developer: "Microsoft",
+        icon: "icons/vscode.png",
+        category: "Developer Tools / Code",
+        description: "VS Code Web brings the powerful Visual Studio Code editor to your browser. Write, edit, and debug code directly in your browser with syntax highlighting and extensions support.",
+        features: "Features include syntax highlighting for multiple languages, IntelliSense code completion, integrated terminal, Git integration, and access to the VS Code extension marketplace (compatible extensions).",
+        additional: "Requires a Microsoft account for full functionality. Perfect for quick code edits, reviewing pull requests, and working on projects from any computer.",
+        link: "https://vscode.dev/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=VS+Code+Editor", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Code+IntelliSense"]
+    },
+    
+    // Additional apps for variety
+    spotifyweb: {
+        name: "Spotify Web",
+        developer: "Spotify",
+        icon: "icons/spotify.png",
+        category: "Media / Music",
+        description: "Stream millions of songs, podcasts, and audiobooks directly in your browser with Spotify Web Player. Discover new music and enjoy your favorite playlists anywhere.",
+        features: "Features include streaming quality options, playlist management, radio stations, podcast access, and social features to share music with friends.",
+        additional: "Requires a Spotify account. Free tier available with shuffle play only. Premium removes ads and enables on-demand playback.",
+        link: "https://open.spotify.com/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Spotify+Web+Player", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Music+Library"]
+    },
+    protonmail: {
+        name: "Proton Mail",
+        developer: "Proton AG",
+        icon: "icons/protonmail.png",
+        category: "Productivity / Email",
+        description: "Proton Mail is a secure, encrypted email service based in Switzerland that protects your privacy. Send encrypted emails that even Proton cannot read.",
+        features: "End-to-end encryption, zero-access architecture, self-destructing messages, custom domains, and 2GB free storage. No ads or tracking of your activity.",
+        additional: "Proton Mail is protected by Swiss privacy laws, one of the strongest data protection regimes in the world. Perfect for sensitive communications.",
+        link: "https://mail.proton.me/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Proton+Mail+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Encrypted+Email"]
+    },
+    tiddlywiki: {
+        name: "TiddlyWiki",
+        developer: "TiddlyWiki Community",
+        icon: "icons/tiddlywiki.png",
+        category: "Productivity / Notes",
+        description: "TiddlyWiki is a unique personal wiki and non-linear notebook for capturing, organizing, and sharing your thoughts, ideas, and information in a flexible format.",
+        features: "Features include powerful linking between tiddlers, tagging system, rich text editing, plugins and themes, and the ability to save everything in a single HTML file.",
+        additional: "Completely self-contained - your entire wiki lives in one HTML file that you can back up, share, and access from anywhere. Perfect for notes, journals, and personal knowledge management.",
+        link: "https://tiddlywiki.com/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=TiddlyWiki+Notebook", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Wiki+Organization"]
+    },
+    neocities: {
+        name: "Neocities",
+        developer: "Neocities Inc",
+        icon: "icons/neocities.png",
+        category: "Social / Web Publishing",
+        description: "Neocities is a free service that lets you create your own website for free, with no coding required. Join a community of creators and bring the creative, independent spirit of the early web back to life.",
+        features: "Features include free hosting with custom domains, site templates, drag-and-drop file uploads, a CLI tool, and an active community of creators sharing tips and feedback.",
+        additional: "Neocities has revived the spirit of early web publishing. Create personal websites, portfolios, or experiment with HTML and CSS in a supportive community environment.",
+        link: "https://neocities.org/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Neocities+Create", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Website+Builder"]
+    },
+    hackernews: {
+        name: "Hacker News",
+        developer: "Y Combinator",
+        icon: "icons/hackernews.png",
+        category: "News / Technology",
+        description: "Hacker News is a social news website focusing on computer science, technology, and entrepreneurship. Read the latest discussions, insights, and stories from the tech world.",
+        features: "Features include user-submitted stories, threaded comments, karma points, YC job board integration, and an active community of developers, entrepreneurs, and tech enthusiasts.",
+        additional: "One of the best sources for staying informed about technology trends, startup news, and programming discussions. The community is known for thoughtful, in-depth conversations.",
+        link: "https://news.ycombinator.com/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Hacker+News+Front+Page", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Tech+Discussions"]
+    },
+    shadertoy: {
+        name: "ShaderToy",
+        developer: "ShaderToy Team",
+        icon: "icons/shadertoy.png",
+        category: "Developer Tools / Graphics",
+        description: "ShaderToy is the world's first platform for learning, sharing, and connecting with creative coders to create and share GLSL shaders. Create stunning visual effects with code.",
+        features: "Features include a powerful shader editor, thousands of example shaders, real-time preview, the ability to fork and modify other shaders, and a community to share your creations.",
+        additional: "Perfect for learning computer graphics, creating visual effects, or just exploring the creative possibilities of shader programming. Great for both beginners and experts.",
+        link: "https://www.shadertoy.com/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=ShaderToy+Editor", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=GLSL+Shaders"]
     },
     hextris: {
         name: "Hextris",
         developer: "Hextris",
         icon: "icons/hextris.png",
         category: "Games / Puzzle",
-        description: "Hextris is a fast-paced puzzle game inspired by Tetris, played on a hexagonal grid. Rotate the hexagon to stack blocks and prevent the game from ending.",
-        features: "Addictive gameplay, colorful visuals, and increasing difficulty. High score tracking.",
-        additional: "Often hosted on GitHub Pages, making it less likely to be blocked by school filters.",
+        description: "Hextris is a fast-paced puzzle game inspired by Tetris, played on a hexagonal grid. Rotate the hexagon to stack blocks and prevent the game from ending in this addictive challenge.",
+        features: "Features include addictive gameplay with increasing difficulty, colorful hexagonal visuals, high score tracking, combo multipliers, and smooth animations.",
+        additional: "Often hosted on GitHub Pages, making it less likely to be blocked by school filters. Perfect for quick gaming sessions during breaks.",
         link: "https://hextris.io/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Hextris+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Hexagonal+Puzzle"]
+    },
+    photopea: {
+        name: "Photopea",
+        developer: "Ivan Kuckir",
+        icon: "icons/photopea.png",
+        category: "Productivity / Graphics",
+        description: "Photopea is a powerful online image editor that works directly in your browser without any installation. It supports PSD, AI, Sketch, and many other file formats.",
+        features: "Features include layer support, filters, adjustment layers, brushes, text tools, vector shapes, animation, and smart objects. Works offline once loaded.",
+        additional: "All processing happens in your browser - no uploads required, ensuring privacy. A great free alternative to Photoshop for basic to intermediate image editing needs.",
+        link: "https://www.photopea.com/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Photopea+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Image+Editing"]
     }
 };
 
@@ -1499,7 +1594,7 @@ async function loadAppRatings(appId) {
         
         if (starsElement) {
             if (avgRating === null || avgRating === undefined) {
-                starsElement.innerHTML = '<span class="no-rating">N/A</span>';
+                starsElement.innerHTML = '<span class="rating-na">N/A</span>';
             } else {
                 starsElement.innerHTML = getStarDisplay(avgRating);
             }
@@ -1530,7 +1625,7 @@ function updateRatingDisplay(appId, avgRating, distribution, totalReviews) {
     
     if (ratingStars) {
         if (avgRating === null || avgRating === undefined) {
-            ratingStars.innerHTML = '<span class="no-rating">No ratings yet</span>';
+            ratingStars.innerHTML = '<span class="rating-na">No ratings yet</span>';
         } else {
             ratingStars.innerHTML = getStarDisplay(avgRating);
         }
@@ -1543,7 +1638,7 @@ function updateRatingDisplay(appId, avgRating, distribution, totalReviews) {
 }
 
 function buildExpandedContent(app, appId, avgRating, totalReviews, distribution) {
-    const ratingStars = avgRating !== null && avgRating !== undefined ? getStarDisplay(avgRating) : '<span class="no-rating">No ratings yet</span>';
+    const ratingStars = avgRating !== null && avgRating !== undefined ? getStarDisplay(avgRating) : '<span class="rating-na">No ratings yet</span>';
     
     return `
         <article class="expanded-app" data-app="${appId}">
@@ -1639,19 +1734,23 @@ function buildExpandedContent(app, appId, avgRating, totalReviews, distribution)
 }
 
 function getStarDisplay(rating) {
-    if (rating === null || rating === undefined) {
-        return '<span class="no-rating">N/A</span>';
+    if (rating === null || rating === undefined || isNaN(rating)) {
+        return '<span class="rating-na">N/A</span>';
     }
     
+    // Ensure rating is within bounds
+    rating = Math.max(0, Math.min(5, rating));
+    
+    // Calculate stars
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
     
     let stars = '';
     
-    // Add full stars
+    // Add full stars (fixed class name: 'filled' instead of 'full')
     for (let i = 0; i < fullStars; i++) {
-        stars += '<span class="star full">★</span>';
+        stars += '<span class="star filled">★</span>';
     }
     
     // Add half star if needed
@@ -1846,7 +1945,7 @@ function displayReviews(appId, reviews) {
                         ${isDeveloperReview ? '<span class="developer-badge">Developer</span>' : ''}
                     </div>
                     <div>
-                        <span class="comment-rating">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</span>
+                        <span class="comment-rating">${getStarDisplay(review.rating)}</span>
                         <span class="comment-date">${formatDate(review.timestamp)}</span>
                     </div>
                 </div>
@@ -1878,7 +1977,7 @@ async function loadAllRatings() {
             
             if (starsElement) {
                 if (avgRating === null || avgRating === undefined) {
-                    starsElement.innerHTML = '<span class="no-rating">N/A</span>';
+                    starsElement.innerHTML = '<span class="rating-na">N/A</span>';
                 } else {
                     starsElement.innerHTML = getStarDisplay(avgRating);
                 }
