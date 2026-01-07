@@ -160,7 +160,7 @@
 
     <footer class="install-footer">
         <p>Built by the Sawfish Developer Group</p>
-        <p class="version-info">Version 1.0.0 · <span id="install-date"></span></p>
+        <p class="version-info">Version 2.0.0 · <span id="install-date"></span></p>
     </footer>
 </section>
 
@@ -224,6 +224,15 @@
                     </button>
                 </li>
                 <li>
+                    <button data-tab="search" class="nav-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        <span>Search</span>
+                    </button>
+                </li>
+                <li>
                     <button data-tab="featured" class="nav-item">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
@@ -265,6 +274,25 @@
                     </button>
                 </li>
                 <li>
+                    <button data-tab="miscellaneous" class="nav-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"/>
+                            <rect x="14" y="3" width="7" height="7"/>
+                            <rect x="14" y="14" width="7" height="7"/>
+                            <rect x="3" y="14" width="7" height="7"/>
+                        </svg>
+                        <span>Miscellaneous</span>
+                    </button>
+                </li>
+                <li>
+                    <button data-tab="community" class="nav-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        <span>Community</span>
+                    </button>
+                </li>
+                <li>
                     <button data-tab="changelog" class="nav-item">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -283,6 +311,14 @@
                     <div class="status-dot online"></div>
                     <span>Connected</span>
                 </div>
+                
+                <!-- User Profile Button -->
+                <button id="user-profile-button" class="user-profile-btn" title="Profile">
+                    <div class="user-avatar-small" id="sidebar-avatar">?</div>
+                    <span class="profile-status-text" id="profile-status-text">Sign In</span>
+                </button>
+                
+                <!-- Developer Login Button -->
                 <button id="developer-login-button" class="developer-login-btn" title="Developer Login">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -324,20 +360,6 @@
             <section class="quick-access">
                 <h3>Quick Access</h3>
                 <div class="card-grid">
-                    <article class="app-card" data-app="hack">
-                        <div class="card-icon">
-                            <img src="icons/hack.png" alt="Hack Stuff Icon" loading="lazy">
-                        </div>
-                        <div class="card-content">
-                            <h4>Hack Stuff</h4>
-                            <p class="card-desc">Restricted utilities and experimental tools for advanced users.</p>
-                            <div class="card-rating">
-                                <span class="stars dynamic-stars" data-app-rating="hack"></span>
-                                <span class="rating-value" data-avg-rating="hack">—</span>
-                            </div>
-                        </div>
-                    </article>
-
                     <article class="app-card" data-app="portal">
                         <div class="card-icon">
                             <img src="icons/game-portal.png" alt="Game Portal Icon" loading="lazy">
@@ -379,8 +401,65 @@
                             </div>
                         </div>
                     </article>
+
+                    <article class="app-card" data-app="monkeytype">
+                        <div class="card-icon">
+                            <img src="icons/monkeytype.png" alt="Monkeytype Icon" loading="lazy">
+                        </div>
+                        <div class="card-content">
+                            <h4>Monkeytype</h4>
+                            <p class="card-desc">Minimalist typing test with customizable themes and statistics.</p>
+                            <div class="card-rating">
+                                <span class="stars dynamic-stars" data-app-rating="monkeytype"></span>
+                                <span class="rating-value" data-avg-rating="monkeytype">—</span>
+                            </div>
+                        </div>
+                    </article>
                 </div>
             </section>
+        </main>
+
+        <!-- ================= SEARCH PAGE ================= -->
+        <main data-page="search" class="page">
+            <section class="page-header">
+                <h2>Search Apps</h2>
+                <p>Find apps, games, and tools quickly. Search by name, category, or description to discover new content.</p>
+            </section>
+
+            <section class="search-container">
+                <div class="search-input-wrapper">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" id="search-input" class="search-input" placeholder="Search for apps, games, or tools..." autocomplete="off">
+                </div>
+                
+                <div class="search-categories">
+                    <button class="search-category-btn active" data-search-category="all">All</button>
+                    <button class="search-category-btn" data-search-category="Games">Games</button>
+                    <button class="search-category-btn" data-search-category="Social">Social</button>
+                    <button class="search-category-btn" data-search-category="Operating System">OS</button>
+                    <button class="search-category-btn" data-search-category="Educational">Educational</button>
+                    <button class="search-category-btn" data-search-category="Utilities">Utilities</button>
+                </div>
+                
+                <p class="search-results-count">Showing <span id="search-count">0</span> results</p>
+            </section>
+
+            <div class="card-grid" id="search-results">
+                <!-- Search results will be populated here -->
+            </div>
+
+            <div class="search-no-results hidden" id="search-no-results">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    <line x1="8" y1="11" x2="14" y2="11"/>
+                </svg>
+                <h3>No results found</h3>
+                <p>Try adjusting your search terms or browse by category</p>
+            </div>
         </main>
 
         <!-- ================= FEATURED PAGE ================= -->
@@ -563,7 +642,7 @@
                         <img src="icons/circle.png" alt="Draw a Circle Icon" loading="lazy">
                     </div>
                     <div class="card-content">
-                        <h4>Draw a Circle</h4>
+                        <h4>Draw a Circle <span class="offline-tag" data-app="circle">OFFLINE</span></h4>
                         <p class="card-desc">Quick reflex challenge - draw the most perfect circle you can.</p>
                         <div class="card-rating">
                             <span class="stars dynamic-stars" data-app-rating="circle"></span>
@@ -586,12 +665,12 @@
                     </div>
                 </article>
 
-                <article class="app-card" data-app="minecraft">
+                <article class="app-card" data-app="minecraft" data-reguest="true">
                     <div class="card-icon">
                         <img src="icons/minecraft.png" alt="Minecraft Web Icon" loading="lazy">
                     </div>
                     <div class="card-content">
-                        <h4>Minecraft Web (Beta)</h4>
+                        <h4>Minecraft Web (Beta) <span class="reguest-warning" data-app="minecraft">RE-GUEST REQUIRED</span></h4>
                         <p class="card-desc">Browser-based Minecraft experience with multiplayer focus.</p>
                         <div class="card-rating">
                             <span class="stars dynamic-stars" data-app-rating="minecraft"></span>
@@ -605,7 +684,7 @@
                         <img src="icons/blockblast.png" alt="Block Blast Icon" loading="lazy">
                     </div>
                     <div class="card-content">
-                        <h4>Block Blast</h4>
+                        <h4>Block Blast <span class="offline-tag" data-app="blockblast">OFFLINE</span></h4>
                         <p class="card-desc">Fast-paced block placement puzzle game with competitive scoring.</p>
                         <div class="card-rating">
                             <span class="stars dynamic-stars" data-app-rating="blockblast"></span>
@@ -708,6 +787,62 @@
                         <div class="card-rating">
                             <span class="stars dynamic-stars" data-app-rating="paperio2"></span>
                             <span class="rating-value" data-avg-rating="paperio2">—</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="app-card" data-app="lichess">
+                    <div class="card-icon">
+                        <img src="icons/lichess.png" alt="Lichess Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>Lichess</h4>
+                        <p class="card-desc">Free, open-source chess platform. Play against AI or worldwide.</p>
+                        <div class="card-rating">
+                            <span class="stars dynamic-stars" data-app-rating="lichess"></span>
+                            <span class="rating-value" data-avg-rating="lichess">—</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="app-card" data-app="tinyfishing">
+                    <div class="card-icon">
+                        <img src="icons/tinyfishing.png" alt="Tiny Fishing Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>Tiny Fishing</h4>
+                        <p class="card-desc">Addictive fishing game. Catch fish and upgrade your gear.</p>
+                        <div class="card-rating">
+                            <span class="stars dynamic-stars" data-app-rating="tinyfishing"></span>
+                            <span class="rating-value" data-avg-rating="tinyfishing">—</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="app-card" data-app="ovo">
+                    <div class="card-icon">
+                        <img src="icons/ovo.png" alt="OVO Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>OVO</h4>
+                        <p class="card-desc">Fast-paced parkour game. Jump, slide, and wall-run through levels.</p>
+                        <div class="card-rating">
+                            <span class="stars dynamic-stars" data-app-rating="ovo"></span>
+                            <span class="rating-value" data-avg-rating="ovo">—</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="app-card" data-app="towerofdestiny">
+                    <div class="card-icon">
+                        <img src="icons/towerofdestiny.png" alt="Tower of Destiny Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>Tower of Destiny</h4>
+                        <p class="card-desc">Climb the tower, avoid obstacles, and reach the top.</p>
+                        <div class="card-rating">
+                            <span class="stars dynamic-stars" data-app-rating="towerofdestiny"></span>
+                            <span class="rating-value" data-avg-rating="towerofdestiny">—</span>
                         </div>
                     </div>
                 </article>
@@ -911,6 +1046,140 @@
             </div>
         </main>
 
+        <!-- ================= MISCELLANEOUS PAGE ================= -->
+        <main data-page="miscellaneous" class="page">
+            <section class="page-header">
+                <h2>Miscellaneous</h2>
+                <p>Utilities, experimental tools, and other resources that don't fit into our main categories. These tools are designed for advanced users and students who need specialized functionality.</p>
+            </section>
+
+            <section class="misc-notice">
+                <div class="notice-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                </div>
+                <div class="notice-content">
+                    <h3>Advanced Tools</h3>
+                    <p>The tools in this section are intended for educational and developmental purposes. Please use them responsibly and follow any school guidelines regarding tool usage.</p>
+                </div>
+            </section>
+
+            <div class="card-grid">
+                <article class="app-card" data-app="hack">
+                    <div class="card-icon">
+                        <img src="icons/hack.png" alt="Hack Stuff Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>Hack Stuff</h4>
+                        <p class="card-desc">Restricted utilities and experimental tools for advanced users.</p>
+                        <div class="card-rating">
+                            <span class="stars dynamic-stars" data-app-rating="hack"></span>
+                            <span class="rating-value" data-avg-rating="hack">—</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="app-card" data-app="monkeytype">
+                    <div class="card-icon">
+                        <img src="icons/monkeytype.png" alt="Monkeytype Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>Monkeytype</h4>
+                        <p class="card-desc">Minimalist typing test with customizable themes and detailed statistics.</p>
+                        <div class="card-rating">
+                            <span class="stars dynamic-stars" data-app-rating="monkeytype"></span>
+                            <span class="rating-value" data-avg-rating="monkeytype">—</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="app-card" data-app="photopea">
+                    <div class="card-icon">
+                        <img src="icons/photopea.png" alt="Photopea Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>Photopea</h4>
+                        <p class="card-desc">Powerful online image editor. Edit photos without installation.</p>
+                        <div class="card-rating">
+                            <span class="stars dynamic-stars" data-app-rating="photopea"></span>
+                            <span class="rating-value" data-avg-rating="photopea">—</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="app-card" data-app="piskel">
+                    <div class="card-icon">
+                        <img src="icons/piskel.png" alt="Piskel Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>Piskel</h4>
+                        <p class="card-desc">Free online editor for creating pixel art and animated sprites.</p>
+                        <div class="card-rating">
+                            <span class="stars dynamic-stars" data-app-rating="piskel"></span>
+                            <span class="rating-value" data-avg-rating="piskel">—</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="app-card" data-app="vscodeweb">
+                    <div class="card-icon">
+                        <img src="icons/vscode.png" alt="VS Code Web Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>VS Code Web</h4>
+                        <p class="card-desc">Browser-based code editor with syntax highlighting and extensions.</p>
+                        <div class="card-rating">
+                            <span class="stars dynamic-stars" data-app-rating="vscodeweb"></span>
+                            <span class="rating-value" data-avg-rating="vscodeweb">—</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="app-card" data-app="shadertoy">
+                    <div class="card-icon">
+                        <img src="icons/shadertoy.png" alt="ShaderToy Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>ShaderToy</h4>
+                        <p class="card-desc">Create and share GLSL shaders. Learn computer graphics programming.</p>
+                        <div class="card-rating">
+                            <span class="stars dynamic-stars" data-app-rating="shadertoy"></span>
+                            <span class="rating-value" data-avg-rating="shadertoy">—</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="app-card" data-app="tiddlywiki">
+                    <div class="card-icon">
+                        <img src="icons/tiddlywiki.png" alt="TiddlyWiki Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>TiddlyWiki</h4>
+                        <p class="card-desc">Personal wiki and non-linear notebook for organizing information.</p>
+                        <div class="card-rating">
+                            <span class="stars dynamic-stars" data-app-rating="tiddlywiki"></span>
+                            <span class="rating-value" data-avg-rating="tiddlywiki">—</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="app-card" data-app="hextris">
+                    <div class="card-icon">
+                        <img src="icons/hextris.png" alt="Hextris Icon" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h4>Hextris</h4>
+                        <p class="card-desc">Addictive puzzle game played on a hexagonal grid.</p>
+                        <div class="card-rating">
+                            <span class="stars dynamic-stars" data-app-rating="hextris"></span>
+                            <span class="rating-value" data-avg-rating="hextris">—</span>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </main>
+
         <!-- ================= CHANGELOG PAGE ================= -->
         <main data-page="changelog" class="page">
             <section class="page-header">
@@ -921,20 +1190,73 @@
             <section class="changelog-meta">
                 <div class="meta-card">
                     <div class="meta-label">Current Version</div>
-                    <div class="meta-value" id="changelog-version">1.1.0</div>
+                    <div class="meta-value" id="changelog-version">2.0.0</div>
                 </div>
                 <div class="meta-card">
                     <div class="meta-label">Last Updated</div>
-                    <div class="meta-value" id="changelog-date">January 6, 2026</div>
+                    <div class="meta-value" id="changelog-date">January 8, 2026</div>
                 </div>
                 <div class="meta-card">
                     <div class="meta-label">Total Changes</div>
-                    <div class="meta-value">59</div>
+                    <div class="meta-value">78</div>
                 </div>
             </section>
 
             <section class="changelog-timeline">
                 <article class="changelog-entry latest">
+                    <div class="entry-header">
+                        <div class="entry-version">v2.0.0</div>
+                        <div class="entry-date">January 8, 2026</div>
+                        <div class="entry-badge major">Major Release</div>
+                    </div>
+                    <div class="entry-content">
+                        <h4>New Features</h4>
+                        <ul>
+                            <li>Implemented complete Firebase Authentication system with email/password login and signup</li>
+                            <li>Added user profile system with customizable profile pictures (no file size limits via Firebase Storage)</li>
+                            <li>Created new Search tab with instant filtering, category filtering, and highlighted results</li>
+                            <li>Added numerical rating display (e.g., "4.5") alongside star ratings for better clarity</li>
+                            <li>Created dedicated Miscellaneous tab for utilities and advanced tools (moved Hack Stuff)</li>
+                            <li>Added Monkeytype to the app collection with full rating and review support</li>
+                            <li>Implemented update checker linking to the-sawfish.github.io/update for version verification</li>
+                            <li>Added responsive iPad layout with optimized 3-column grid and improved touch targets</li>
+                            <li>Enhanced rating system with numeric badges showing average ratings on app cards</li>
+                            <li>Added profile modal with avatar upload, display name editing, and account management</li>
+                            <li>Implemented authentication modal with login/signup tabs and email verification flow</li>
+                            <li>Added Firebase Storage integration for profile pictures with no file size restrictions</li>
+                            <li>Created hybrid authentication allowing both Firebase Auth and hardcoded developer backdoor</li>
+                            <li>Enhanced developer mode with special tag display on reviews and responses</li>
+                        </ul>
+                        <h4>Improvements</h4>
+                        <ul>
+                            <li>Completely redesigned responsive CSS for better iPad and tablet experience</li>
+                            <li>Optimized card grid layout with 3-column display on tablets (769px-1024px)</li>
+                            <li>Improved touch target sizes for better mobile and tablet accessibility</li>
+                            <li>Enhanced visual hierarchy with larger icons and improved typography on tablets</li>
+                            <li>Streamlined sidebar navigation with better spacing on iPad devices</li>
+                            <li>Improved search input with larger padding and enhanced focus states</li>
+                            <li>Enhanced featured sections with larger images and better spacing on tablets</li>
+                            <li>Optimized rating badge visibility with color-coded rating indicators</li>
+                            <li>Improved profile modal animations and transitions</li>
+                            <li>Enhanced authentication flow with better error handling and user feedback</li>
+                        </ul>
+                        <h4>Bug Fixes</h4>
+                        <ul>
+                            <li>Fixed rating display issues - ratings now visible on all pages (Home, Featured, Games, OS, Social, Miscellaneous)</li>
+                            <li>Resolved duplicate ID conflicts causing star rendering issues on app cards</li>
+                            <li>Fixed star display inconsistency between expanded view and app cards</li>
+                            <li>Corrected app visibility issues for apps in all categories and tabs</li>
+                            <li>Fixed iPad grid layout issues with proper responsive breakpoints</li>
+                            <li>Resolved sidebar text overflow issues on tablet viewports</li>
+                            <li>Fixed modal backdrop click handling for all modal types</li>
+                            <li>Corrected search highlighting for matched terms</li>
+                            <li>Fixed profile avatar upload preview not displaying immediately</li>
+                            <li>Resolved authentication state persistence across page refreshes</li>
+                        </ul>
+                    </div>
+                </article>
+
+                <article class="changelog-entry">
                     <div class="entry-header">
                         <div class="entry-version">v1.1.0</div>
                         <div class="entry-date">January 6, 2026</div>
@@ -973,7 +1295,7 @@
                             <li>Fixed CSS styling issues on developer response badges</li>
                             <li>Fixed star rendering bug causing 6 stars to appear instead of 5 on rating displays</li>
                             <li>Fixed star display inconsistency where stars rendered correctly in expanded app view but failed on app cards due to duplicate ID conflicts</li>
-                            <li>Fixed app visibility issue preventing newly added apps (#3 and #4 in normal tabs, #8 and #9 in developer tab) from appearing in their designated sections</li>
+                            <li>Fixed app visibility issue preventing newly added apps from appearing in their designated sections</li>
                             <li>Added detailed descriptions for all apps to improve user understanding of app features and functionality</li>
                         </ul>
                     </div>
@@ -1043,6 +1365,58 @@
                     </div>
                 </article>
             </section>
+
+            <section class="changelog-actions">
+                <h3>Submit an App</h3>
+                <p>Have a suggestion for an app to add to the store? We'd love to hear from you!</p>
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSfHkT-qS6r6tT1T3c1wKxK3jQyJDy5e8sK8e3iM5n2v1wZ4xQ/viewform" target="_blank" rel="noopener noreferrer" class="btn-primary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                    Submit App Request
+                </a>
+            </section>
+        </main>
+
+        <!-- ================= COMMUNITY BOARD PAGE ================= -->
+        <main data-page="community" class="page">
+            <section class="page-header">
+                <h2>Community Board</h2>
+                <p>Connect with other users, share your thoughts, and post petitions. All posts are anonymous by default unless you're logged in.</p>
+            </section>
+
+            <section class="community-post-section">
+                <form id="community-post-form" class="community-form">
+                    <textarea 
+                        id="community-post-input" 
+                        placeholder="Share your thoughts, suggest apps, or start a discussion..."
+                        rows="3"
+                        maxlength="500"
+                    ></textarea>
+                    <div class="community-form-actions">
+                        <span class="char-count"><span id="char-current">0</span>/500</span>
+                        <button type="submit" id="community-submit-btn" class="btn-primary">Post</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="community-posts-section">
+                <div class="community-header-row">
+                    <h3>Recent Posts</h3>
+                    <div class="community-filter">
+                        <button class="filter-btn active" data-filter="all">All</button>
+                        <button class="filter-btn" data-filter="chat">Chat</button>
+                        <button class="filter-btn" data-filter="petition">Petitions</button>
+                    </div>
+                </div>
+                <div id="community-posts-container" class="community-posts-container">
+                    <!-- Posts will be loaded here -->
+                    <div class="community-empty">
+                        <p>No posts yet. Be the first to share something!</p>
+                    </div>
+                </div>
+            </section>
         </main>
     </main>
 
@@ -1060,6 +1434,28 @@
             </div>
             <div class="expanded-content-wrapper" id="expanded-content-wrapper">
                 <!-- Expanded content will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MINECRAFT WARNING OVERLAY ================= -->
+    <div id="minecraft-warning-overlay" class="modal-overlay hidden" aria-hidden="true">
+        <div class="modal-backdrop"></div>
+        <div class="modal-container warning-modal">
+            <div class="modal-header warning-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="warning-icon">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                <h2 id="minecraft-warning-title">Minecraft - Multiplayer Notice</h2>
+            </div>
+            <div class="modal-body">
+                <p id="minecraft-warning-message"></p>
+            </div>
+            <div class="modal-footer">
+                <button id="minecraft-cancel-btn" class="btn-secondary">Cancel</button>
+                <button id="minecraft-launch-btn" class="btn-primary">Launch Game</button>
             </div>
         </div>
     </div>
@@ -1157,6 +1553,141 @@
                         <polyline points="12 5 19 12 12 19"/>
                     </svg>
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= AUTH MODAL (Login/Signup) ================= -->
+    <div id="auth-modal" class="modal-overlay auth-modal hidden" aria-hidden="true">
+        <div class="modal-backdrop"></div>
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 id="auth-modal-title">Sign In</h2>
+                <p class="modal-subtitle">Access your profile and sync your data</p>
+            </div>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-auth-tab="login">Sign In</button>
+                <button class="auth-tab" data-auth-tab="signup">Create Account</button>
+            </div>
+            
+            <div class="auth-form" id="auth-form-container">
+                <div class="auth-error" id="auth-error"></div>
+                <div class="auth-success" id="auth-success"></div>
+                
+                <!-- Login Form -->
+                <form id="login-form" class="auth-form-active">
+                    <div class="form-group">
+                        <label for="login-email">Email Address</label>
+                        <input type="email" id="login-email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" placeholder="Enter your password" required>
+                    </div>
+                    <button type="submit" class="auth-submit-btn" id="login-submit">Sign In</button>
+                </form>
+                
+                <!-- Signup Form -->
+                <form id="signup-form" style="display: none;">
+                    <div class="form-group">
+                        <label for="signup-name">Display Name</label>
+                        <input type="text" id="signup-name" placeholder="Choose a display name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-email">Email Address</label>
+                        <input type="email" id="signup-email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-password">Password</label>
+                        <input type="password" id="signup-password" placeholder="Create a password (min 6 characters)" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-confirm">Confirm Password</label>
+                        <input type="password" id="signup-confirm" placeholder="Confirm your password" required>
+                    </div>
+                    <button type="submit" class="auth-submit-btn" id="signup-submit">Create Account</button>
+                </form>
+                
+                <!-- Password Reset Form -->
+                <form id="reset-form" style="display: none;">
+                    <div class="form-group">
+                        <label for="reset-email">Email Address</label>
+                        <input type="email" id="reset-email" placeholder="Enter your email" required>
+                    </div>
+                    <button type="submit" class="auth-submit-btn" id="reset-submit">Send Reset Link</button>
+                </form>
+                
+                <div class="auth-footer">
+                    <a href="#" id="auth-switch-to-reset" style="display: none;">Forgot your password?</a>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button id="auth-cancel" class="modal-cancel-btn" type="button">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= PROFILE MODAL ================= -->
+    <div id="profile-modal" class="modal-overlay profile-modal hidden" aria-hidden="true">
+        <div class="modal-backdrop"></div>
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>Your Profile</h2>
+                <p class="modal-subtitle">Manage your account and preferences</p>
+            </div>
+            
+            <div class="profile-header">
+                <div class="profile-avatar-large" id="profile-avatar-preview">
+                    <img src="" alt="Profile" id="profile-avatar-img" style="display: none;">
+                    <span id="profile-avatar-initial">?</span>
+                </div>
+                <div class="profile-info">
+                    <h2 id="profile-display-name">Guest</h2>
+                    <p id="profile-email">Not signed in</p>
+                    <span class="profile-status" id="profile-status-badge">Guest</span>
+                </div>
+            </div>
+            
+            <div class="profile-body">
+                <div class="profile-section">
+                    <h3>Profile Picture</h3>
+                    <div class="avatar-upload">
+                        <div class="avatar-upload-preview" id="profile-avatar-upload-preview">
+                            <img src="" alt="Profile" id="upload-preview-img" style="display: none;">
+                            <span id="upload-preview-initial">?</span>
+                        </div>
+                        <div>
+                            <label for="avatar-upload-input" class="avatar-upload-btn">
+                                Choose Image
+                            </label>
+                            <input type="file" id="avatar-upload-input" accept="image/*">
+                            <p style="font-size: 0.75rem; color: var(--text-tertiary); margin-top: var(--spacing-xs);">
+                                No file size limit - any image size accepted
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="profile-section">
+                    <h3>Account Information</h3>
+                    <form class="profile-form" id="profile-form">
+                        <div class="form-group">
+                            <label for="profile-name-input">Display Name</label>
+                            <input type="text" id="profile-name-input" placeholder="Your name">
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="profile-actions">
+                    <button class="profile-btn secondary" id="profile-logout-btn" type="button">Sign Out</button>
+                    <button class="profile-btn primary" id="profile-save-btn" type="button">Save Changes</button>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button id="profile-close" class="modal-cancel-btn" type="button">Close</button>
             </div>
         </div>
     </div>
@@ -1354,6 +1885,8 @@
 <!-- ================= FIREBASE SDK ================= -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 
 <!-- ================= APPLICATION SCRIPTS ================= -->
 <script>
