@@ -2887,7 +2887,7 @@ const appData = {
         features: "AES-256 encryption, message encoding/decoding, secure key generation, and base64 conversion tools.",
         additional: "Learn about encryption and data security. Perfect for understanding how modern encryption works while keeping your messages private.",
         link: "https://jimeneutron.github.io/SecureCommunication/",
-        screenshots: ["IMG_0634.jpeg", "IMG_0635.jpeg"]
+        screenshots: ["icons/IMG_0634.jpeg", "icons/IMG_0635.jpeg"]
     },
     2048: {
         name: "2048",
