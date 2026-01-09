@@ -2542,18 +2542,18 @@ const appData = {
         description: "Central launcher for all approved Sawfish games in one place.",
         features: "Quick launch for all games, organized categories, search functionality, favorites list, recent games history, and offline support for selected games.",
         additional: "This is your go-to hub for accessing all games in the Sawfish ecosystem. Games are carefully curated for school safety.",
-        link: "https://the-sawfish.github.io/seraph/",
+        link: "https://the-sawfish.github.io/game-portal/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Game+Portal+Launcher", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Game+Categories"]
     },
     chat: {
         name: "Chat App",
-        developer: "Sawfish",
+        developer: "Jimeneutron",
         icon: "icons/chat.png",
         category: "Social / Communication",
         description: "Real-time messaging for students with rooms and channels.",
         features: "Instant messaging, room creation, channel subscriptions, message history, emoji reactions, and @mentions.",
         additional: "Designed for school collaboration. All messages are logged for safety. Respect the community guidelines.",
-        link: "https://the-sawfish.github.io/seraph/chat/",
+        link: "https://jimeneutron.github.io/chatapp/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Chat+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Channel+View"]
     },
     call: {
@@ -2564,7 +2564,7 @@ const appData = {
         description: "Fast, simple browser-based voice calling interface.",
         features: "One-click voice calls, no registration required, low latency audio, works on all modern browsers.",
         additional: "For quick voice conversations with classmates. Ideal for study groups and project discussions.",
-        link: "https://the-sawfish.github.io/seraph/call/",
+        link: "https://the-sawfish.github.io/call-app/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Call+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Call+Controls"]
     },
     circle: {
@@ -2575,7 +2575,7 @@ const appData = {
         description: "Quick reflex challenge - draw the most perfect circle you can.",
         features: "Instant play, accuracy scoring, global leaderboard, practice mode, and streak bonuses.",
         additional: "Often used as a hack - clicking the OFFLINE tag reveals the hack site password.",
-        link: "https://the-sawfish.github.io/seraph/games/circle/",
+        link: "https://the-sawfish.github.io/circle/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Draw+a+Circle+Game", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Accuracy+Score"]
     },
     minecraft: {
@@ -2587,7 +2587,7 @@ const appData = {
         features: "Browser-based Minecraft, multiplayer servers, creative/survival modes, skin support, and cross-device save sync.",
         additional: "NOTE: Multiplayer requires re-guesting/refresh to work properly. This is a web version limitation. Single player mode available but crafting is disabled in web version.",
         link: "https://zardoy.github.io/minecraft-web-client/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Minecraft+Web+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Multiplayer+Server"]
+        screenshots: ["IMG_0610.jpeg", "IMG_0611.jpeg"]
     },
     sandboxels: {
         name: "Sandboxels",
@@ -2597,7 +2597,7 @@ const appData = {
         description: "Falling sand physics simulator with over 500 elements.",
         features: "500+ elements, realistic physics, cellular automata, color mixing, and element interactions.",
         additional: "Excellent for learning about physics and creating art. Very satisfying to play with.",
-        link: "https://sandboxels.riverside.rocks/",
+        link: "https://the-sawfish.github.io/sandboxels/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Sandboxels+Physics", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Element+Interactions"]
     },
     blockblast: {
@@ -2608,7 +2608,7 @@ const appData = {
         description: "Fast-paced block placement puzzle game with competitive scoring.",
         features: "Classic block puzzle mechanics, competitive scoring, daily challenges, and offline play.",
         additional: "Often used as a hack - clicking the OFFLINE tag reveals the hack site password.",
-        link: "https://the-sawfish.github.io/seraph/games/blockblast/",
+        link: "https://the-sawfish.github.io/blockblast/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Block+Blast+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Block+Placement"]
     },
     run3: {
@@ -2619,18 +2619,18 @@ const appData = {
         description: "Endless space runner with gravity-shifting tunnel gameplay.",
         features: "Infinite tunnel running, gravity shifting, character unlocking, achievements, and upgrade system.",
         additional: "One of the most popular unblocked games. Works great on school networks.",
-        link: "https://the-sawfish.github.io/seraph/games/run3/",
+        link: "https://the-sawfish.github.io/Run3Final/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Run+3+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Tunnel+Navigation"]
     },
     syrup: {
         name: "Syrup Games",
-        developer: "Syrup Games",
+        developer: "Jimeneutron",
         icon: "icons/syrup.png",
         category: "Games / Launcher",
         description: "Alternative game launcher with unique browser-based titles.",
         features: "Syrup's flagship games including Nitter and other titles, integrated launcher, achievement tracking.",
         additional: "Provides access to Syrup's suite of unique browser games. Often hosts events and challenges.",
-        link: "https://syrupgames.io/",
+        link: "https://jimeneutron.github.io/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Syrup+Games+Launcher", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Available+Games"]
     },
     bobtherobber: {
@@ -2674,7 +2674,7 @@ const appData = {
         description: "Hextris is a fast-paced puzzle game inspired by Tetris, played on a hexagonal grid. Rotate the hexagon to stack blocks and prevent the game from ending in this addictive challenge.",
         features: "Features include addictive gameplay with increasing difficulty, colorful hexagonal visuals, high score tracking, combo multipliers, and smooth animations.",
         additional: "Often hosted on GitHub Pages, making it less likely to be blocked by school filters. Perfect for quick gaming sessions during breaks.",
-        link: "https://hextris.io/",
+        link: "https://codechefvit.github.io/DevTris/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Hextris+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Hexagonal+Puzzle"]
     },
     
@@ -2875,18 +2875,18 @@ const appData = {
         description: "Restricted utilities and experimental tools for advanced users. Access various hacking simulations and security testing tools in a safe environment.",
         features: "Password generator, cipher tools, hash generator, and various security utilities for educational purposes.",
         additional: "For educational purposes only. These tools are designed to help students understand cybersecurity concepts. DO NOT use for malicious purposes.",
-        link: "https://the-sawfish.github.io/seraph/hack/",
+        link: "https://the-sawfish.github.io/hack/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Hack+Tools+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Password+Generator"]
     },
     securecomms: {
         name: "Secure Communication",
-        developer: "Sawfish",
+        developer: "Jimeneutron",
         icon: "icons/securecomms.png",
         category: "Miscellaneous / Tools",
         description: "Encrypt and decrypt messages securely. Protect your private conversations with military-grade encryption.",
         features: "AES-256 encryption, message encoding/decoding, secure key generation, and base64 conversion tools.",
         additional: "Learn about encryption and data security. Perfect for understanding how modern encryption works while keeping your messages private.",
-        link: "https://the-sawfish.github.io/seraph/securecomms/",
+        link: "https://jimeneutron.github.io/SecureCommunication/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Secure+Communication", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Encryption+Tools"]
     },
     2048: {
