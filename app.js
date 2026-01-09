@@ -9,12 +9,18 @@
 // ============================================================
 // VERSION CONFIGURATION
 // ============================================================
-const APP_VERSION = '1.2.0';
+const APP_VERSION = '1.3.0';
 const VERSION_CHECK_URL = '/update/version.json';
 
 // ============================================================
 // FIREBASE CONFIGURATION
 // ============================================================
+// NOTE: Replace these values with your own Firebase config
+// You can get these from the Firebase Console:
+// 1. Go to https://console.firebase.google.com/
+// 2. Create a new project or select existing one
+// 3. Go to Project Settings > General > Your apps
+// 4. Copy the firebaseConfig values
 const firebaseConfig = {
     apiKey: "AIzaSyB5JaGq3ezv1ghif7ggRr8_jxuq7ZGw4Bo",
     authDomain: "appstore-cb2fa.firebaseapp.com",
@@ -25,23 +31,59 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-let db;
-let auth;
-let storage;
-let app;
+let db = null;
+let auth = null;
+let storage = null;
+let app = null;
 
 try {
     if (typeof firebase !== 'undefined') {
-        app = firebase.initializeApp(firebaseConfig);
-        db = firebase.firestore();
-        auth = firebase.auth();
-        storage = firebase.storage();
-        console.log('Firebase initialized successfully');
+        // Check if config is set properly
+        if (firebaseConfig.apiKey !== "YOUR_API_KEY_HERE") {
+            app = firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            auth = firebase.auth();
+            storage = firebase.storage();
+            
+            // Set auth persistence to maintain login state across sessions
+            if (auth) {
+                auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+                    .then(() => {
+                        console.log('Auth persistence set to LOCAL');
+                    })
+                    .catch((error) => {
+                        console.error('Error setting auth persistence:', error);
+                    });
+                
+                // Listen for auth state changes to maintain session
+                auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        console.log('User signed in:', user.email);
+                        UserAuth.currentUser = {
+                            uid: user.uid,
+                            email: user.email,
+                            displayName: user.displayName || user.email.split('@')[0],
+                            emailVerified: user.emailVerified
+                        };
+                        UserAuth.updateAuthUI();
+                    } else {
+                        console.log('User signed out');
+                    }
+                });
+            }
+            
+            console.log('Firebase initialized successfully');
+            console.log('Project ID:', firebaseConfig.projectId);
+        } else {
+            console.warn('Firebase config not set - using local storage fallback');
+            console.warn('To enable cloud sync, configure firebaseConfig with your values');
+        }
     } else {
-        console.warn('Firebase SDK not loaded - limited functionality available');
+        console.warn('Firebase SDK not loaded - using local storage fallback');
     }
 } catch (error) {
     console.error('Firebase initialization failed:', error);
+    console.warn('Falling back to local storage');
 }
 
 // ============================================================
@@ -109,57 +151,266 @@ const UserAuth = {
     
     // Setup authentication event listeners
     setupAuthListeners: function() {
+        console.log('Setting up auth listeners...');
+        
         // Login form submission
         const loginForm = document.getElementById('login-form');
+        console.log('Login form found:', !!loginForm);
         if (loginForm) {
             loginForm.addEventListener('submit', (e) => this.handleLogin(e));
         }
         
         // Signup form submission
         const signupForm = document.getElementById('signup-form');
+        console.log('Signup form found:', !!signupForm);
         if (signupForm) {
             signupForm.addEventListener('submit', (e) => this.handleSignup(e));
         }
         
         // Password reset form
         const resetForm = document.getElementById('reset-form');
+        console.log('Reset form found:', !!resetForm);
         if (resetForm) {
             resetForm.addEventListener('submit', (e) => this.handlePasswordReset(e));
         }
         
-        // Auth modal tabs
-        this.setupAuthTabs();
+        // Auth modal tabs - Fixed selector
+        const authTabs = document.querySelectorAll('.auth-tab');
+        authTabs.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tab = btn.dataset.authTab;
+                
+                authTabs.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Show/hide forms based on tab
+                document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
+                document.getElementById('signup-form').style.display = tab === 'signup' ? 'block' : 'none';
+                document.getElementById('reset-form').style.display = tab === 'reset' ? 'block' : 'none';
+                
+                // Update title
+                const title = document.getElementById('auth-modal-title');
+                if (title) {
+                    if (tab === 'login') title.textContent = 'Sign In';
+                    else if (tab === 'signup') title.textContent = 'Create Account';
+                    else if (tab === 'reset') title.textContent = 'Reset Password';
+                }
+            });
+        });
         
-        // Logout button
-        const logoutBtn = document.getElementById('logout-btn');
+        // User profile button in sidebar
+        const userProfileBtn = document.getElementById('user-profile-button');
+        if (userProfileBtn) {
+            userProfileBtn.addEventListener('click', () => this.handleProfileButtonClick());
+        }
+        
+        // Logout button from profile modal
+        const logoutBtn = document.getElementById('profile-logout-btn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', () => this.handleLogout());
         }
         
-        // Profile picture upload
-        const profileUpload = document.getElementById('profile-picture-upload');
-        if (profileUpload) {
-            profileUpload.addEventListener('change', (e) => this.handleProfilePictureUpload(e));
+        // Profile save button
+        const profileSaveBtn = document.getElementById('profile-save-btn');
+        if (profileSaveBtn) {
+            profileSaveBtn.addEventListener('click', () => this.saveProfileChanges());
+        }
+        
+        // Profile cancel button
+        const profileCancelBtn = document.getElementById('profile-cancel-btn');
+        if (profileCancelBtn) {
+            profileCancelBtn.addEventListener('click', () => this.closeProfileModal());
+        }
+        
+        // Avatar upload
+        const avatarUpload = document.getElementById('avatar-upload-input');
+        if (avatarUpload) {
+            avatarUpload.addEventListener('change', (e) => this.handleProfilePictureUpload(e));
+        }
+        
+        // Profile modal close
+        const profileClose = document.getElementById('profile-close');
+        if (profileClose) {
+            profileClose.addEventListener('click', () => this.closeProfileModal());
+        }
+        
+        // Auth modal close/cancel
+        const authCancel = document.getElementById('auth-cancel');
+        if (authCancel) {
+            authCancel.addEventListener('click', () => this.closeAuthModal());
+        }
+        
+        // Backdrop click to close auth modal
+        const authModal = document.getElementById('auth-modal');
+        if (authModal) {
+            const backdrop = authModal.querySelector('.modal-backdrop');
+            if (backdrop) {
+                backdrop.addEventListener('click', () => this.closeAuthModal());
+            }
+        }
+        
+        // Escape key to close auth modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const authModal = document.getElementById('auth-modal');
+                if (authModal && !authModal.classList.contains('hidden')) {
+                    this.closeAuthModal();
+                }
+            }
+        });
+    },
+    
+    // Handle profile button click
+    handleProfileButtonClick: function() {
+        if (this.isLoggedIn()) {
+            this.openProfileModal();
+        } else {
+            this.openAuthModal();
         }
     },
     
-    // Setup auth modal tabs
-    setupAuthTabs: function() {
-        const tabBtns = document.querySelectorAll('.auth-tab-btn');
-        const tabContents = document.querySelectorAll('.auth-tab-content');
+    // Open profile modal
+    openProfileModal: function() {
+        const modal = document.getElementById('profile-modal');
+        if (!modal) return;
         
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const tab = btn.dataset.authTab;
-                
-                tabBtns.forEach(b => b.classList.remove('active'));
-                tabContents.forEach(c => c.classList.remove('active'));
-                
-                btn.classList.add('active');
-                const targetContent = document.getElementById(`${tab}-content`);
-                if (targetContent) targetContent.classList.add('active');
-            });
-        });
+        // Update profile info
+        const name = this.userProfile?.username || this.currentUser?.displayName || 'User';
+        const email = this.userProfile?.email || this.currentUser?.email || 'Not signed in';
+        const bio = this.userProfile?.bio || '';
+        
+        const nameEl = document.getElementById('profile-display-name');
+        const emailEl = document.getElementById('profile-email');
+        const nameInput = document.getElementById('profile-name-input');
+        const bioInput = document.getElementById('profile-bio-input');
+        
+        if (nameEl) nameEl.textContent = name;
+        if (emailEl) emailEl.textContent = email;
+        if (nameInput) nameInput.value = name;
+        if (bioInput) bioInput.value = bio;
+        
+        // Update avatar
+        this.updateProfileAvatar();
+        
+        // Update status badge
+        const statusBadge = document.getElementById('profile-status-badge');
+        if (statusBadge) {
+            if (this.isDeveloperMode) {
+                statusBadge.textContent = 'Developer';
+                statusBadge.classList.add('developer');
+            } else {
+                statusBadge.textContent = 'User';
+                statusBadge.classList.remove('developer');
+            }
+        }
+        
+        modal.classList.remove('hidden');
+        modal.setAttribute('aria-hidden', 'false');
+    },
+    
+    // Close profile modal
+    closeProfileModal: function() {
+        const modal = document.getElementById('profile-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+    },
+    
+    // Update profile avatar display
+    updateProfileAvatar: function() {
+        const avatarInitial = document.getElementById('profile-avatar-initial');
+        const avatarImg = document.getElementById('profile-avatar-img');
+        const previewInitial = document.getElementById('upload-preview-initial');
+        const previewImg = document.getElementById('upload-preview-img');
+        
+        const name = this.userProfile?.username || this.currentUser?.displayName || 'User';
+        const initial = name.charAt(0).toUpperCase();
+        
+        if (this.userProfile?.avatarUrl) {
+            if (avatarInitial) avatarInitial.style.display = 'none';
+            if (avatarImg) {
+                avatarImg.src = this.userProfile.avatarUrl;
+                avatarImg.style.display = 'block';
+            }
+            if (previewInitial) previewInitial.style.display = 'none';
+            if (previewImg) {
+                previewImg.src = this.userProfile.avatarUrl;
+                previewImg.style.display = 'block';
+            }
+        } else {
+            if (avatarInitial) {
+                avatarInitial.textContent = initial;
+                avatarInitial.style.display = 'flex';
+            }
+            if (avatarImg) avatarImg.style.display = 'none';
+            if (previewInitial) {
+                previewInitial.textContent = initial;
+                previewInitial.style.display = 'flex';
+            }
+            if (previewImg) previewImg.style.display = 'none';
+        }
+    },
+    
+    // Save profile changes
+    saveProfileChanges: function() {
+        const nameInput = document.getElementById('profile-name-input');
+        const bioInput = document.getElementById('profile-bio-input');
+        const name = nameInput?.value.trim();
+        const bio = bioInput?.value.trim();
+        
+        if (name) {
+            this.userProfile = this.userProfile || {};
+            this.userProfile.username = name;
+            this.userProfile.bio = bio || '';
+            
+            if (this.currentUser) {
+                this.currentUser.displayName = name;
+            }
+            
+            this.saveUserSession();
+            
+            // Update Firestore if available
+            if (db && this.currentUser) {
+                db.collection('users').doc(this.currentUser.uid).set({
+                    username: name,
+                    bio: bio || ''
+                }, { merge: true })
+                .then(() => {
+                    console.log('Profile saved to Firestore');
+                })
+                .catch((error) => {
+                    console.error('Error saving profile to Firestore:', error);
+                });
+            }
+            
+            // Also save to localStorage for offline mode
+            if (!db && this.currentUser) {
+                const storedUsers = JSON.parse(localStorage.getItem('sawfish_users') || '{}');
+                const email = this.currentUser.email;
+                if (storedUsers[email]) {
+                    storedUsers[email].username = name;
+                    storedUsers[email].bio = bio || '';
+                    localStorage.setItem('sawfish_users', JSON.stringify(storedUsers));
+                }
+            }
+            
+            this.updateAuthUI();
+            this.updateProfileAvatar();
+            showNotification('Profile updated!');
+            
+            // Close the profile modal
+            this.closeProfileModal();
+        }
+    },
+    
+    // Close profile modal
+    closeProfileModal: function() {
+        const modal = document.getElementById('profile-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.setAttribute('aria-hidden', 'true');
+        }
     },
     
     // Handle login
@@ -168,7 +419,7 @@ const UserAuth = {
         
         const emailInput = document.getElementById('login-email');
         const passwordInput = document.getElementById('login-password');
-        const errorDiv = document.getElementById('login-error');
+        const errorDiv = document.getElementById('auth-error');
         const submitBtn = document.getElementById('login-submit');
         
         const email = emailInput?.value.trim();
@@ -200,6 +451,15 @@ const UserAuth = {
                 this.saveUserSession();
                 this.closeAuthModal();
                 this.updateAuthUI();
+                
+                // Update developer mode UI
+                DeveloperMode.isLoggedIn = true;
+                DeveloperMode.updateLoginButton();
+                updateDevOnlyElements();
+                
+                // Award developer achievement
+                Achievements.checkAchievements('become_developer');
+                
                 showNotification('Developer mode activated');
                 return;
             }
@@ -217,7 +477,26 @@ const UserAuth = {
                 this.updateAuthUI();
                 showNotification('Welcome back!');
             } else {
-                this.showError(errorDiv, 'Authentication service unavailable');
+                // Fallback: check local storage for demo users
+                const storedUsers = JSON.parse(localStorage.getItem('sawfish_users') || '{}');
+                if (storedUsers[email] && storedUsers[email].password === password) {
+                    this.currentUser = {
+                        uid: storedUsers[email].uid,
+                        email: email,
+                        displayName: storedUsers[email].username,
+                        isDeveloper: false
+                    };
+                    this.userProfile = {
+                        username: storedUsers[email].username,
+                        email: email
+                    };
+                    this.saveUserSession();
+                    this.closeAuthModal();
+                    this.updateAuthUI();
+                    showNotification('Welcome back! (Offline mode)');
+                } else {
+                    this.showError(errorDiv, 'Invalid email or password. In offline mode, please sign up first.');
+                }
             }
         } catch (error) {
             console.error('Login error:', error);
@@ -256,7 +535,7 @@ const UserAuth = {
         const emailInput = document.getElementById('signup-email');
         const passwordInput = document.getElementById('signup-password');
         const confirmInput = document.getElementById('signup-confirm');
-        const errorDiv = document.getElementById('signup-error');
+        const errorDiv = document.getElementById('auth-error');
         const submitBtn = document.getElementById('signup-submit');
         
         const name = nameInput?.value.trim();
@@ -301,7 +580,8 @@ const UserAuth = {
                     avatarUrl: null,
                     createdAt: new Date().toISOString(),
                     bio: '',
-                    totalRatings: 0
+                    totalRatings: 0,
+                    achievements: ['first_time']
                 };
                 
                 await this.saveUserProfile(user.uid);
@@ -319,7 +599,41 @@ const UserAuth = {
                 this.updateAuthUI();
                 showNotification('Account created! Please check your email for verification.');
             } else {
-                this.showError(errorDiv, 'Authentication service unavailable');
+                // Fallback: store in localStorage
+                const storedUsers = JSON.parse(localStorage.getItem('sawfish_users') || '{}');
+                
+                if (storedUsers[email]) {
+                    this.showError(errorDiv, 'An account with this email already exists');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Create Account';
+                    return;
+                }
+                
+                const uid = 'user_' + Date.now();
+                storedUsers[email] = {
+                    uid: uid,
+                    username: name,
+                    email: email,
+                    password: password,
+                    createdAt: new Date().toISOString()
+                };
+                localStorage.setItem('sawfish_users', JSON.stringify(storedUsers));
+                
+                this.currentUser = {
+                    uid: uid,
+                    email: email,
+                    displayName: name,
+                    isDeveloper: false
+                };
+                this.userProfile = {
+                    username: name,
+                    email: email
+                };
+                
+                this.saveUserSession();
+                this.closeAuthModal();
+                this.updateAuthUI();
+                showNotification('Account created! (Offline mode)');
             }
         } catch (error) {
             console.error('Signup error:', error);
@@ -349,8 +663,8 @@ const UserAuth = {
         event.preventDefault();
         
         const emailInput = document.getElementById('reset-email');
-        const errorDiv = document.getElementById('reset-error');
-        const successDiv = document.getElementById('reset-success');
+        const errorDiv = document.getElementById('auth-error');
+        const successDiv = document.getElementById('auth-success');
         const submitBtn = document.getElementById('reset-submit');
         
         const email = emailInput?.value.trim();
@@ -397,7 +711,16 @@ const UserAuth = {
             }
             
             this.clearSession();
+            this.closeProfileModal();
             this.updateAuthUI();
+            
+            // Update developer mode if was in dev mode
+            if (DeveloperMode.isLoggedIn) {
+                DeveloperMode.isLoggedIn = false;
+                DeveloperMode.updateLoginButton();
+                updateDevOnlyElements();
+            }
+            
             showNotification('Logged out successfully');
             
             // Switch to home tab
@@ -425,7 +748,8 @@ const UserAuth = {
                     avatarUrl: null,
                     createdAt: new Date().toISOString(),
                     bio: '',
-                    totalRatings: 0
+                    totalRatings: 0,
+                    achievements: ['first_time']
                 };
                 await this.saveUserProfile(user.uid);
             }
@@ -450,8 +774,9 @@ const UserAuth = {
         const file = event.target.files[0];
         if (!file) return;
         
-        const preview = document.getElementById('profile-picture-preview');
         const status = document.getElementById('profile-upload-status');
+        const previewInitial = document.getElementById('upload-preview-initial');
+        const previewImg = document.getElementById('upload-preview-img');
         
         if (!this.currentUser) {
             showNotification('Please log in to upload a profile picture');
@@ -459,8 +784,10 @@ const UserAuth = {
         }
         
         try {
-            status.textContent = 'Uploading...';
-            status.classList.remove('hidden');
+            if (status) {
+                status.textContent = 'Uploading...';
+                status.classList.remove('hidden');
+            }
             
             // Upload to Firebase Storage
             if (storage && !this.isDeveloperMode) {
@@ -476,26 +803,49 @@ const UserAuth = {
                 if (auth.currentUser) {
                     await auth.currentUser.updateProfile({ photoURL: downloadUrl });
                 }
+                
+                // Update profile avatar for Firebase Storage upload path
+                this.updateProfileAvatar();
+                
+                if (status) {
+                    status.textContent = 'Profile picture updated!';
+                }
+                showNotification('Profile picture updated!');
             } else {
-                // For developer mode, use base64
+                // For developer mode or offline, use base64
                 const reader = new FileReader();
-                reader.onload = async (e) => {
+                reader.onload = (e) => {
                     this.userProfile.avatarUrl = e.target.result;
                     this.saveUserSession();
+                    
+                    // Update preview immediately
+                    if (previewInitial) {
+                        previewInitial.textContent = '';
+                        previewInitial.style.display = 'none';
+                    }
+                    if (previewImg) {
+                        previewImg.src = e.target.result;
+                        previewImg.style.display = 'block';
+                    }
+                    
+                    // Update profile avatar in all places
+                    this.updateProfileAvatar();
+                    
+                    // Award achievement
+                    Achievements.checkAchievements('upload_avatar');
+                    
+                    if (status) {
+                        status.textContent = 'Profile picture updated!';
+                    }
+                    showNotification('Profile picture updated!');
                 };
                 reader.readAsDataURL(file);
             }
-            
-            // Update preview
-            if (preview) {
-                preview.src = this.userProfile.avatarUrl || this.getDefaultAvatar();
-            }
-            
-            status.textContent = 'Profile picture updated!';
-            showNotification('Profile picture updated!');
         } catch (error) {
             console.error('Upload error:', error);
-            status.textContent = 'Upload failed. Please try again.';
+            if (status) {
+                status.textContent = 'Upload failed. Please try again.';
+            }
         }
     },
     
@@ -538,64 +888,52 @@ const UserAuth = {
             const forms = modal.querySelectorAll('form');
             forms.forEach(f => f.reset());
             
-            document.getElementById('login-error')?.classList.add('hidden');
-            document.getElementById('signup-error')?.classList.add('hidden');
-            document.getElementById('reset-success')?.classList.add('hidden');
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('signup-form').style.display = 'none';
+            document.getElementById('reset-form').style.display = 'none';
+            
+            const errorDiv = document.getElementById('auth-error');
+            const successDiv = document.getElementById('auth-success');
+            if (errorDiv) errorDiv.classList.add('hidden');
+            if (successDiv) successDiv.classList.add('hidden');
+            
+            // Reset tabs
+            const authTabs = document.querySelectorAll('.auth-tab');
+            authTabs.forEach((btn, index) => {
+                btn.classList.toggle('active', index === 0);
+            });
+            
+            const title = document.getElementById('auth-modal-title');
+            if (title) title.textContent = 'Sign In';
         }
     },
     
     // Update auth UI based on login state
     updateAuthUI: function() {
-        const loggedOutUI = document.getElementById('auth-logged-out');
-        const loggedInUI = document.getElementById('auth-logged-in');
-        const profileName = document.getElementById('profile-name');
-        const profileEmail = document.getElementById('profile-email');
-        const profilePicture = document.getElementById('profile-picture-img');
-        const profilePicturePreview = document.getElementById('profile-picture-preview');
+        const profileStatusText = document.getElementById('profile-status-text');
+        const sidebarAvatar = document.getElementById('sidebar-avatar');
         
         if (this.currentUser) {
             // Logged in state
-            if (loggedOutUI) loggedOutUI.classList.add('hidden');
-            if (loggedInUI) loggedInUI.classList.remove('hidden');
-            
             const name = this.userProfile?.username || this.currentUser.displayName || 'User';
-            const email = this.userProfile?.email || this.currentUser.email || '';
+            const initial = name.charAt(0).toUpperCase();
             
-            if (profileName) profileName.textContent = name;
-            if (profileEmail) profileEmail.textContent = email;
+            if (profileStatusText) profileStatusText.textContent = name;
+            if (sidebarAvatar) sidebarAvatar.textContent = initial;
             
-            const avatarUrl = this.userProfile?.avatarUrl || this.getDefaultAvatar();
-            if (profilePicture) profilePicture.src = avatarUrl;
-            if (profilePicturePreview) profilePicturePreview.src = avatarUrl;
-            
-            // Update login button in nav
-            const loginBtn = document.getElementById('nav-login-btn');
-            if (loginBtn) {
-                loginBtn.innerHTML = `
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
-                    </svg>
-                    <span>${name}</span>
-                `;
-                loginBtn.onclick = () => switchTab('profile');
+            // Update sidebar avatar style
+            const userProfileBtn = document.getElementById('user-profile-button');
+            if (userProfileBtn) {
+                userProfileBtn.classList.add('logged-in');
             }
         } else {
             // Logged out state
-            if (loggedOutUI) loggedOutUI.classList.remove('hidden');
-            if (loggedInUI) loggedInUI.classList.add('hidden');
+            if (profileStatusText) profileStatusText.textContent = 'Sign In';
+            if (sidebarAvatar) sidebarAvatar.textContent = '?';
             
-            // Reset login button
-            const loginBtn = document.getElementById('nav-login-btn');
-            if (loginBtn) {
-                loginBtn.innerHTML = `
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
-                    </svg>
-                    <span>Login</span>
-                `;
-                loginBtn.onclick = () => this.openAuthModal();
+            const userProfileBtn = document.getElementById('user-profile-button');
+            if (userProfileBtn) {
+                userProfileBtn.classList.remove('logged-in');
             }
         }
     },
@@ -620,6 +958,182 @@ const UserAuth = {
     getReviewAvatar: function() {
         if (this.isDeveloperMode) return null;
         return this.userProfile?.avatarUrl;
+    }
+};
+
+// ============================================================
+// ACHIEVEMENTS SYSTEM
+// ============================================================
+const Achievements = {
+    // Achievement definitions
+    ACHIEVEMENTS: {
+        'first_time': {
+            name: 'First Steps',
+            icon: '👋',
+            description: 'First time visiting Sawfish App Store'
+        },
+        'first_like': {
+            name: 'Thumbs Up',
+            icon: '👍',
+            description: 'Liked your first app'
+        },
+        'ten_likes': {
+            name: 'Popular',
+            icon: '⭐',
+            description: 'Liked 10 apps'
+        },
+        'first_rating': {
+            name: 'Critic',
+            icon: '💬',
+            description: 'Left your first rating'
+        },
+        'rate_all_apps': {
+            name: 'Completionist',
+            icon: '🏆',
+            description: 'Rated all available apps'
+        },
+        'be_a_dev': {
+            name: 'Developer',
+            icon: '💻',
+            description: 'Entered developer mode'
+        },
+        'has_profile_pic': {
+            name: 'Face to Face',
+            icon: '📸',
+            description: 'Uploaded a profile picture'
+        },
+        'has_bio': {
+            name: 'Storyteller',
+            icon: '📝',
+            description: 'Wrote a bio'
+        },
+        'social_butterfly': {
+            name: 'Social Butterfly',
+            icon: '🦋',
+            description: 'Posted in the community board'
+        }
+    },
+    
+    // Get achievement info
+    getAchievementInfo: function(achievementId) {
+        return this.ACHIEVEMENTS[achievementId] || {
+            name: 'Unknown',
+            icon: '❓',
+            description: 'Unknown achievement'
+        };
+    },
+    
+    // Award an achievement to a user
+    awardAchievement: async function(userId, achievementId) {
+        if (!this.ACHIEVEMENTS[achievementId]) {
+            console.warn('Unknown achievement:', achievementId);
+            return false;
+        }
+        
+        try {
+            if (db) {
+                const userRef = db.collection('users').doc(userId);
+                const doc = await userRef.get();
+                
+                if (doc.exists) {
+                    const userData = doc.data();
+                    const achievements = userData.achievements || [];
+                    
+                    if (!achievements.includes(achievementId)) {
+                        achievements.push(achievementId);
+                        await userRef.update({
+                            achievements: achievements
+                        });
+                        console.log('Achievement awarded:', achievementId);
+                        return true;
+                    }
+                }
+            } else {
+                // Offline mode - update localStorage
+                const storedUsers = JSON.parse(localStorage.getItem('sawfish_users') || '{}');
+                for (const email in storedUsers) {
+                    if (storedUsers[email].uid === userId || userId === 'local_user') {
+                        const achievements = storedUsers[email].achievements || [];
+                        if (!achievements.includes(achievementId)) {
+                            achievements.push(achievementId);
+                            storedUsers[email].achievements = achievements;
+                            localStorage.setItem('sawfish_users', JSON.stringify(storedUsers));
+                            console.log('Achievement awarded (offline):', achievementId);
+                            return true;
+                        }
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error awarding achievement:', error);
+        }
+        return false;
+    },
+    
+    // Check and award achievements based on actions
+    checkAchievements: async function(actionType, extraData = {}) {
+        if (!UserAuth.currentUser && !UserAuth.isDeveloperMode) return;
+        
+        const userId = UserAuth.currentUser?.uid || 'developer';
+        
+        switch (actionType) {
+            case 'like_app':
+                // Check for first like
+                this.awardAchievement(userId, 'first_like');
+                // Check for 10 likes
+                this.awardAchievement(userId, 'ten_likes');
+                break;
+                
+            case 'submit_rating':
+                // Check for first rating
+                this.awardAchievement(userId, 'first_rating');
+                break;
+                
+            case 'become_developer':
+                // Award developer achievement
+                this.awardAchievement(userId, 'be_a_dev');
+                break;
+                
+            case 'upload_avatar':
+                // Award profile picture achievement
+                this.awardAchievement(userId, 'has_profile_pic');
+                break;
+                
+            case 'update_bio':
+                // Award bio achievement if bio is not empty
+                if (extraData.bio && extraData.bio.length > 0) {
+                    this.awardAchievement(userId, 'has_bio');
+                }
+                break;
+                
+            case 'community_post':
+                // Award social butterfly
+                this.awardAchievement(userId, 'social_butterfly');
+                break;
+        }
+    },
+    
+    // Get user's achievements
+    getUserAchievements: async function(userId) {
+        try {
+            if (db) {
+                const doc = await db.collection('users').doc(userId).get();
+                if (doc.exists) {
+                    return doc.data().achievements || [];
+                }
+            } else {
+                // Check localStorage
+                const storedUsers = JSON.parse(localStorage.getItem('sawfish_users') || '{}');
+                for (const email in storedUsers) {
+                    if (storedUsers[email].uid === userId) {
+                        return storedUsers[email].achievements || [];
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error getting user achievements:', error);
+        }
+        return [];
     }
 };
 
@@ -711,7 +1225,9 @@ const CommunityBoard = {
     // Initialize community board
     init: function() {
         this.setupPostForm();
+        this.setupFilterButtons();
         this.loadPosts();
+        this.initUserSearch();
     },
     
     // Setup post form submission
@@ -721,6 +1237,14 @@ const CommunityBoard = {
         
         const submitBtn = form.querySelector('#community-submit-btn');
         const textarea = form.querySelector('#community-post-input');
+        const charCurrent = form.querySelector('#char-current');
+        
+        // Character count
+        if (textarea && charCurrent) {
+            textarea.addEventListener('input', () => {
+                charCurrent.textContent = textarea.value.length;
+            });
+        }
         
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -739,6 +1263,7 @@ const CommunityBoard = {
             try {
                 await this.createPost(content);
                 if (textarea) textarea.value = '';
+                if (charCurrent) charCurrent.textContent = '0';
                 showNotification('Message posted!');
             } catch (error) {
                 console.error('Error posting:', error);
@@ -752,50 +1277,103 @@ const CommunityBoard = {
         });
     },
     
+    // Setup filter buttons
+    setupFilterButtons: function() {
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const filter = btn.dataset.filter;
+                
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                this.filterPosts(filter);
+            });
+        });
+    },
+    
+    // Filter posts by type
+    filterPosts: function(filter) {
+        const container = document.getElementById('community-posts-container');
+        if (!container) return;
+        
+        const posts = container.querySelectorAll('.community-post');
+        posts.forEach(post => {
+            if (filter === 'all') {
+                post.style.display = '';
+            } else if (filter === 'chat') {
+                post.style.display = post.dataset.type === 'chat' ? '' : 'none';
+            } else if (filter === 'petition') {
+                post.style.display = post.dataset.type === 'petition' ? '' : 'none';
+            }
+        });
+    },
+    
     // Create a new post
     createPost: async function(content) {
+        const petitionCheckbox = document.getElementById('post-is-petition');
+        const isPetition = petitionCheckbox ? petitionCheckbox.checked : false;
+        
+        const post = {
+            content: content,
+            author: UserAuth.isLoggedIn() ? UserAuth.getReviewUsername() : 'Anonymous',
+            isAdmin: UserAuth.isDeveloperMode || DeveloperMode.isLoggedIn,
+            timestamp: new Date().toISOString(),
+            type: isPetition ? 'petition' : (DeveloperMode.isLoggedIn ? 'admin_alert' : 'chat'),
+            isPetition: isPetition
+        };
+        
         if (!db) {
             // Local storage fallback
             const posts = JSON.parse(localStorage.getItem('sawfish_community_posts') || '[]');
             const newPost = {
                 id: Date.now().toString(),
-                content: content,
-                author: UserAuth.isLoggedIn() ? UserAuth.getReviewUsername() : 'Anonymous',
-                isAdmin: DeveloperMode.isLoggedIn,
-                timestamp: new Date().toISOString(),
-                type: DeveloperMode.isLoggedIn ? 'admin_alert' : 'chat'
+                ...post
             };
             posts.unshift(newPost);
             localStorage.setItem('sawfish_community_posts', JSON.stringify(posts));
             this.renderPosts(posts);
+            
+            // Reset petition checkbox
+            if (petitionCheckbox) petitionCheckbox.checked = false;
+            
+            // Award community post achievement
+            if (UserAuth.currentUser) {
+                Achievements.checkAchievements('community_post');
+            }
+            
             return;
         }
         
         try {
-            const post = {
-                content: content,
-                author: UserAuth.isLoggedIn() ? UserAuth.getReviewUsername() : 'Anonymous',
-                isAdmin: DeveloperMode.isLoggedIn,
-                timestamp: new Date().toISOString(),
-                type: DeveloperMode.isLoggedIn ? 'admin_alert' : 'chat'
-            };
-            
             await db.collection(this.COLLECTION_NAME).add(post);
+            
+            // Reset petition checkbox
+            if (petitionCheckbox) petitionCheckbox.checked = false;
+            
+            // Award community post achievement
+            if (UserAuth.currentUser) {
+                Achievements.checkAchievements('community_post');
+            }
         } catch (error) {
             console.error('Error creating post in Firestore:', error);
             // Fallback to local storage
             const posts = JSON.parse(localStorage.getItem('sawfish_community_posts') || '[]');
             const newPost = {
                 id: Date.now().toString(),
-                content: content,
-                author: UserAuth.isLoggedIn() ? UserAuth.getReviewUsername() : 'Anonymous',
-                isAdmin: DeveloperMode.isLoggedIn,
-                timestamp: new Date().toISOString(),
-                type: DeveloperMode.isLoggedIn ? 'admin_alert' : 'chat'
+                ...post
             };
             posts.unshift(newPost);
             localStorage.setItem('sawfish_community_posts', JSON.stringify(posts));
             this.renderPosts(posts);
+            
+            // Reset petition checkbox
+            if (petitionCheckbox) petitionCheckbox.checked = false;
+            
+            // Award community post achievement
+            if (UserAuth.currentUser) {
+                Achievements.checkAchievements('community_post');
+            }
         }
     },
     
@@ -837,7 +1415,7 @@ const CommunityBoard = {
     
     // Render posts to the community feed
     renderPosts: function(posts) {
-        const container = document.getElementById('community-feed');
+        const container = document.getElementById('community-posts-container');
         if (!container) return;
         
         if (!posts || posts.length === 0) {
@@ -855,30 +1433,264 @@ const CommunityBoard = {
         
         container.innerHTML = posts.map(post => {
             const isAdmin = post.isAdmin === true;
-            const isAnonymous = !UserAuth.isLoggedIn() && post.author === 'Anonymous';
-            const postClass = isAdmin ? 'community-post admin' : 'community-post';
-            const avatar = isAdmin ? 'A' : (post.author === 'Anonymous' ? '?' : post.author.charAt(0).toUpperCase());
+            const postType = post.type || 'chat';
+            const isAnonymous = post.author === 'Anonymous';
+            const avatar = isAdmin ? 'A' : (isAnonymous ? '?' : post.author.charAt(0).toUpperCase());
+            const likeCount = post.likes || 0;
             
             return `
-                <article class="${postClass}">
+                <article class="community-post" data-type="${postType}" data-id="${post.id}">
                     <div class="community-post-header">
                         <div class="community-post-author">
                             <div class="community-post-avatar ${isAdmin ? 'admin' : ''}">${escapeHtml(avatar)}</div>
                             <div class="community-post-info">
                                 <span class="community-post-name">
-                                    ${escapeHtml(post.author)}
+                                    ${!isAnonymous ? escapeHtml(post.author) : ''}
                                     ${isAdmin ? '<span class="admin-badge">Admin</span>' : ''}
                                     ${isAnonymous ? '<span class="anonymous-badge">Anonymous</span>' : ''}
                                 </span>
                                 <span class="community-post-date">${formatDate(post.timestamp)}</span>
                             </div>
                         </div>
-                        ${isAdmin ? '<span class="post-type-badge">Announcement</span>' : ''}
+                        <span class="community-post-type ${postType}">
+                            ${postType === 'admin_alert' ? 'Announcement' : (postType === 'petition' ? 'Petition' : 'Chat')}
+                        </span>
                     </div>
                     <div class="community-post-content">${escapeHtml(post.content)}</div>
+                    <div class="community-post-actions">
+                        <button class="community-action-btn like-btn" onclick="CommunityBoard.likePost('${post.id}')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                            </svg>
+                            <span class="like-count">${likeCount}</span>
+                        </button>
+                        ${DeveloperMode.isLoggedIn ? `
+                        <button class="community-action-btn delete-btn" onclick="CommunityBoard.deletePost('${post.id}')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            </svg>
+                        </button>
+                        ` : ''}
+                    </div>
                 </article>
             `;
         }).join('');
+    },
+    
+    // Like a post
+    likePost: function(postId) {
+        if (!db) {
+            // Local storage fallback for likes
+            const likes = JSON.parse(localStorage.getItem('sawfish_post_likes') || '{}');
+            const postLikes = likes[postId] || 0;
+            likes[postId] = postLikes + 1;
+            localStorage.setItem('sawfish_post_likes', JSON.stringify(likes));
+            
+            // Update the UI immediately
+            const likeCount = document.querySelector(`.community-post[data-id="${postId}"] .like-count`);
+            if (likeCount) {
+                likeCount.textContent = likes[postId];
+            }
+            
+            // Update the like button style
+            const likeBtn = document.querySelector(`.community-post[data-id="${postId}"] .like-btn`);
+            if (likeBtn) {
+                likeBtn.classList.add('liked');
+            }
+            
+            showNotification('Post liked!');
+        } else {
+            // Firestore implementation
+            const postRef = db.collection(this.COLLECTION_NAME).doc(postId);
+            postRef.update({
+                likes: firebase.firestore.FieldValue.increment(1)
+            }).then(() => {
+                showNotification('Post liked!');
+            }).catch(err => {
+                console.error('Error liking post:', err);
+                showNotification('Failed to like post');
+            });
+        }
+    },
+    
+    // Delete a post (developer only)
+    deletePost: function(postId) {
+        if (!DeveloperMode.isLoggedIn) return;
+        
+        if (confirm('Are you sure you want to delete this post?')) {
+            if (db) {
+                db.collection(this.COLLECTION_NAME).doc(postId).delete()
+                    .then(() => showNotification('Post deleted'))
+                    .catch(err => {
+                        console.error('Error deleting post:', err);
+                        showNotification('Failed to delete post');
+                    });
+            } else {
+                // Local storage fallback
+                const posts = JSON.parse(localStorage.getItem('sawfish_community_posts') || '[]');
+                const filtered = posts.filter(p => p.id !== postId);
+                localStorage.setItem('sawfish_community_posts', JSON.stringify(filtered));
+                this.renderPosts(filtered);
+                showNotification('Post deleted');
+            }
+        }
+    },
+    
+    // ========== USER SEARCH FUNCTIONALITY ==========
+    USERS_COLLECTION_NAME: 'sawfish_users',
+    allUsers: [],
+    
+    // Initialize user search
+    initUserSearch: function() {
+        const searchInput = document.getElementById('community-user-search');
+        const usersSection = document.getElementById('community-users-section');
+        if (!searchInput) return;
+        
+        // Show users section immediately on load
+        if (usersSection) {
+            usersSection.classList.remove('hidden');
+        }
+        
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            this.filterUsers(query);
+        });
+        
+        searchInput.addEventListener('focus', () => {
+            // Show all users when focusing on search
+            if (!searchInput.value.trim()) {
+                this.renderUsers(this.allUsers);
+                if (usersSection) {
+                    usersSection.classList.remove('hidden');
+                }
+            }
+        });
+        
+        // Load all users on init
+        this.loadUsers();
+    },
+    
+    // Load all users from Firestore
+    loadUsers: async function() {
+        const usersSection = document.getElementById('community-users-section');
+        const usersList = document.getElementById('community-users-list');
+        if (!usersSection || !usersList) return;
+        
+        try {
+            if (db) {
+                // Load from Firestore
+                const snapshot = await db.collection(this.USERS_COLLECTION_NAME).get();
+                this.allUsers = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+            } else {
+                // Fallback to localStorage
+                const storedUsers = JSON.parse(localStorage.getItem('sawfish_users') || '{}');
+                this.allUsers = Object.values(storedUsers).map(user => ({
+                    id: user.uid,
+                    username: user.username,
+                    email: user.email,
+                    bio: user.bio || '',
+                    avatarUrl: user.avatarUrl || null
+                }));
+            }
+            
+            // Also add current logged in user if not in list
+            if (UserAuth.currentUser && !this.allUsers.find(u => u.id === UserAuth.currentUser.uid)) {
+                this.allUsers.push({
+                    id: UserAuth.currentUser.uid,
+                    username: UserAuth.userProfile?.username || UserAuth.currentUser.displayName,
+                    email: UserAuth.currentUser.email,
+                    bio: UserAuth.userProfile?.bio || '',
+                    avatarUrl: UserAuth.userProfile?.avatarUrl || null
+                });
+            }
+            
+            // Show users section
+            usersSection.classList.remove('hidden');
+            
+            // Render all users initially
+            this.renderUsers(this.allUsers);
+            
+        } catch (error) {
+            console.error('Error loading users:', error);
+        }
+    },
+    
+    // Render users to the list
+    renderUsers: function(users) {
+        const usersList = document.getElementById('community-users-list');
+        if (!usersList) return;
+        
+        if (!users || users.length === 0) {
+            usersList.innerHTML = `
+                <div class="community-empty">
+                    <p>No users found</p>
+                </div>
+            `;
+            return;
+        }
+        
+        usersList.innerHTML = users.map(user => {
+            const username = user.username || user.email.split('@')[0];
+            const initial = username.charAt(0).toUpperCase();
+            const avatarUrl = user.avatarUrl;
+            const bio = user.bio || 'No bio yet';
+            
+            return `
+                <div class="community-user-card" data-user-id="${user.id}">
+                    <div class="community-user-avatar">
+                        ${avatarUrl 
+                            ? `<img src="${avatarUrl}" alt="${username}" class="user-avatar-img">`
+                            : `<div class="user-avatar-initial">${initial}</div>`
+                        }
+                    </div>
+                    <div class="community-user-info">
+                        <div class="community-user-name">${username}</div>
+                        <div class="community-user-bio">${this.escapeHtml(bio)}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    },
+    
+    // Filter users by search query
+    filterUsers: function(query) {
+        const usersList = document.getElementById('community-users-list');
+        const usersSection = document.getElementById('community-users-section');
+        if (!usersList || !usersSection) return;
+        
+        // Always show the section when searching
+        usersSection.classList.remove('hidden');
+        
+        if (!query || !query.trim()) {
+            // Show all users if no query or query is empty
+            this.renderUsers(this.allUsers);
+            return;
+        }
+        
+        const lowerQuery = query.toLowerCase().trim();
+        
+        const filtered = this.allUsers.filter(user => {
+            const username = (user.username || '').toLowerCase();
+            const email = (user.email || '').toLowerCase();
+            const bio = (user.bio || '').toLowerCase();
+            
+            return username.includes(lowerQuery) || 
+                   email.includes(lowerQuery) || 
+                   bio.includes(lowerQuery);
+        });
+        
+        this.renderUsers(filtered);
+    },
+    
+    // Escape HTML to prevent XSS
+    escapeHtml: function(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     },
     
     // Cleanup on unload
@@ -894,6 +1706,7 @@ const CommunityBoard = {
 // ============================================================
 const SearchSystem = {
     searchIndex: [],
+    DEVELOPER_APPS: ['vscodeweb', 'shadertoy', 'neocities', 'piskel', 'tiddlywiki'],
     
     init: function() {
         this.buildSearchIndex();
@@ -902,55 +1715,86 @@ const SearchSystem = {
     
     // Build search index from app data
     buildSearchIndex: function() {
-        this.searchIndex = Object.entries(appData).map(([id, app]) => ({
-            id,
-            name: app.name.toLowerCase(),
-            developer: app.developer.toLowerCase(),
-            description: app.description.toLowerCase(),
-            category: app.category.toLowerCase(),
-            tags: `${app.name} ${app.developer} ${app.category}`.toLowerCase()
-        }));
+        this.searchIndex = Object.entries(appData).map(([id, app]) => {
+            // Hide developer-only apps from regular users
+            const isDeveloperOnly = this.DEVELOPER_APPS.includes(id);
+            
+            return {
+                id,
+                name: app.name.toLowerCase(),
+                developer: app.developer.toLowerCase(),
+                description: app.description.toLowerCase(),
+                category: app.category.toLowerCase(),
+                tags: `${app.name} ${app.developer} ${app.category}`.toLowerCase(),
+                isDeveloperOnly: isDeveloperOnly
+            };
+        });
     },
     
     // Setup search event listeners
     setupSearchListeners: function() {
         const searchInput = document.getElementById('search-input');
         const searchResults = document.getElementById('search-results');
+        const searchCount = document.getElementById('search-count');
         
         if (searchInput) {
             searchInput.addEventListener('input', (e) => {
-                this.performSearch(e.target.value, searchResults);
+                this.performSearch(e.target.value, searchResults, searchCount);
             });
             
             searchInput.addEventListener('focus', () => {
                 if (searchInput.value.length > 0) {
-                    this.performSearch(searchInput.value, searchResults);
+                    this.performSearch(searchInput.value, searchResults, searchCount);
                 }
             });
         }
-        
-        // Close search when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.search-container') && searchResults) {
-                searchResults.classList.add('hidden');
-            }
-        });
     },
     
     // Perform search
-    performSearch: function(query, resultsContainer) {
+    performSearch: function(query, resultsContainer, countContainer) {
         if (!resultsContainer) return;
         
-        if (query.length < 2) {
+        const searchQuery = query.toLowerCase().trim();
+        
+        if (searchQuery.length < 2) {
             resultsContainer.classList.add('hidden');
+            if (countContainer) countContainer.textContent = '0';
             return;
         }
         
+        // Filter results based on developer mode
         const results = this.searchIndex.filter(item => {
-            return item.name.includes(query.toLowerCase()) ||
-                   item.developer.includes(query.toLowerCase()) ||
-                   item.tags.includes(query.toLowerCase());
+            // item.name, item.developer, item.tags are already lowercase from buildSearchIndex
+            
+            let matchesQuery = false;
+            
+            if (searchQuery.length <= 3) {
+                // For short queries (2-3 chars), use more permissive matching
+                // Allow apps that START with the query string
+                const nameWords = item.name.split(' ');
+                const devWords = item.developer.split(' ');
+                
+                matchesQuery = nameWords.some(word => word.startsWith(searchQuery)) ||
+                               devWords.some(word => word.startsWith(searchQuery)) ||
+                               item.tags.split(' ').some(tag => tag.startsWith(searchQuery));
+            } else {
+                // For longer queries, use more flexible matching
+                matchesQuery = item.name.includes(searchQuery) ||
+                               item.name.split(' ').some(word => word.startsWith(searchQuery)) ||
+                               item.developer.includes(searchQuery) ||
+                               item.tags.includes(searchQuery);
+            }
+            
+            // Hide developer-only apps from non-developers
+            const canSeeDeveloperApps = UserAuth.isDeveloperMode || DeveloperMode.isLoggedIn;
+            const isVisible = !item.isDeveloperOnly || canSeeDeveloperApps;
+            
+            return matchesQuery && isVisible;
         }).slice(0, 10);
+        
+        if (countContainer) {
+            countContainer.textContent = results.length;
+        }
         
         if (results.length === 0) {
             resultsContainer.innerHTML = '<div class="search-no-results">No apps found</div>';
@@ -1004,6 +1848,34 @@ const SearchSystem = {
             } catch (error) {
                 element.textContent = '—';
             }
+        }
+    }
+};
+
+// ============================================================
+// UPDATE CHECKER
+// ============================================================
+const UpdateChecker = {
+    init: function() {
+        this.checkForUpdates();
+    },
+    
+    checkForUpdates: async function() {
+        try {
+            const response = await fetch(VERSION_CHECK_URL + '?t=' + Date.now());
+            if (response.ok) {
+                const data = await response.json();
+                if (data.version && data.version !== APP_VERSION) {
+                    updateAppStatus('update');
+                } else {
+                    updateAppStatus('ready');
+                }
+            } else {
+                updateAppStatus('ready');
+            }
+        } catch (error) {
+            console.log('Version check failed, assuming up to date');
+            updateAppStatus('ready');
         }
     }
 };
@@ -1313,7 +2185,7 @@ function getNumericRatingDisplay(rating) {
     else if (rating >= 3.5) colorClass = 'rating-good';
     else if (rating >= 2.5) colorClass = 'rating-average';
     
-    return `<span class="numeric-rating ${colorClass}">${formattedRating}</span>`;
+    return `<span class="numeric-rating ${colorClass}">${formattedRating} ⭐</span>`;
 }
 
 // ============================================================
@@ -1328,14 +2200,74 @@ const DeveloperMode = {
             this.isLoggedIn = true;
         }
         this.updateLoginButton();
+        updateDevOnlyElements();
     },
     
     toggleLogin: function() {
         if (this.isLoggedIn) {
             this.openDashboard();
         } else {
-            UserAuth.openAuthModal();
+            this.openLoginModal();
         }
+    },
+    
+    openLoginModal: function() {
+        const modal = document.getElementById('developer-login-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.setAttribute('aria-hidden', 'false');
+            
+            // Focus password input
+            setTimeout(() => {
+                const passwordInput = document.getElementById('developer-password');
+                if (passwordInput) passwordInput.focus();
+            }, 100);
+        }
+    },
+    
+    closeLoginModal: function() {
+        const modal = document.getElementById('developer-login-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.setAttribute('aria-hidden', 'true');
+            
+            // Clear password
+            const passwordInput = document.getElementById('developer-password');
+            if (passwordInput) passwordInput.value = '';
+        }
+    },
+    
+    login: function(password) {
+        if (password === this.DEVELOPER_PASSWORD) {
+            this.isLoggedIn = true;
+            sessionStorage.setItem('developer_logged_in', 'true');
+            
+            // Set UserAuth developer mode
+            UserAuth.isDeveloperMode = true;
+            
+            this.closeLoginModal();
+            this.updateLoginButton();
+            updateDevOnlyElements();
+            this.openDashboard();
+            
+            showNotification('Developer mode activated');
+            return true;
+        }
+        return false;
+    },
+    
+    logout: function() {
+        this.isLoggedIn = false;
+        sessionStorage.removeItem('developer_logged_in');
+        
+        // Clear UserAuth developer mode
+        UserAuth.isDeveloperMode = false;
+        
+        this.closeDashboard();
+        this.updateLoginButton();
+        updateDevOnlyElements();
+        
+        showNotification('Developer mode deactivated');
     },
     
     openDashboard: function() {
@@ -1356,6 +2288,8 @@ const DeveloperMode = {
             dashboard.classList.add('hidden');
             dashboard.setAttribute('aria-hidden', 'true');
         }
+        // Exit developer mode when closing dashboard
+        this.logout();
     },
     
     updateLoginButton: function() {
@@ -1380,70 +2314,54 @@ const DeveloperMode = {
         }
     },
     
-    logout: function() {
-        this.isLoggedIn = false;
-        sessionStorage.removeItem('developer_logged_in');
-        this.closeDashboard();
-        this.updateLoginButton();
-        showNotification('Developer mode deactivated');
-    },
-    
     loadAnalytics: async function() {
+        const statTotalReviews = document.getElementById('stat-total-reviews');
+        const statTotalApps = document.getElementById('stat-total-apps');
+        const statAvgRating = document.getElementById('stat-avg-rating');
+        const statDevResponses = document.getElementById('stat-developer-responses');
+        const topAppsList = document.getElementById('top-rated-apps');
+        
+        if (statTotalApps) statTotalApps.textContent = Object.keys(appData).length;
+        
         try {
-            const [allReviews, totalApps] = await Promise.all([
-                FirestoreComments.getAllReviews(),
-                Promise.resolve(Object.keys(appData).length)
-            ]);
+            const allReviews = await FirestoreComments.getAllReviews();
+            if (statTotalReviews) statTotalReviews.textContent = allReviews.length;
             
-            const totalReviews = allReviews.length;
-            const developerResponses = allReviews.filter(r => r.isDeveloper).length;
-            
-            let sum = 0;
-            let count = 0;
-            const appRatings = {};
-            
+            // Calculate average rating
+            let totalRating = 0;
+            let ratingCount = 0;
             allReviews.forEach(review => {
-                sum += review.rating;
-                count++;
-                if (!appRatings[review.appId]) {
-                    appRatings[review.appId] = { sum: 0, count: 0 };
+                if (typeof review.rating === 'number') {
+                    totalRating += review.rating;
+                    ratingCount++;
                 }
-                appRatings[review.appId].sum += review.rating;
-                appRatings[review.appId].count++;
             });
+            if (statAvgRating && ratingCount > 0) {
+                statAvgRating.textContent = (totalRating / ratingCount).toFixed(1);
+            }
             
-            const avgRating = count > 0 ? (sum / count).toFixed(1) : '0.0';
+            // Count developer responses
+            const devResponses = allReviews.filter(r => r.isDeveloper === true);
+            if (statDevResponses) statDevResponses.textContent = devResponses.length;
             
-            document.getElementById('stat-total-reviews').textContent = totalReviews;
-            document.getElementById('stat-total-apps').textContent = totalApps;
-            document.getElementById('stat-avg-rating').textContent = avgRating;
-            document.getElementById('stat-developer-responses').textContent = developerResponses;
-            
-            const topRatedContainer = document.getElementById('top-rated-apps');
-            if (topRatedContainer) {
-                const topApps = Object.entries(appRatings)
-                    .map(([appId, data]) => ({
-                        appId,
-                        avg: data.sum / data.count,
-                        count: data.count
-                    }))
-                    .sort((a, b) => b.avg - a.avg)
-                    .slice(0, 5);
-                
-                if (topApps.length > 0) {
-                    topRatedContainer.innerHTML = topApps.map(app => {
-                        const appInfo = appData[app.appId];
-                        return `
-                            <div class="top-rated-item">
-                                <span class="top-rated-name">${appInfo ? appInfo.name : app.appId}</span>
-                                <span class="top-rated-rating">${getNumericRatingDisplay(app.avg)}</span>
-                                <span class="top-rated-count">(${app.count})</span>
-                            </div>
-                        `;
-                    }).join('');
-                } else {
-                    topRatedContainer.innerHTML = '<p class="muted">No ratings data available</p>';
+            // Get top rated apps
+            const appRatings = [];
+            for (const appId of Object.keys(appData)) {
+                const avgRating = await FirestoreComments.getAverageRating(appId);
+                if (avgRating !== null) {
+                    appRatings.push({ id: appId, rating: avgRating, name: appData[appId].name });
                 }
+            }
+            appRatings.sort((a, b) => b.rating - a.rating);
+            
+            if (topAppsList && appRatings.length > 0) {
+                topAppsList.innerHTML = appRatings.slice(0, 5).map((app, i) => `
+                    <div class="top-rated-item">
+                        <span class="top-ranked">#${i + 1}</span>
+                        <span class="top-app-name">${app.name}</span>
+                        <span class="top-app-rating">${app.rating.toFixed(1)}</span>
+                    </div>
+                `).join('');
             }
         } catch (error) {
             console.error('Error loading analytics:', error);
@@ -1454,445 +2372,292 @@ const DeveloperMode = {
         const appList = document.getElementById('app-manager-list');
         if (!appList) return;
         
-        const apps = Object.entries(appData).map(([id, data]) => ({ id, ...data }));
-        
-        appList.innerHTML = apps.map(app => `
+        appList.innerHTML = Object.entries(appData).map(([id, app]) => `
             <div class="app-manager-item">
+                <img src="${app.icon}" alt="${app.name}" class="app-manager-icon">
                 <div class="app-manager-info">
-                    <img src="${app.icon}" alt="${app.name}" class="app-manager-icon">
-                    <div>
-                        <strong>${app.name}</strong>
-                        <span class="app-manager-category">${app.category}</span>
-                    </div>
+                    <span class="app-manager-name">${app.name}</span>
+                    <span class="app-manager-category">${app.category}</span>
                 </div>
                 <div class="app-manager-actions">
-                    <button class="action-btn small" onclick="DeveloperMode.editApp('${app.id}')">Edit</button>
-                    <button class="action-btn small danger" onclick="DeveloperMode.deleteApp('${app.id}')">Delete</button>
+                    <button class="app-manager-btn edit" onclick="DeveloperMode.editApp('${id}')">Edit</button>
                 </div>
             </div>
         `).join('');
     },
     
-    showAddAppForm: function() {
-        const newAppId = prompt('Enter new app ID (lowercase, no spaces):');
-        if (!newAppId) return;
-        
-        const appName = prompt('Enter app name:');
-        if (!appName) return;
-        
-        const appDeveloper = prompt('Enter developer name:');
-        const appCategory = prompt('Enter category:') || 'Games';
-        const appLink = prompt('Enter app URL:');
-        if (!appLink) return;
-        
-        appData[newAppId] = {
-            name: appName,
-            developer: appDeveloper || 'Unknown',
-            icon: `icons/${newAppId}.png`,
-            category: appCategory,
-            description: `${appName} - A new app added to the Sawfish App Store.`,
-            features: 'This app offers great features and functionality for students.',
-            additional: 'Enjoy using this application!',
-            link: appLink,
-            screenshots: [
-                `https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=${encodeURIComponent(appName)}`,
-                `https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=${encodeURIComponent(appName)}+Features`
-            ]
-        };
-        
-        showNotification(`App "${appName}" added successfully!`);
-        this.loadAppManager();
-    },
-    
     editApp: function(appId) {
-        const app = appData[appId];
-        if (!app) return;
-        
-        const newName = prompt('Edit app name:', app.name);
-        if (newName) app.name = newName;
-        
-        const newDeveloper = prompt('Edit developer:', app.developer);
-        if (newDeveloper !== null) app.developer = newDeveloper;
-        
-        const newCategory = prompt('Edit category:', app.category);
-        if (newCategory !== null) app.category = newCategory;
-        
-        const newLink = prompt('Edit URL:', app.link);
-        if (newLink) app.link = newLink;
-        
-        showNotification(`App "${app.name}" updated successfully!`);
-    },
-    
-    deleteApp: function(appId) {
-        const app = appData[appId];
-        if (!app) return;
-        
-        if (confirm(`Are you sure you want to delete "${app.name}"?`)) {
-            delete appData[appId];
-            showNotification(`App "${app.name}" deleted`);
-            this.loadAppManager();
-        }
+        showNotification('Edit app: ' + appId);
     },
     
     loadAnnouncements: function() {
         const announcementList = document.getElementById('announcement-list');
         if (!announcementList) return;
         
+        // Load from localStorage or Firestore
         const announcements = JSON.parse(localStorage.getItem('sawfish_announcements') || '[]');
         
-        if (announcements.length > 0) {
-            announcementList.innerHTML = announcements.map((ann, index) => `
-                <div class="announcement-item ${ann.type}">
-                    <strong>${escapeHtml(ann.title)}</strong>
-                    <p>${escapeHtml(ann.text)}</p>
-                    <span class="announcement-date">${formatDate(ann.timestamp)}</span>
-                    <button class="action-btn small danger" onclick="DeveloperMode.deleteAnnouncement(${index})">Delete</button>
+        if (announcements.length === 0) {
+            announcementList.innerHTML = '<p class="muted">No announcements yet</p>';
+        } else {
+            announcementList.innerHTML = announcements.map(a => `
+                <div class="announcement-item">
+                    <div class="announcement-item-header">
+                        <span class="announcement-item-title">${escapeHtml(a.title)}</span>
+                        <span class="announcement-item-type type-${a.type}">${a.type}</span>
+                    </div>
+                    <p class="announcement-item-text">${escapeHtml(a.text)}</p>
                 </div>
             `).join('');
-        } else {
-            announcementList.innerHTML = '<p class="muted">No announcements yet</p>';
         }
     },
     
     publishAnnouncement: function() {
         const titleInput = document.getElementById('announcement-title');
         const textInput = document.getElementById('announcement-text');
-        const typeInput = document.getElementById('announcement-type');
+        const typeSelect = document.getElementById('announcement-type');
         
         const title = titleInput?.value.trim();
         const text = textInput?.value.trim();
-        const type = typeInput?.value || 'info';
+        const type = typeSelect?.value || 'info';
         
         if (!title || !text) {
-            alert('Please enter both title and message');
+            showNotification('Please fill in title and message');
             return;
         }
         
-        const announcements = JSON.parse(localStorage.getItem('sawfish_announcements') || '[]');
-        announcements.unshift({
+        const announcement = {
             title,
             text,
             type,
             timestamp: new Date().toISOString()
-        });
+        };
         
-        localStorage.setItem('sawfish_announcements', JSON.stringify(announcements));
-        
-        titleInput.value = '';
-        textInput.value = '';
-        
-        showNotification('Announcement published!');
-        this.loadAnnouncements();
-    },
-    
-    deleteAnnouncement: function(index) {
+        // Store announcement
         const announcements = JSON.parse(localStorage.getItem('sawfish_announcements') || '[]');
-        announcements.splice(index, 1);
+        announcements.unshift(announcement);
         localStorage.setItem('sawfish_announcements', JSON.stringify(announcements));
+        
+        // Clear form
+        if (titleInput) titleInput.value = '';
+        if (textInput) textInput.value = '';
+        
         this.loadAnnouncements();
-        showNotification('Announcement deleted');
+        showNotification('Announcement published!');
     },
     
-    loadModeration: async function() {
+    loadModeration: function() {
         const moderationList = document.getElementById('moderation-list');
         if (!moderationList) return;
         
-        try {
-            const allReviews = await FirestoreComments.getAllReviews();
-            
-            if (allReviews.length > 0) {
-                moderationList.innerHTML = allReviews.map(review => {
-                    const appInfo = appData[review.appId];
-                    return `
-                        <div class="moderation-item ${review.isDeveloper ? 'developer' : ''}">
-                            <div class="moderation-info">
-                                <strong>${escapeHtml(review.user)}</strong>
-                                <span>on ${appInfo ? appInfo.name : review.appId}</span>
-                                <span class="moderation-rating">${review.rating}/5</span>
-                            </div>
-                            <p class="moderation-comment">${escapeHtml(review.comment)}</p>
-                            <span class="moderation-date">${formatDate(review.timestamp)}</span>
-                            <div class="moderation-actions">
-                                ${review.isDeveloper ? '' : `<button class="action-btn small" onclick="DeveloperMode.respondToReview('${review.id}', '${review.appId}')">Respond</button>`}
-                                <button class="action-btn small danger" onclick="DeveloperMode.deleteReviewById('${review.id}')">Delete</button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            } else {
-                moderationList.innerHTML = '<p class="muted">No reviews to moderate</p>';
-            }
-        } catch (error) {
-            console.error('Error loading moderation:', error);
-            moderationList.innerHTML = '<p class="muted">Error loading reviews</p>';
+        moderationList.innerHTML = '<p class="muted">Select reviews from the analytics tab to moderate</p>';
+    }
+};
+
+// ============================================================
+// UPDATE DEVELOPER-ONLY ELEMENTS
+// ============================================================
+function updateDevOnlyElements() {
+    const isDeveloper = UserAuth.isDeveloperMode || DeveloperMode.isLoggedIn;
+    
+    // Update developer-only app visibility
+    const developerApps = ['vscodeweb', 'shadertoy', 'neocities', 'piskel', 'tiddlywiki'];
+    
+    developerApps.forEach(appId => {
+        const card = document.querySelector(`[data-app="${appId}"]`);
+        if (card) {
+            card.style.display = isDeveloper ? '' : 'none';
+        }
+    });
+    
+    // Update body class for CSS styling
+    if (isDeveloper) {
+        document.body.classList.add('developer-mode-active');
+    } else {
+        document.body.classList.remove('developer-mode-active');
+    }
+}
+
+// ============================================================
+// MINECRAFT WARNING SYSTEM
+// ============================================================
+const minecraftWarningSystem = {
+    showWarning: function(appName, appLink) {
+        const overlay = document.getElementById('minecraft-warning-overlay');
+        const title = document.getElementById('minecraft-warning-title');
+        const message = document.getElementById('minecraft-warning-message');
+        const launchBtn = document.getElementById('minecraft-launch-btn');
+        const cancelBtn = document.getElementById('minecraft-cancel-btn');
+        
+        if (title) title.textContent = `${appName} - Multiplayer Notice`;
+        if (message) {
+            message.innerHTML = `
+                <p><strong>Multiplayer requires re-guesting to work properly.</strong></p>
+                <p>To play multiplayer in ${appName}, you need to refresh/re-guest the game page. This is necessary because:</p>
+                <ul>
+                    <li>Multiplayer sessions require fresh network connections</li>
+                    <li>Cached data can interfere with server communication</li>
+                    <li>Server authentication needs to be re-established</li>
+                </ul>
+                <p>Click "Launch Game" to open the game, then refresh the page when you want to play multiplayer.</p>
+            `;
+        }
+        
+        if (launchBtn) {
+            launchBtn.onclick = () => {
+                window.open(appLink, '_blank');
+                this.closeWarning();
+            };
+        }
+        
+        if (cancelBtn) {
+            cancelBtn.onclick = () => this.closeWarning();
+        }
+        
+        if (overlay) {
+            overlay.classList.remove('hidden');
+            overlay.setAttribute('aria-hidden', 'false');
         }
     },
     
-    respondToReview: function(reviewId, appId) {
-        const response = prompt('Enter your developer response:');
-        if (!response) return;
-        
-        FirestoreComments.saveReview(appId, 5, response, 'Developer', true)
-            .then(() => {
-                showNotification('Response submitted!');
-                this.loadModeration();
-            })
-            .catch(error => {
-                console.error('Error responding:', error);
-                alert('Failed to submit response');
-            });
-    },
-    
-    deleteReviewById: async function(reviewId) {
-        if (!confirm('Are you sure you want to delete this review?')) return;
-        
-        const success = await FirestoreComments.deleteReview(reviewId);
-        if (success) {
-            showNotification('Review deleted');
-            this.loadModeration();
-        } else {
-            alert('Failed to delete review');
+    closeWarning: function() {
+        const overlay = document.getElementById('minecraft-warning-overlay');
+        if (overlay) {
+            overlay.classList.add('hidden');
+            overlay.setAttribute('aria-hidden', 'true');
         }
     }
 };
 
 // ============================================================
-// UPDATE CHECKER
-// ============================================================
-const UpdateChecker = {
-    init: async function() {
-        await this.checkForUpdates();
-    },
-    
-    checkForUpdates: async function() {
-        try {
-            const response = await fetch(`${VERSION_CHECK_URL}?t=${Date.now()}`);
-            if (response.ok) {
-                const versionData = await response.json();
-                this.compareVersion(versionData);
-            }
-        } catch (error) {
-            console.log('Update check failed:', error);
-        }
-    },
-    
-    compareVersion: function(remoteData) {
-        const localVersion = APP_VERSION;
-        const remoteVersion = remoteData.version;
-        
-        const updateBanner = document.getElementById('update-available-banner');
-        const updateVersion = document.getElementById('update-version');
-        const updateDescription = document.getElementById('update-description');
-        
-        if (this.isNewerVersion(remoteVersion, localVersion)) {
-            if (updateBanner) {
-                updateBanner.classList.remove('hidden');
-                if (updateVersion) updateVersion.textContent = `v${remoteVersion}`;
-                if (updateDescription) updateDescription.textContent = remoteData.description || 'A new version is available with improvements and fixes.';
-            }
-        }
-    },
-    
-    isNewerVersion: function(remote, local) {
-        const remoteParts = remote.split('.').map(Number);
-        const localParts = local.split('.').map(Number);
-        
-        for (let i = 0; i < Math.max(remoteParts.length, localParts.length); i++) {
-            const remoteNum = remoteParts[i] || 0;
-            const localNum = localParts[i] || 0;
-            
-            if (remoteNum > localNum) return true;
-            if (remoteNum < localNum) return false;
-        }
-        
-        return false;
-    },
-    
-    dismissUpdate: function() {
-        const updateBanner = document.getElementById('update-available-banner');
-        if (updateBanner) {
-            updateBanner.classList.add('hidden');
-            localStorage.setItem('sawfish_update_dismissed', APP_VERSION);
-        }
-    },
-    
-    installUpdate: function() {
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.ready.then(registration => {
-                registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-                window.addEventListener('swUpdated', () => {
-                    location.reload(true);
-                });
-            });
-        }
-    }
-};
-
-// ============================================================
-// APPLICATION STATE
-// ============================================================
-const AppState = {
-    isPWA: false,
-    isFirstVisit: true,
-    currentPage: 'home',
-    expandedApp: null,
-    sidebarOpen: false,
-    reviewSubscriptions: {}
-};
-
-// ============================================================
-// APP DATA - Complete with reorganized categories
+// APP DATA
 // ============================================================
 const appData = {
-    // Featured Apps (Home Page)
-    hack: {
-        name: "Hack Stuff",
-        developer: "Sawfish Developer Group",
-        icon: "icons/hack.png",
-        category: "Hacks",
-        description: "Hack Stuff is a comprehensive collection of advanced utilities and experimental tools designed specifically for students and developers who need access to low-level functionality within their browser environment.",
-        features: "The Hack Stuff suite includes HTML and CSS inspectors, JavaScript consoles, network request monitors, and various debugging utilities. It also features a collection of educational coding challenges, API testing tools, and data format converters.",
-        additional: "Please note that access to certain advanced features may be restricted based on school network policies. All tools are designed to be safe and educational, with no malicious capabilities.",
-        link: "https://the-sawfish.github.io/hack/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Hack+Stuff+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Development+Tools"]
-    },
+    // Games
     portal: {
         name: "Sawfish Game Portal",
-        developer: "Sawfish Developer Group",
+        developer: "Sawfish",
         icon: "icons/game-portal.png",
-        category: "Games Hub",
-        description: "The Sawfish Game Portal serves as a unified launcher and collection point for all approved browser-based games available through the Sawfish ecosystem. It provides a centralized hub for discovering and accessing entertaining games.",
-        features: "The portal features a sophisticated categorization system that organizes games by genre, difficulty, playtime, and number of players. It includes user ratings, playtime tracking, and personalized recommendations.",
-        additional: "All games available through the portal have been vetted for age-appropriate content and are regularly updated to ensure compatibility and safety.",
-        link: "https://the-sawfish.github.io/game-portal/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Game+Portal+Home", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Game+Categories"]
+        category: "Games / Launcher",
+        description: "Central launcher for all approved Sawfish games in one place.",
+        features: "Quick launch for all games, organized categories, search functionality, favorites list, recent games history, and offline support for selected games.",
+        additional: "This is your go-to hub for accessing all games in the Sawfish ecosystem. Games are carefully curated for school safety.",
+        link: "https://the-sawfish.github.io/seraph/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Game+Portal+Launcher", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Game+Categories"]
     },
     chat: {
         name: "Chat App",
-        developer: "Jimeneutron",
+        developer: "Sawfish",
         icon: "icons/chat.png",
-        category: "Social / Messaging",
-        description: "Chat App provides a clean, efficient platform for real-time messaging designed specifically for student communication needs. Connect with classmates instantly in topic-based rooms.",
-        features: "The app features topic-based rooms where students can join discussions relevant to their classes, projects, or interests. Includes direct messaging, file sharing, and customizable chat backgrounds.",
-        additional: "The Chat App is designed to work within school network restrictions. All conversations are moderated and recorded for safety purposes. Students are expected to use the app responsibly.",
-        link: "https://jimeneutron.github.io/chatapp/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Chat+App+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Chat+Rooms"]
+        category: "Social / Communication",
+        description: "Real-time messaging for students with rooms and channels.",
+        features: "Instant messaging, room creation, channel subscriptions, message history, emoji reactions, and @mentions.",
+        additional: "Designed for school collaboration. All messages are logged for safety. Respect the community guidelines.",
+        link: "https://the-sawfish.github.io/seraph/chat/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Chat+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Channel+View"]
     },
     call: {
         name: "Call App",
-        developer: "Sawfish Developer Group",
+        developer: "Sawfish",
         icon: "icons/call.png",
         category: "Social / Communication",
-        description: "Call App offers a fast, minimal browser-based voice calling interface that enables quick communication between students. Just share a room code and start talking.",
-        features: "The calling system supports direct calls between users who share a room code. Call quality adapts to network conditions, and the interface is designed for quick, efficient communication.",
-        additional: "The Call App is intended for quick, efficient communication. Please use responsibly and respect others. All calls are logged for safety and security purposes.",
-        link: "https://the-sawfish.github.io/call-app/?from=sawfish",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Call+App+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Call+Controls"]
+        description: "Fast, simple browser-based voice calling interface.",
+        features: "One-click voice calls, no registration required, low latency audio, works on all modern browsers.",
+        additional: "For quick voice conversations with classmates. Ideal for study groups and project discussions.",
+        link: "https://the-sawfish.github.io/seraph/call/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Call+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Call+Controls"]
     },
-    
-    // Games
     circle: {
         name: "Draw a Circle",
-        developer: "Sawfish Developer Group",
+        developer: "Sawfish",
         icon: "icons/circle.png",
-        category: "Games / Skill",
-        description: "Draw a Circle is a deceptively simple yet endlessly engaging reflex and precision challenge that tests your ability to create the most perfect circle possible. This game has become a favorite quick-break activity for students worldwide.",
-        features: "The game employs sophisticated geometric analysis algorithms that measure circularity from multiple angles, providing instant feedback on your drawing accuracy. Features include scoring history, achievement badges, and global leaderboards.",
-        additional: "The game is particularly popular as a quick break activity during study sessions. Research has shown that such precision tasks can help improve focus and fine motor skills.",
-        link: "https://the-sawfish.github.io/circle/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Draw+a+Circle+Game", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Precision+Scoring"]
-    },
-    "2048": {
-        name: "2048",
-        developer: "Sawfish Developer Group",
-        icon: "icons/2048.png",
         category: "Games / Puzzle",
-        description: "2048 is the iconic sliding tile puzzle game that took the world by storm, now available optimized for school browsers and touch devices. This addictive puzzle challenges your strategic thinking and number sense.",
-        features: "This implementation features touch-optimized controls that make swiping on tablets and touchscreens feel natural and responsive. Includes undo functionality, multiple board sizes, and daily challenges.",
-        additional: "The game has been optimized for school networks, with no external dependencies and minimal data usage. It's completely self-contained and loads instantly.",
-        link: "https://the-sawfish.github.io/2048/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=2048+Game+Board", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Tile+Merging"]
+        description: "Quick reflex challenge - draw the most perfect circle you can.",
+        features: "Instant play, accuracy scoring, global leaderboard, practice mode, and streak bonuses.",
+        additional: "Often used as a hack - clicking the OFFLINE tag reveals the hack site password.",
+        link: "https://the-sawfish.github.io/seraph/games/circle/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Draw+a+Circle+Game", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Accuracy+Score"]
     },
     minecraft: {
         name: "Minecraft Web (Beta)",
         developer: "Zardoy",
         icon: "icons/minecraft.png",
         category: "Games / Sandbox",
-        description: "Experience the boundless creativity of the world's best-selling game directly in your browser with Minecraft Web (Beta). Build, mine, and explore in a blocky world without any downloads or installation required.",
-        features: "The Beta version introduces optimized rendering engines specifically tuned for web performance. Features include multiplayer servers, various game modes, and a selection of texture packs to customize your experience.",
-        additional: "IMPORTANT: In this web version, single player mode does not include crafting functionality. You MUST use a multiplayer server. We recommend joining the official first server for the best experience with other players.",
+        description: "The iconic sandbox building game, now in your browser. Build, explore, and create without downloads.",
+        features: "Browser-based Minecraft, multiplayer servers, creative/survival modes, skin support, and cross-device save sync.",
+        additional: "NOTE: Multiplayer requires re-guesting/refresh to work properly. This is a web version limitation. Single player mode available but crafting is disabled in web version.",
         link: "https://zardoy.github.io/minecraft-web-client/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Minecraft+Web+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Multiplayer+Servers"]
-    },
-    blockblast: {
-        name: "Block Blast",
-        developer: "AAPPQQ",
-        icon: "icons/blockblast.png",
-        category: "Games / Puzzle",
-        description: "Block Blast is a fast-paced, addictive puzzle game that challenges your spatial reasoning and strategic planning skills. Clear blocks before they reach the top in this Tetris-style game.",
-        features: "Block Blast features multiple game modes including classic endless play, timed challenges, daily puzzle modes, and competitive versus mode. Includes stunning visual effects and satisfying sound design.",
-        additional: "The game has been optimized to run smoothly on school devices with minimal performance requirements. Features an offline mode that works without internet connection.",
-        link: "https://aappqq.github.io/BlockBlast/index.html",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Block+Blast+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Combo+System"]
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Minecraft+Web+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Multiplayer+Server"]
     },
     sandboxels: {
         name: "Sandboxels",
-        developer: "R74n",
+        developer: "Rother",
         icon: "icons/sandboxels.png",
         category: "Games / Simulation",
-        description: "Sandboxels is an extraordinary physics-based falling sand simulation that offers an almost endless sandbox for creativity and experimentation. Watch as different elements interact in realistic ways.",
-        features: "The simulation includes elements in multiple categories: basic materials (sand, water, stone, metal), liquids, gases, fire, electrical components, plants, and creatures. Users can create complex machines and artistic patterns.",
-        additional: "Sandboxels is particularly valuable as an educational tool, teaching concepts of chemistry, physics, and emergent behavior. It's also just incredibly satisfying to watch and play with.",
-        link: "https://the-sawfish.github.io/sandboxels/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Sandboxels+Simulation", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Element+Interactions"]
+        description: "Falling sand physics simulator with over 500 elements.",
+        features: "500+ elements, realistic physics, cellular automata, color mixing, and element interactions.",
+        additional: "Excellent for learning about physics and creating art. Very satisfying to play with.",
+        link: "https://sandboxels.riverside.rocks/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Sandboxels+Physics", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Element+Interactions"]
+    },
+    blockblast: {
+        name: "Block Blast",
+        developer: "Sawfish",
+        icon: "icons/blockblast.png",
+        category: "Games / Puzzle",
+        description: "Fast-paced block placement puzzle game with competitive scoring.",
+        features: "Classic block puzzle mechanics, competitive scoring, daily challenges, and offline play.",
+        additional: "Often used as a hack - clicking the OFFLINE tag reveals the hack site password.",
+        link: "https://the-sawfish.github.io/seraph/games/blockblast/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Block+Blast+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Block+Placement"]
     },
     run3: {
         name: "Run 3",
-        developer: "Joseph Cloutier",
+        developer: "Nitrome",
         icon: "icons/run3.png",
         category: "Games / Platformer",
-        description: "Run 3 is an incredibly addictive endless runner that takes place in the unique environment of procedurally generated space tunnels. Navigate through endless tunnels while avoiding gaps and obstacles.",
-        features: "The game features multiple game modes including the classic endless run, the challenging tunnel run mode with a finish line, and the time attack mode. Features smooth controls and progressively harder challenges.",
-        additional: "As you progress, the game introduces new challenges including crumbling tiles, portals, and sections where the tunnel rotates. The game is completely free with no ads or microtransactions.",
-        link: "https://the-sawfish.github.io/Run3Final/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Run+3+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Space+Tunnels"]
+        description: "Endless space runner with gravity-shifting tunnel gameplay.",
+        features: "Infinite tunnel running, gravity shifting, character unlocking, achievements, and upgrade system.",
+        additional: "One of the most popular unblocked games. Works great on school networks.",
+        link: "https://the-sawfish.github.io/seraph/games/run3/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Run+3+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Tunnel+Navigation"]
     },
     syrup: {
         name: "Syrup Games",
-        developer: "Jimeneutron",
+        developer: "Syrup Games",
         icon: "icons/syrup.png",
         category: "Games / Launcher",
-        description: "Syrup Games is an alternative game launcher that provides access to a curated collection of unique browser-based games. Discover indie games and experimental titles you won't find elsewhere.",
-        features: "The launcher features a clean, modern interface that makes it easy to browse and discover new games. Includes game ratings, playtime tracking, and curated collections based on mood and difficulty.",
-        additional: "Syrup Games complements the main Sawfish Game Portal by offering access to indie and experimental titles. All games are tested for school appropriateness.",
-        link: "https://jimeneutron.github.io/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Syrup+Games+Launcher", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Game+Collection"]
+        description: "Alternative game launcher with unique browser-based titles.",
+        features: "Syrup's flagship games including Nitter and other titles, integrated launcher, achievement tracking.",
+        additional: "Provides access to Syrup's suite of unique browser games. Often hosts events and challenges.",
+        link: "https://syrupgames.io/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Syrup+Games+Launcher", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Available+Games"]
     },
     bobtherobber: {
         name: "Bob The Robber",
-        developer: "GameDevelop",
+        developer: "Bob The Robber Team",
         icon: "icons/bobtherobber.png",
-        category: "Games / Stealth",
-        description: "Bob The Robber is a stealth puzzle game series that challenges players to infiltrate various locations, avoid security systems, and steal treasure without getting caught.",
-        features: "Each level presents a unique location with different security systems, guard placements, and objectives. Features include multiple difficulty levels, unlockable upgrades, and engaging story progression.",
-        additional: "The Bob The Robber series has multiple installments, each offering new challenges and environments. The games are designed to exercise problem-solving skills and strategic thinking.",
-        link: "https://bobtherobberunblocked.github.io/2/",
+        category: "Games / Puzzle",
+        description: "Stealth puzzle game series. Infiltrate locations and steal treasure.",
+        features: "Stealth mechanics, puzzle-solving, level progression, character upgrades, and multiple installments.",
+        additional: "Fun puzzle series that requires thinking ahead. Each level is a new challenge.",
+        link: "https://the-sawfish.github.io/seraph/games/bobtherobber/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Bob+The+Robber+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Stealth+Puzzles"]
     },
     retrobowl: {
         name: "Retro Bowl",
-        developer: "Coloso",
+        developer: "Retro Bowl Team",
         icon: "icons/retrobowl.png",
         category: "Games / Sports",
-        description: "Retro Bowl brings the classic American football video game experience to your browser with charming pixel-art graphics and addictive gameplay. Lead your team to championship glory.",
-        features: "The gameplay combines strategy and action with management elements including player contracts, draft systems, and team customization. Features include season mode, playoffs, and challenging opponents.",
-        additional: "Retro Bowl has been optimized for browser play with touch-friendly controls and responsive gameplay. The game captures the magic of classic football video games.",
-        link: "https://the-sawfish.github.io/seraph/games/retrobowl/index.html",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Retro+Bowl+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Football+Action"]
+        description: "Classic American football management game with retro aesthetics.",
+        features: "Team management, game simulation, player trading, stadium upgrades, and retro graphics.",
+        additional: "Provides the classic football gaming experience with modern gameplay mechanics. Perfect for sports fans.",
+        link: "https://the-sawfish.github.io/seraph/games/retrobowl/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Retro+Bowl+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Team+Management"]
     },
     paperio2: {
         name: "Paper Io 2",
-        developer: "Voodoo",
+        developer: "Paper Io Team",
         icon: "icons/paperio2.png",
         category: "Games / Arcade",
         description: "Paper Io 2 is an addictive territory conquest game where you control a character to capture territory, expand your kingdom, and compete against other players in fast-paced battles.",
@@ -2030,6 +2795,8 @@ const appData = {
         link: "https://www.piskelapp.com/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Piskel+Pixel+Editor", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Animation+Timeline"]
     },
+    
+    // Developer-only apps (only visible when developer mode is active)
     vscodeweb: {
         name: "VS Code Web",
         developer: "Microsoft",
@@ -2076,17 +2843,6 @@ const appData = {
         link: "https://tiddlywiki.com/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=TiddlyWiki+Notebook", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Wiki+Organization"]
     },
-    protonmail: {
-        name: "Proton Mail",
-        developer: "Proton AG",
-        icon: "icons/protonmail.png",
-        category: "Productivity / Email",
-        description: "Proton Mail is a secure, encrypted email service based in Switzerland that protects your privacy. Send encrypted emails that even Proton cannot read.",
-        features: "End-to-end encryption, zero-access architecture, self-destructing messages, custom domains, and 2GB free storage. No ads or tracking of your activity.",
-        additional: "Proton Mail is protected by Swiss privacy laws, one of the strongest data protection regimes in the world. Perfect for sensitive communications.",
-        link: "https://mail.proton.me/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Proton+Mail+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Encrypted+Email"]
-    },
     
     // Media & Social
     spotifyweb: {
@@ -2111,6 +2867,39 @@ const appData = {
         link: "https://neocities.org/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Neocities+Create", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Website+Builder"]
     },
+    hack: {
+        name: "Hack Stuff",
+        developer: "Sawfish",
+        icon: "icons/hack.png",
+        category: "Miscellaneous / Tools",
+        description: "Restricted utilities and experimental tools for advanced users. Access various hacking simulations and security testing tools in a safe environment.",
+        features: "Password generator, cipher tools, hash generator, and various security utilities for educational purposes.",
+        additional: "For educational purposes only. These tools are designed to help students understand cybersecurity concepts. DO NOT use for malicious purposes.",
+        link: "https://the-sawfish.github.io/seraph/hack/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Hack+Tools+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Password+Generator"]
+    },
+    securecomms: {
+        name: "Secure Communication",
+        developer: "Sawfish",
+        icon: "icons/securecomms.png",
+        category: "Miscellaneous / Tools",
+        description: "Encrypt and decrypt messages securely. Protect your private conversations with military-grade encryption.",
+        features: "AES-256 encryption, message encoding/decoding, secure key generation, and base64 conversion tools.",
+        additional: "Learn about encryption and data security. Perfect for understanding how modern encryption works while keeping your messages private.",
+        link: "https://the-sawfish.github.io/seraph/securecomms/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Secure+Communication", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Encryption+Tools"]
+    },
+    2048: {
+        name: "2048",
+        developer: "Gabriele Cirulli",
+        icon: "icons/2048.png",
+        category: "Games / Puzzle",
+        description: "Classic number puzzle game. Combine matching tiles to reach the 2048 tile and win the game.",
+        features: "Simple swipe controls, score tracking, undo functionality, and mobile-friendly design.",
+        additional: "One of the most popular puzzle games of all time. Train your brain while having fun combining numbers.",
+        link: "https://the-sawfish.github.io/seraph/games/2048/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=2048+Game+Board", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=2048+Win+Screen"]
+    },
     hackernews: {
         name: "Hacker News",
         developer: "Y Combinator",
@@ -2122,6 +2911,17 @@ const appData = {
         link: "https://news.ycombinator.com/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Hacker+News+Front+Page", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Tech+Discussions"]
     }
+};
+
+// ============================================================
+// APP STATE
+// ============================================================
+const AppState = {
+    isPWA: false,
+    isFirstVisit: true,
+    currentPage: 'home',
+    expandedApp: null,
+    reviewSubscriptions: {}
 };
 
 // ============================================================
@@ -2153,6 +2953,7 @@ const elements = {
 // INITIALIZATION
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing app...');
     initializeElements();
     detectPWA();
     setupEventListeners();
@@ -2161,10 +2962,15 @@ document.addEventListener('DOMContentLoaded', function() {
     removeLoadingClass();
     
     // Initialize modules
+    console.log('Initializing UserAuth...');
     UserAuth.init();
+    console.log('Initializing DeveloperMode...');
     DeveloperMode.init();
+    console.log('Initializing SearchSystem...');
     SearchSystem.init();
+    console.log('Initializing UpdateChecker...');
     UpdateChecker.init();
+    console.log('Initializing CommunityBoard...');
     CommunityBoard.init();
     
     console.log('Sawfish App Store initialized');
@@ -2193,9 +2999,12 @@ function initializeElements() {
 }
 
 function detectPWA() {
-    AppState.isPWA = window.matchMedia('(display-mode: standalone)').matches || 
-                    window.navigator.standalone === true ||
-                    document.referrer.includes('android-app://');
+    // Check if running in standalone mode (installed as PWA)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    const isStandaloneiOS = window.navigator.standalone === true;
+    const isAndroidApp = document.referrer.includes('android-app://');
+    
+    AppState.isPWA = isStandalone || isStandaloneiOS || isAndroidApp;
     
     if (AppState.isPWA) {
         elements.installScreen?.classList.add('hidden');
@@ -2248,6 +3057,7 @@ function setupEventListeners() {
     setupDeveloperDashboardListeners();
     setupAuthModalListeners();
     setupOfflineTagListeners();
+    setupMinecraftWarningListeners();
     
     window.matchMedia('(display-mode: standalone)').addEventListener('change', function(e) {
         AppState.isPWA = e.matches;
@@ -2371,11 +3181,15 @@ function setupServiceWorkerListeners() {
 }
 
 function setupDeveloperDashboardListeners() {
+    // Close/exit dashboard button - actually exits developer mode
     const closeBtn = document.getElementById('developer-close-dashboard');
     if (closeBtn) {
-        closeBtn.addEventListener('click', () => DeveloperMode.closeDashboard());
+        closeBtn.addEventListener('click', () => {
+            DeveloperMode.logout();
+        });
     }
     
+    // Dashboard navigation
     const navBtns = document.querySelectorAll('.developer-nav-btn');
     navBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -2384,60 +3198,79 @@ function setupDeveloperDashboardListeners() {
         });
     });
     
+    // Add new app button
     const addAppBtn = document.getElementById('add-new-app-btn');
     if (addAppBtn) {
         addAppBtn.addEventListener('click', () => DeveloperMode.showAddAppForm());
     }
     
+    // Publish announcement button
     const publishBtn = document.getElementById('publish-announcement');
     if (publishBtn) {
         publishBtn.addEventListener('click', () => DeveloperMode.publishAnnouncement());
     }
     
-    // Auth modal backdrop click
-    const authModal = document.getElementById('auth-modal');
-    const authBackdrop = authModal?.querySelector('.modal-backdrop');
-    if (authBackdrop) {
-        authBackdrop.addEventListener('click', () => UserAuth.closeAuthModal());
-    }
-    
-    // Developer login button
+    // Developer login button in sidebar
     const devLoginBtn = document.getElementById('developer-login-button');
     if (devLoginBtn) {
         devLoginBtn.addEventListener('click', () => DeveloperMode.toggleLogin());
     }
+    
+    // Developer login modal handlers
+    const devCancelBtn = document.getElementById('developer-cancel');
+    if (devCancelBtn) {
+        devCancelBtn.addEventListener('click', () => DeveloperMode.closeLoginModal());
+    }
+    
+    const devSubmitBtn = document.getElementById('developer-submit');
+    if (devSubmitBtn) {
+        devSubmitBtn.addEventListener('click', () => {
+            const passwordInput = document.getElementById('developer-password');
+            if (passwordInput) {
+                const success = DeveloperMode.login(passwordInput.value);
+                if (!success) {
+                    showNotification('Invalid developer password');
+                    passwordInput.value = '';
+                }
+            }
+        });
+    }
+    
+    // Exit developer mode button in dashboard
+    const exitDevBtn = document.getElementById('exit-developer-mode');
+    if (exitDevBtn) {
+        exitDevBtn.addEventListener('click', () => {
+            DeveloperMode.logout();
+        });
+    }
+    
+    // Close modal on backdrop click
+    const devModal = document.getElementById('developer-login-modal');
+    if (devModal) {
+        const backdrop = devModal.querySelector('.modal-backdrop');
+        if (backdrop) {
+            backdrop.addEventListener('click', () => DeveloperMode.closeLoginModal());
+        }
+    }
+    
+    // Enter key to submit developer password
+    const devPasswordInput = document.getElementById('developer-password');
+    if (devPasswordInput) {
+        devPasswordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const success = DeveloperMode.login(devPasswordInput.value);
+                if (!success) {
+                    showNotification('Invalid developer password');
+                    devPasswordInput.value = '';
+                }
+            }
+        });
+    }
 }
 
 function setupAuthModalListeners() {
-    const forgotPasswordLink = document.getElementById('forgot-password-link');
-    if (forgotPasswordLink) {
-        forgotPasswordLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            document.querySelectorAll('.auth-tab-btn').forEach(btn => {
-                if (btn.dataset.authTab === 'reset') btn.click();
-            });
-        });
-    }
-    
-    const backToLoginLink = document.getElementById('back-to-login-link');
-    if (backToLoginLink) {
-        backToLoginLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            document.querySelectorAll('.auth-tab-btn').forEach(btn => {
-                if (btn.dataset.authTab === 'login') btn.click();
-            });
-        });
-    }
-    
-    // Close auth modal on Escape
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            const authModal = document.getElementById('auth-modal');
-            if (authModal && !authModal.classList.contains('hidden')) {
-                UserAuth.closeAuthModal();
-            }
-        }
-    });
+    // Already handled in UserAuth.setupAuthListeners()
+    // Additional auth modal setup can go here
 }
 
 function setupOfflineTagListeners() {
@@ -2459,6 +3292,21 @@ function setupOfflineTagListeners() {
             e.stopPropagation();
         }
     });
+}
+
+function setupMinecraftWarningListeners() {
+    const cancelBtn = document.getElementById('minecraft-cancel-btn');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => MinecraftReGuest.closeWarning());
+    }
+    
+    const overlay = document.getElementById('minecraft-warning-overlay');
+    if (overlay) {
+        const backdrop = overlay.querySelector('.modal-backdrop');
+        if (backdrop) {
+            backdrop.addEventListener('click', () => MinecraftReGuest.closeWarning());
+        }
+    }
 }
 
 // ============================================================
@@ -2538,7 +3386,7 @@ function openExpandedApp(appId) {
     
     // Check if this is Minecraft and show warning
     if (appId === 'minecraft') {
-        minecraftWarningSystem.showWarning(app.name, app.link);
+        MinecraftReGuest.showWarning(appId, app.name, app.link);
         return;
     }
     
@@ -2762,18 +3610,13 @@ function setupRatingForm(appId) {
             return;
         }
         
-        if (!comment) {
-            alert('Please write a review');
-            return;
-        }
-        
         if (!UserAuth.canRate()) {
             alert('Please log in to leave a review');
             UserAuth.openAuthModal();
             return;
         }
         
-        submitReview(appId, selectedRating, comment);
+        submitReview(appId, selectedRating, comment || '');
     });
 }
 
@@ -2809,6 +3652,9 @@ async function submitReview(appId, rating, comment) {
         if (form) {
             form.querySelectorAll('.rating-num-btn').forEach(btn => btn.classList.remove('active'));
         }
+        
+        // Award achievement for rating
+        Achievements.checkAchievements('submit_rating');
     } else {
         alert('Failed to submit review. Please try again.');
     }
@@ -2869,7 +3715,7 @@ function displayReviews(appId, reviews) {
                         <span class="comment-date">${formatDate(review.timestamp)}</span>
                     </div>
                 </div>
-                <div class="comment-body">${escapeHtml(review.comment)}</div>
+                ${review.comment ? `<div class="comment-body">${escapeHtml(review.comment)}</div>` : ''}
             </div>
         `;
     }).join('');
@@ -3042,5 +3888,6 @@ window.scrollToSection = scrollToSection;
 window.DeveloperMode = DeveloperMode;
 window.UserAuth = UserAuth;
 window.openExpandedApp = openExpandedApp;
+window.CommunityBoard = CommunityBoard;
 
 console.log('Sawfish App Store JavaScript loaded successfully');
