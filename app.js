@@ -3,24 +3,18 @@
 // Full Logic for PWA, Navigation, Ratings, Reviews, Firestore
 // Enhanced with Firebase Authentication, Profile Pictures, Search
 // Author: Eric Zhu / Sawfish Developer Group
-// Date: January 8, 2026
+// Date: January 10, 2026
 // ============================================================
 
 // ============================================================
 // VERSION CONFIGURATION
 // ============================================================
-const APP_VERSION = '1.3.0';
+const APP_VERSION = '2.5.0';
 const VERSION_CHECK_URL = '/update/version.json';
 
 // ============================================================
 // FIREBASE CONFIGURATION
 // ============================================================
-// NOTE: Replace these values with your own Firebase config
-// You can get these from the Firebase Console:
-// 1. Go to https://console.firebase.google.com/
-// 2. Create a new project or select existing one
-// 3. Go to Project Settings > General > Your apps
-// 4. Copy the firebaseConfig values
 const firebaseConfig = {
     apiKey: "AIzaSyB5JaGq3ezv1ghif7ggRr8_jxuq7ZGw4Bo",
     authDomain: "appstore-cb2fa.firebaseapp.com",
@@ -38,14 +32,12 @@ let app = null;
 
 try {
     if (typeof firebase !== 'undefined') {
-        // Check if config is set properly
         if (firebaseConfig.apiKey !== "YOUR_API_KEY_HERE") {
             app = firebase.initializeApp(firebaseConfig);
             db = firebase.firestore();
             auth = firebase.auth();
             storage = firebase.storage();
             
-            // Set auth persistence to maintain login state across sessions
             if (auth) {
                 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
                     .then(() => {
@@ -55,7 +47,6 @@ try {
                         console.error('Error setting auth persistence:', error);
                     });
                 
-                // Listen for auth state changes to maintain session
                 auth.onAuthStateChanged((user) => {
                     if (user) {
                         console.log('User signed in:', user.email);
@@ -76,7 +67,6 @@ try {
             console.log('Project ID:', firebaseConfig.projectId);
         } else {
             console.warn('Firebase config not set - using local storage fallback');
-            console.warn('To enable cloud sync, configure firebaseConfig with your values');
         }
     } else {
         console.warn('Firebase SDK not loaded - using local storage fallback');
@@ -96,14 +86,12 @@ const UserAuth = {
     DEVELOPER_USERNAME: 'Developer',
     DEVELOPER_PASSWORD: '120622',
     
-    // Initialize authentication
     init: function() {
         this.loadUserSession();
         this.setupAuthListeners();
         this.updateAuthUI();
     },
     
-    // Load user session from storage
     loadUserSession: function() {
         try {
             const storedUser = localStorage.getItem('sawfish_user');
@@ -117,7 +105,6 @@ const UserAuth = {
                 this.userProfile = JSON.parse(storedProfile);
             }
             
-            // Check developer mode
             const devSession = sessionStorage.getItem('developer_logged_in');
             this.isDeveloperMode = devSession === 'true';
         } catch (error) {
@@ -125,7 +112,6 @@ const UserAuth = {
         }
     },
     
-    // Save user session
     saveUserSession: function() {
         try {
             if (this.currentUser) {
@@ -139,7 +125,6 @@ const UserAuth = {
         }
     },
     
-    // Clear user session
     clearSession: function() {
         this.currentUser = null;
         this.userProfile = null;
@@ -149,32 +134,27 @@ const UserAuth = {
         sessionStorage.removeItem('developer_logged_in');
     },
     
-    // Setup authentication event listeners
     setupAuthListeners: function() {
         console.log('Setting up auth listeners...');
         
-        // Login form submission
         const loginForm = document.getElementById('login-form');
         console.log('Login form found:', !!loginForm);
         if (loginForm) {
             loginForm.addEventListener('submit', (e) => this.handleLogin(e));
         }
         
-        // Signup form submission
         const signupForm = document.getElementById('signup-form');
         console.log('Signup form found:', !!signupForm);
         if (signupForm) {
             signupForm.addEventListener('submit', (e) => this.handleSignup(e));
         }
         
-        // Password reset form
         const resetForm = document.getElementById('reset-form');
         console.log('Reset form found:', !!resetForm);
         if (resetForm) {
             resetForm.addEventListener('submit', (e) => this.handlePasswordReset(e));
         }
         
-        // Auth modal tabs - Fixed selector
         const authTabs = document.querySelectorAll('.auth-tab');
         authTabs.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -183,12 +163,10 @@ const UserAuth = {
                 authTabs.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 
-                // Show/hide forms based on tab
                 document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
                 document.getElementById('signup-form').style.display = tab === 'signup' ? 'block' : 'none';
                 document.getElementById('reset-form').style.display = tab === 'reset' ? 'block' : 'none';
                 
-                // Update title
                 const title = document.getElementById('auth-modal-title');
                 if (title) {
                     if (tab === 'login') title.textContent = 'Sign In';
@@ -198,49 +176,41 @@ const UserAuth = {
             });
         });
         
-        // User profile button in sidebar
         const userProfileBtn = document.getElementById('user-profile-button');
         if (userProfileBtn) {
             userProfileBtn.addEventListener('click', () => this.handleProfileButtonClick());
         }
         
-        // Logout button from profile modal
         const logoutBtn = document.getElementById('profile-logout-btn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', () => this.handleLogout());
         }
         
-        // Profile save button
         const profileSaveBtn = document.getElementById('profile-save-btn');
         if (profileSaveBtn) {
             profileSaveBtn.addEventListener('click', () => this.saveProfileChanges());
         }
         
-        // Profile cancel button
         const profileCancelBtn = document.getElementById('profile-cancel-btn');
         if (profileCancelBtn) {
             profileCancelBtn.addEventListener('click', () => this.closeProfileModal());
         }
         
-        // Avatar upload
         const avatarUpload = document.getElementById('avatar-upload-input');
         if (avatarUpload) {
             avatarUpload.addEventListener('change', (e) => this.handleProfilePictureUpload(e));
         }
         
-        // Profile modal close
         const profileClose = document.getElementById('profile-close');
         if (profileClose) {
             profileClose.addEventListener('click', () => this.closeProfileModal());
         }
         
-        // Auth modal close/cancel
         const authCancel = document.getElementById('auth-cancel');
         if (authCancel) {
             authCancel.addEventListener('click', () => this.closeAuthModal());
         }
         
-        // Backdrop click to close auth modal
         const authModal = document.getElementById('auth-modal');
         if (authModal) {
             const backdrop = authModal.querySelector('.modal-backdrop');
@@ -249,18 +219,35 @@ const UserAuth = {
             }
         }
         
-        // Escape key to close auth modal
+        // User profile modal close button
+        const userProfileClose = document.getElementById('user-profile-modal-close');
+        if (userProfileClose) {
+            userProfileClose.addEventListener('click', () => this.closeUserProfileModal());
+        }
+        
+        // User profile modal backdrop
+        const userProfileModal = document.getElementById('user-profile-modal');
+        if (userProfileModal) {
+            const backdrop = userProfileModal.querySelector('.modal-backdrop');
+            if (backdrop) {
+                backdrop.addEventListener('click', () => this.closeUserProfileModal());
+            }
+        }
+        
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 const authModal = document.getElementById('auth-modal');
                 if (authModal && !authModal.classList.contains('hidden')) {
                     this.closeAuthModal();
                 }
+                const userProfileModal = document.getElementById('user-profile-modal');
+                if (userProfileModal && !userProfileModal.classList.contains('hidden')) {
+                    this.closeUserProfileModal();
+                }
             }
         });
     },
     
-    // Handle profile button click
     handleProfileButtonClick: function() {
         if (this.isLoggedIn()) {
             this.openProfileModal();
@@ -269,12 +256,10 @@ const UserAuth = {
         }
     },
     
-    // Open profile modal
     openProfileModal: function() {
         const modal = document.getElementById('profile-modal');
         if (!modal) return;
         
-        // Update profile info
         const name = this.userProfile?.username || this.currentUser?.displayName || 'User';
         const email = this.userProfile?.email || this.currentUser?.email || 'Not signed in';
         const bio = this.userProfile?.bio || '';
@@ -289,10 +274,8 @@ const UserAuth = {
         if (nameInput) nameInput.value = name;
         if (bioInput) bioInput.value = bio;
         
-        // Update avatar
         this.updateProfileAvatar();
         
-        // Update status badge
         const statusBadge = document.getElementById('profile-status-badge');
         if (statusBadge) {
             if (this.isDeveloperMode) {
@@ -308,7 +291,6 @@ const UserAuth = {
         modal.setAttribute('aria-hidden', 'false');
     },
     
-    // Close profile modal
     closeProfileModal: function() {
         const modal = document.getElementById('profile-modal');
         if (modal) {
@@ -317,7 +299,14 @@ const UserAuth = {
         }
     },
     
-    // Update profile avatar display
+    closeUserProfileModal: function() {
+        const modal = document.getElementById('user-profile-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+    },
+    
     updateProfileAvatar: function() {
         const avatarInitial = document.getElementById('profile-avatar-initial');
         const avatarImg = document.getElementById('profile-avatar-img');
@@ -352,7 +341,6 @@ const UserAuth = {
         }
     },
     
-    // Save profile changes
     saveProfileChanges: function() {
         const nameInput = document.getElementById('profile-name-input');
         const bioInput = document.getElementById('profile-bio-input');
@@ -370,7 +358,6 @@ const UserAuth = {
             
             this.saveUserSession();
             
-            // Update Firestore if available
             if (db && this.currentUser) {
                 db.collection('users').doc(this.currentUser.uid).set({
                     username: name,
@@ -384,7 +371,6 @@ const UserAuth = {
                 });
             }
             
-            // Also save to localStorage for offline mode
             if (!db && this.currentUser) {
                 const storedUsers = JSON.parse(localStorage.getItem('sawfish_users') || '{}');
                 const email = this.currentUser.email;
@@ -399,21 +385,10 @@ const UserAuth = {
             this.updateProfileAvatar();
             showNotification('Profile updated!');
             
-            // Close the profile modal
             this.closeProfileModal();
         }
     },
     
-    // Close profile modal
-    closeProfileModal: function() {
-        const modal = document.getElementById('profile-modal');
-        if (modal) {
-            modal.classList.add('hidden');
-            modal.setAttribute('aria-hidden', 'true');
-        }
-    },
-    
-    // Handle login
     handleLogin: async function(event) {
         event.preventDefault();
         
@@ -434,7 +409,6 @@ const UserAuth = {
         submitBtn.textContent = 'Signing in...';
         
         try {
-            // Check for developer backdoor first
             if (email === this.DEVELOPER_USERNAME && password === this.DEVELOPER_PASSWORD) {
                 this.isDeveloperMode = true;
                 sessionStorage.setItem('developer_logged_in', 'true');
@@ -452,24 +426,20 @@ const UserAuth = {
                 this.closeAuthModal();
                 this.updateAuthUI();
                 
-                // Update developer mode UI
                 DeveloperMode.isLoggedIn = true;
                 DeveloperMode.updateLoginButton();
                 updateDevOnlyElements();
                 
-                // Award developer achievement
-                Achievements.checkAchievements('become_developer');
+                Achievements.checkAchievements('be_a_dev');
                 
                 showNotification('Developer mode activated');
                 return;
             }
             
-            // Firebase authentication
             if (auth) {
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 const user = userCredential.user;
                 
-                // Get or create user profile
                 await this.getOrCreateUserProfile(user);
                 
                 this.saveUserSession();
@@ -477,7 +447,6 @@ const UserAuth = {
                 this.updateAuthUI();
                 showNotification('Welcome back!');
             } else {
-                // Fallback: check local storage for demo users
                 const storedUsers = JSON.parse(localStorage.getItem('sawfish_users') || '{}');
                 if (storedUsers[email] && storedUsers[email].password === password) {
                     this.currentUser = {
@@ -488,7 +457,10 @@ const UserAuth = {
                     };
                     this.userProfile = {
                         username: storedUsers[email].username,
-                        email: email
+                        email: email,
+                        bio: storedUsers[email].bio || '',
+                        achievements: storedUsers[email].achievements || [],
+                        avatarUrl: storedUsers[email].avatarUrl || null
                     };
                     this.saveUserSession();
                     this.closeAuthModal();
@@ -527,7 +499,6 @@ const UserAuth = {
         }
     },
     
-    // Handle signup
     handleSignup: async function(event) {
         event.preventDefault();
         
@@ -563,17 +534,12 @@ const UserAuth = {
         
         try {
             if (auth) {
-                // Create user
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
                 
-                // Update profile with name
                 await user.updateProfile({ displayName: name });
-                
-                // Send email verification
                 await user.sendEmailVerification();
                 
-                // Create user profile in Firestore
                 this.userProfile = {
                     username: name,
                     email: email,
@@ -599,7 +565,6 @@ const UserAuth = {
                 this.updateAuthUI();
                 showNotification('Account created! Please check your email for verification.');
             } else {
-                // Fallback: store in localStorage
                 const storedUsers = JSON.parse(localStorage.getItem('sawfish_users') || '{}');
                 
                 if (storedUsers[email]) {
@@ -615,7 +580,8 @@ const UserAuth = {
                     username: name,
                     email: email,
                     password: password,
-                    createdAt: new Date().toISOString()
+                    createdAt: new Date().toISOString(),
+                    achievements: ['first_time']
                 };
                 localStorage.setItem('sawfish_users', JSON.stringify(storedUsers));
                 
@@ -627,7 +593,8 @@ const UserAuth = {
                 };
                 this.userProfile = {
                     username: name,
-                    email: email
+                    email: email,
+                    achievements: ['first_time']
                 };
                 
                 this.saveUserSession();
@@ -658,7 +625,6 @@ const UserAuth = {
         }
     },
     
-    // Handle password reset
     handlePasswordReset: async function(event) {
         event.preventDefault();
         
@@ -703,7 +669,6 @@ const UserAuth = {
         }
     },
     
-    // Handle logout
     handleLogout: async function() {
         try {
             if (auth && this.currentUser && !this.isDeveloperMode) {
@@ -714,7 +679,6 @@ const UserAuth = {
             this.closeProfileModal();
             this.updateAuthUI();
             
-            // Update developer mode if was in dev mode
             if (DeveloperMode.isLoggedIn) {
                 DeveloperMode.isLoggedIn = false;
                 DeveloperMode.updateLoginButton();
@@ -722,8 +686,6 @@ const UserAuth = {
             }
             
             showNotification('Logged out successfully');
-            
-            // Switch to home tab
             switchTab('home');
         } catch (error) {
             console.error('Logout error:', error);
@@ -731,7 +693,6 @@ const UserAuth = {
         }
     },
     
-    // Get or create user profile from Firestore
     getOrCreateUserProfile: async function(user) {
         if (!db) return;
         
@@ -741,7 +702,6 @@ const UserAuth = {
             if (doc.exists) {
                 this.userProfile = doc.data();
             } else {
-                // Create new profile
                 this.userProfile = {
                     username: user.displayName || user.email.split('@')[0],
                     email: user.email,
@@ -758,7 +718,6 @@ const UserAuth = {
         }
     },
     
-    // Save user profile to Firestore
     saveUserProfile: async function(uid) {
         if (!db || !this.userProfile) return;
         
@@ -769,12 +728,10 @@ const UserAuth = {
         }
     },
     
-    // Handle profile picture upload
     handleProfilePictureUpload: async function(event) {
         const file = event.target.files[0];
         if (!file) return;
         
-        const status = document.getElementById('profile-upload-status');
         const previewInitial = document.getElementById('upload-preview-initial');
         const previewImg = document.getElementById('upload-preview-img');
         
@@ -784,79 +741,68 @@ const UserAuth = {
         }
         
         try {
-            if (status) {
-                status.textContent = 'Uploading...';
-                status.classList.remove('hidden');
-            }
-            
-            // Upload to Firebase Storage
-            if (storage && !this.isDeveloperMode) {
-                const storageRef = storage.ref(`profiles/${this.currentUser.uid}/avatar`);
-                await storageRef.put(file);
-                const downloadUrl = await storageRef.getDownloadURL();
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const base64Data = e.target.result;
                 
-                // Update profile
-                this.userProfile.avatarUrl = downloadUrl;
-                await this.saveUserProfile(this.currentUser.uid);
+                this.userProfile = this.userProfile || {};
+                this.userProfile.avatarUrl = base64Data;
+                this.saveUserSession();
                 
-                // Update Firebase user
-                if (auth.currentUser) {
-                    await auth.currentUser.updateProfile({ photoURL: downloadUrl });
+                if (previewInitial) {
+                    previewInitial.textContent = '';
+                    previewInitial.style.display = 'none';
+                }
+                if (previewImg) {
+                    previewImg.src = base64Data;
+                    previewImg.style.display = 'block';
                 }
                 
-                // Update profile avatar for Firebase Storage upload path
                 this.updateProfileAvatar();
                 
-                if (status) {
-                    status.textContent = 'Profile picture updated!';
+                const sidebarAvatar = document.getElementById('sidebar-avatar');
+                if (sidebarAvatar) {
+                    sidebarAvatar.innerHTML = `<img src="${base64Data}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
                 }
+                
+                Achievements.checkAchievements('upload_avatar');
+                
+                if (db && this.currentUser) {
+                    db.collection('users').doc(this.currentUser.uid).set({
+                        avatarUrl: base64Data
+                    }, { merge: true })
+                    .then(() => {
+                        console.log('Profile picture saved to Firestore');
+                    })
+                    .catch((error) => {
+                        console.error('Error saving profile picture to Firestore:', error);
+                    });
+                }
+                
+                // Also save to localStorage for offline mode
+                if (!db && this.currentUser && this.currentUser.email) {
+                    const storedUsers = JSON.parse(localStorage.getItem('sawfish_users') || '{}');
+                    if (storedUsers[this.currentUser.email]) {
+                        storedUsers[this.currentUser.email].avatarUrl = base64Data;
+                        localStorage.setItem('sawfish_users', JSON.stringify(storedUsers));
+                    }
+                }
+                
                 showNotification('Profile picture updated!');
-            } else {
-                // For developer mode or offline, use base64
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.userProfile.avatarUrl = e.target.result;
-                    this.saveUserSession();
-                    
-                    // Update preview immediately
-                    if (previewInitial) {
-                        previewInitial.textContent = '';
-                        previewInitial.style.display = 'none';
-                    }
-                    if (previewImg) {
-                        previewImg.src = e.target.result;
-                        previewImg.style.display = 'block';
-                    }
-                    
-                    // Update profile avatar in all places
-                    this.updateProfileAvatar();
-                    
-                    // Award achievement
-                    Achievements.checkAchievements('upload_avatar');
-                    
-                    if (status) {
-                        status.textContent = 'Profile picture updated!';
-                    }
-                    showNotification('Profile picture updated!');
-                };
-                reader.readAsDataURL(file);
-            }
+            };
+            reader.readAsDataURL(file);
         } catch (error) {
             console.error('Upload error:', error);
-            if (status) {
-                status.textContent = 'Upload failed. Please try again.';
-            }
+            showNotification('Upload failed. Please try again.');
         }
     },
     
-    // Get default avatar URL
     getDefaultAvatar: function() {
         const username = this.userProfile?.username || 'User';
         const initial = username.charAt(0).toUpperCase();
         return `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#4da3ff"/><text x="50" y="50" text-anchor="middle" dy="0.35em" fill="white" font-size="50" font-family="sans-serif">${initial}</text></svg>`)}`;
     },
     
-    // Show error message
     showError: function(errorDiv, message) {
         if (errorDiv) {
             errorDiv.textContent = message;
@@ -868,7 +814,6 @@ const UserAuth = {
         }
     },
     
-    // Open auth modal
     openAuthModal: function() {
         const modal = document.getElementById('auth-modal');
         if (modal) {
@@ -877,14 +822,12 @@ const UserAuth = {
         }
     },
     
-    // Close auth modal
     closeAuthModal: function() {
         const modal = document.getElementById('auth-modal');
         if (modal) {
             modal.classList.add('hidden');
             modal.setAttribute('aria-hidden', 'true');
             
-            // Reset forms
             const forms = modal.querySelectorAll('form');
             forms.forEach(f => f.reset());
             
@@ -897,7 +840,6 @@ const UserAuth = {
             if (errorDiv) errorDiv.classList.add('hidden');
             if (successDiv) successDiv.classList.add('hidden');
             
-            // Reset tabs
             const authTabs = document.querySelectorAll('.auth-tab');
             authTabs.forEach((btn, index) => {
                 btn.classList.toggle('active', index === 0);
@@ -908,28 +850,37 @@ const UserAuth = {
         }
     },
     
-    // Update auth UI based on login state
     updateAuthUI: function() {
         const profileStatusText = document.getElementById('profile-status-text');
         const sidebarAvatar = document.getElementById('sidebar-avatar');
         
         if (this.currentUser) {
-            // Logged in state
             const name = this.userProfile?.username || this.currentUser.displayName || 'User';
-            const initial = name.charAt(0).toUpperCase();
             
             if (profileStatusText) profileStatusText.textContent = name;
-            if (sidebarAvatar) sidebarAvatar.textContent = initial;
             
-            // Update sidebar avatar style
+            if (this.userProfile?.avatarUrl) {
+                if (sidebarAvatar) {
+                    sidebarAvatar.innerHTML = `<img src="${this.userProfile.avatarUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+                }
+            } else {
+                const initial = name.charAt(0).toUpperCase();
+                if (sidebarAvatar) {
+                    sidebarAvatar.innerHTML = '';
+                    sidebarAvatar.textContent = initial;
+                }
+            }
+            
             const userProfileBtn = document.getElementById('user-profile-button');
             if (userProfileBtn) {
                 userProfileBtn.classList.add('logged-in');
             }
         } else {
-            // Logged out state
             if (profileStatusText) profileStatusText.textContent = 'Sign In';
-            if (sidebarAvatar) sidebarAvatar.textContent = '?';
+            if (sidebarAvatar) {
+                sidebarAvatar.innerHTML = '';
+                sidebarAvatar.textContent = '?';
+            }
             
             const userProfileBtn = document.getElementById('user-profile-button');
             if (userProfileBtn) {
@@ -938,26 +889,163 @@ const UserAuth = {
         }
     },
     
-    // Check if user is logged in
     isLoggedIn: function() {
         return this.currentUser !== null;
     },
     
-    // Check if user can rate (must be logged in)
     canRate: function() {
         return this.isLoggedIn() || this.isDeveloperMode;
     },
     
-    // Get username for reviews
     getReviewUsername: function() {
         if (this.isDeveloperMode) return 'Developer';
         return this.userProfile?.username || this.currentUser?.displayName || 'Anonymous';
     },
     
-    // Get user avatar for reviews
     getReviewAvatar: function() {
         if (this.isDeveloperMode) return null;
         return this.userProfile?.avatarUrl;
+    },
+    
+    openUserProfile: function(userId) {
+        this.loadUserProfileData(userId);
+    },
+    
+    loadUserProfileData: async function(userId) {
+        const modal = document.getElementById('user-profile-modal');
+        if (!modal) return;
+        
+        const nameEl = document.getElementById('user-profile-name');
+        const bioEl = document.getElementById('user-profile-bio');
+        const avatarEl = document.getElementById('user-profile-avatar');
+        const achievementsEl = document.getElementById('user-profile-achievements');
+        const statsEl = document.getElementById('user-profile-stats');
+        const memberSinceEl = document.getElementById('user-profile-member-since');
+        
+        modal.classList.remove('hidden');
+        modal.setAttribute('aria-hidden', 'false');
+        
+        try {
+            let userData;
+            let achievements = [];
+            let postCount = 0;
+            
+            if (db) {
+                const userDoc = await db.collection('users').doc(userId).get();
+                if (userDoc.exists) {
+                    userData = userDoc.data();
+                    achievements = userData.achievements || [];
+                }
+                
+                // Get post count
+                const postsSnapshot = await db.collection('sawfish_community_posts')
+                    .where('author', '==', userData?.username || 'Unknown')
+                    .get();
+                postCount = postsSnapshot.size;
+            } else {
+                const storedUsers = JSON.parse(localStorage.getItem('sawfish_users') || '{}');
+                for (const email in storedUsers) {
+                    if (storedUsers[email].uid === userId) {
+                        userData = storedUsers[email];
+                        achievements = userData.achievements || [];
+                        break;
+                    }
+                }
+                
+                // Get post count from localStorage
+                const posts = JSON.parse(localStorage.getItem('sawfish_community_posts') || '[]');
+                postCount = posts.filter(p => p.author === userData?.username).length;
+            }
+            
+            // Update name
+            if (nameEl) {
+                nameEl.textContent = userData?.username || 'Unknown User';
+            }
+            
+            // Update bio
+            if (bioEl) {
+                bioEl.textContent = userData?.bio || 'No bio yet';
+                bioEl.style.display = userData?.bio ? 'block' : 'none';
+            }
+            
+            // Update avatar
+            if (avatarEl) {
+                const initial = (userData?.username || 'U').charAt(0).toUpperCase();
+                if (userData?.avatarUrl) {
+                    avatarEl.innerHTML = `<img src="${userData.avatarUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+                } else {
+                    avatarEl.textContent = initial;
+                }
+            }
+            
+            // Update achievements
+            if (achievementsEl) {
+                achievementsEl.innerHTML = '';
+                achievements.forEach(achId => {
+                    const ach = Achievements.getAchievementInfo(achId);
+                    const badge = document.createElement('span');
+                    badge.className = 'achievement-badge-circle';
+                    badge.title = `${ach.name}: ${ach.description}`;
+                    badge.innerHTML = ach.icon;
+                    badge.dataset.achievementId = achId;
+                    achievementsEl.appendChild(badge);
+                });
+                
+                // Add click handlers for achievement details
+                achievementsEl.querySelectorAll('.achievement-badge-circle').forEach(badge => {
+                    badge.addEventListener('click', () => {
+                        const achId = badge.dataset.achievementId;
+                        const ach = Achievements.getAchievementInfo(achId);
+                        showNotification(`${ach.icon} ${ach.name}: ${ach.description}`);
+                    });
+                });
+            }
+            
+            // Update stats
+            if (statsEl) {
+                statsEl.innerHTML = `
+                    <div class="stat-item">
+                        <span class="stat-value">${achievements.length}</span>
+                        <span class="stat-label">Achievements</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">${postCount}</span>
+                        <span class="stat-label">Posts</span>
+                    </div>
+                `;
+            }
+            
+            // Update member since
+            if (memberSinceEl && userData?.createdAt) {
+                const createdDate = new Date(userData.createdAt);
+                const now = new Date();
+                const diffTime = Math.abs(now - createdDate);
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                const diffMonths = Math.floor(diffDays / 30);
+                const diffYears = Math.floor(diffDays / 365);
+                
+                let timeAgo = '';
+                if (diffYears > 0) {
+                    timeAgo = `${diffYears} year${diffYears > 1 ? 's' : ''} ago`;
+                } else if (diffMonths > 0) {
+                    timeAgo = `${diffMonths} month${diffMonths > 1 ? 's' : ''} ago`;
+                } else if (diffDays > 0) {
+                    timeAgo = `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+                } else {
+                    timeAgo = 'Today';
+                }
+                
+                memberSinceEl.innerHTML = `
+                    <span class="member-since-label">Member since</span>
+                    <span class="member-since-date">${createdDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                    <span class="member-since-time">(${timeAgo})</span>
+                `;
+            }
+            
+        } catch (error) {
+            console.error('Error loading user profile:', error);
+            showNotification('Failed to load user profile');
+        }
     }
 };
 
@@ -965,32 +1053,21 @@ const UserAuth = {
 // ACHIEVEMENTS SYSTEM
 // ============================================================
 const Achievements = {
-    // Achievement definitions
     ACHIEVEMENTS: {
         'first_time': {
             name: 'First Steps',
             icon: '👋',
             description: 'First time visiting Sawfish App Store'
         },
-        'first_like': {
-            name: 'Thumbs Up',
-            icon: '👍',
-            description: 'Liked your first app'
-        },
-        'ten_likes': {
-            name: 'Popular',
-            icon: '⭐',
-            description: 'Liked 10 apps'
-        },
         'first_rating': {
             name: 'Critic',
             icon: '💬',
             description: 'Left your first rating'
         },
-        'rate_all_apps': {
-            name: 'Completionist',
-            icon: '🏆',
-            description: 'Rated all available apps'
+        'five_ratings': {
+            name: 'Active Reviewer',
+            icon: '⭐',
+            description: 'Rated 5 apps'
         },
         'be_a_dev': {
             name: 'Developer',
@@ -1011,10 +1088,24 @@ const Achievements = {
             name: 'Social Butterfly',
             icon: '🦋',
             description: 'Posted in the community board'
+        },
+        'started_petition': {
+            name: 'Voice of Change',
+            icon: '📢',
+            description: 'Started a petition'
+        },
+        'resolved_petition': {
+            name: 'Problem Solver',
+            icon: '✅',
+            description: 'Resolved a petition as developer'
+        },
+        'petition_success': {
+            name: 'Champion',
+            icon: '🏆',
+            description: 'Had a petition successfully resolved'
         }
     },
     
-    // Get achievement info
     getAchievementInfo: function(achievementId) {
         return this.ACHIEVEMENTS[achievementId] || {
             name: 'Unknown',
@@ -1023,7 +1114,6 @@ const Achievements = {
         };
     },
     
-    // Award an achievement to a user
     awardAchievement: async function(userId, achievementId) {
         if (!this.ACHIEVEMENTS[achievementId]) {
             console.warn('Unknown achievement:', achievementId);
@@ -1045,11 +1135,13 @@ const Achievements = {
                             achievements: achievements
                         });
                         console.log('Achievement awarded:', achievementId);
+                        
+                        const achievement = this.ACHIEVEMENTS[achievementId];
+                        showNotification(`Achievement Unlocked: ${achievement.icon} ${achievement.name}`);
                         return true;
                     }
                 }
             } else {
-                // Offline mode - update localStorage
                 const storedUsers = JSON.parse(localStorage.getItem('sawfish_users') || '{}');
                 for (const email in storedUsers) {
                     if (storedUsers[email].uid === userId || userId === 'local_user') {
@@ -1059,6 +1151,9 @@ const Achievements = {
                             storedUsers[email].achievements = achievements;
                             localStorage.setItem('sawfish_users', JSON.stringify(storedUsers));
                             console.log('Achievement awarded (offline):', achievementId);
+                            
+                            const achievement = this.ACHIEVEMENTS[achievementId];
+                            showNotification(`Achievement Unlocked: ${achievement.icon} ${achievement.name}`);
                             return true;
                         }
                     }
@@ -1070,50 +1165,43 @@ const Achievements = {
         return false;
     },
     
-    // Check and award achievements based on actions
     checkAchievements: async function(actionType, extraData = {}) {
         if (!UserAuth.currentUser && !UserAuth.isDeveloperMode) return;
         
         const userId = UserAuth.currentUser?.uid || 'developer';
         
         switch (actionType) {
-            case 'like_app':
-                // Check for first like
-                this.awardAchievement(userId, 'first_like');
-                // Check for 10 likes
-                this.awardAchievement(userId, 'ten_likes');
-                break;
-                
             case 'submit_rating':
-                // Check for first rating
                 this.awardAchievement(userId, 'first_rating');
                 break;
-                
-            case 'become_developer':
-                // Award developer achievement
+            case 'be_a_dev':
                 this.awardAchievement(userId, 'be_a_dev');
                 break;
-                
             case 'upload_avatar':
-                // Award profile picture achievement
                 this.awardAchievement(userId, 'has_profile_pic');
                 break;
-                
             case 'update_bio':
-                // Award bio achievement if bio is not empty
                 if (extraData.bio && extraData.bio.length > 0) {
                     this.awardAchievement(userId, 'has_bio');
                 }
                 break;
-                
             case 'community_post':
-                // Award social butterfly
                 this.awardAchievement(userId, 'social_butterfly');
+                break;
+            case 'start_petition':
+                this.awardAchievement(userId, 'started_petition');
+                break;
+            case 'resolve_petition':
+                this.awardAchievement(userId, 'resolved_petition');
+                break;
+            case 'petition_success':
+                if (extraData.authorId) {
+                    this.awardAchievement(extraData.authorId, 'petition_success');
+                }
                 break;
         }
     },
     
-    // Get user's achievements
     getUserAchievements: async function(userId) {
         try {
             if (db) {
@@ -1122,7 +1210,6 @@ const Achievements = {
                     return doc.data().achievements || [];
                 }
             } else {
-                // Check localStorage
                 const storedUsers = JSON.parse(localStorage.getItem('sawfish_users') || '{}');
                 for (const email in storedUsers) {
                     if (storedUsers[email].uid === userId) {
@@ -1134,6 +1221,21 @@ const Achievements = {
             console.error('Error getting user achievements:', error);
         }
         return [];
+    },
+    
+    renderAchievementsBadges: function(achievements, container) {
+        if (!container) return;
+        
+        container.innerHTML = '';
+        
+        achievements.forEach(achievementId => {
+            const achievement = this.getAchievementInfo(achievementId);
+            const badge = document.createElement('span');
+            badge.className = 'achievement-badge-circle';
+            badge.title = `${achievement.name}: ${achievement.description}`;
+            badge.textContent = achievement.icon;
+            container.appendChild(badge);
+        });
     }
 };
 
@@ -1143,12 +1245,10 @@ const Achievements = {
 const MinecraftReGuest = {
     MINECRAFT_APP_ID: 'minecraft',
     
-    // Check if app requires re-guest
     requiresReGuest: function(appId) {
         return appId === this.MINECRAFT_APP_ID;
     },
     
-    // Show re-guest warning modal
     showWarning: function(appId, appName, appLink) {
         const overlay = document.getElementById('minecraft-warning-overlay');
         if (!overlay) return;
@@ -1162,13 +1262,7 @@ const MinecraftReGuest = {
         if (message) {
             message.innerHTML = `
                 <p><strong>Multiplayer requires re-guesting to work properly.</strong></p>
-                <p>To play multiplayer in ${appName}, you need to refresh/re-guest the game page. This is necessary because:</p>
-                <ul>
-                    <li>Multiplayer sessions require fresh network connections</li>
-                    <li>Cached data can interfere with server communication</li>
-                    <li>Server authentication needs to be re-established</li>
-                </ul>
-                <p>Click "Launch Game" to open the game, then refresh the page when you want to play multiplayer.</p>
+                <p>To play multiplayer in ${appName}, you need to refresh/re-guest the game page.</p>
             `;
         }
         
@@ -1187,7 +1281,6 @@ const MinecraftReGuest = {
         overlay.setAttribute('aria-hidden', 'false');
     },
     
-    // Close the warning modal
     closeWarning: function() {
         const overlay = document.getElementById('minecraft-warning-overlay');
         if (overlay) {
@@ -1204,12 +1297,10 @@ const OfflineTagSystem = {
     OFFLINE_APPS: ['circle', 'blockblast'],
     HACK_SITE_PASSWORD: '0128',
     
-    // Check if app has offline tag
     isOfflineApp: function(appId) {
         return this.OFFLINE_APPS.includes(appId);
     },
     
-    // Show hack site password toast
     showHackPassword: function(appId, appName) {
         showNotification(`${appName}: Hack site password is ${this.HACK_SITE_PASSWORD}`);
     }
@@ -1222,7 +1313,6 @@ const CommunityBoard = {
     COLLECTION_NAME: 'sawfish_community_posts',
     unsubscribe: null,
     
-    // Initialize community board
     init: function() {
         this.setupPostForm();
         this.setupFilterButtons();
@@ -1230,7 +1320,6 @@ const CommunityBoard = {
         this.initUserSearch();
     },
     
-    // Setup post form submission
     setupPostForm: function() {
         const form = document.getElementById('community-post-form');
         if (!form) return;
@@ -1239,7 +1328,6 @@ const CommunityBoard = {
         const textarea = form.querySelector('#community-post-input');
         const charCurrent = form.querySelector('#char-current');
         
-        // Character count
         if (textarea && charCurrent) {
             textarea.addEventListener('input', () => {
                 charCurrent.textContent = textarea.value.length;
@@ -1248,6 +1336,13 @@ const CommunityBoard = {
         
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            // Check if user is logged in
+            if (!UserAuth.isLoggedIn()) {
+                showNotification('Please log in to post');
+                UserAuth.openAuthModal();
+                return;
+            }
             
             const content = textarea?.value.trim();
             if (!content) {
@@ -1261,9 +1356,15 @@ const CommunityBoard = {
             }
             
             try {
-                await this.createPost(content);
+                const petitionCheckbox = document.getElementById('post-is-petition');
+                const isPetition = petitionCheckbox ? petitionCheckbox.checked : false;
+                
+                await this.createPost(content, isPetition);
+                
                 if (textarea) textarea.value = '';
                 if (charCurrent) charCurrent.textContent = '0';
+                if (petitionCheckbox) petitionCheckbox.checked = false;
+                
                 showNotification('Message posted!');
             } catch (error) {
                 console.error('Error posting:', error);
@@ -1277,7 +1378,6 @@ const CommunityBoard = {
         });
     },
     
-    // Setup filter buttons
     setupFilterButtons: function() {
         const filterBtns = document.querySelectorAll('.filter-btn');
         filterBtns.forEach(btn => {
@@ -1292,7 +1392,6 @@ const CommunityBoard = {
         });
     },
     
-    // Filter posts by type
     filterPosts: function(filter) {
         const container = document.getElementById('community-posts-container');
         if (!container) return;
@@ -1309,22 +1408,20 @@ const CommunityBoard = {
         });
     },
     
-    // Create a new post
-    createPost: async function(content) {
-        const petitionCheckbox = document.getElementById('post-is-petition');
-        const isPetition = petitionCheckbox ? petitionCheckbox.checked : false;
-        
+    createPost: async function(content, isPetition = false) {
         const post = {
             content: content,
             author: UserAuth.isLoggedIn() ? UserAuth.getReviewUsername() : 'Anonymous',
+            authorId: UserAuth.isLoggedIn() ? UserAuth.currentUser.uid : null,
+            authorAvatar: UserAuth.isLoggedIn() ? UserAuth.getReviewAvatar() : null,
             isAdmin: UserAuth.isDeveloperMode || DeveloperMode.isLoggedIn,
             timestamp: new Date().toISOString(),
-            type: isPetition ? 'petition' : (DeveloperMode.isLoggedIn ? 'admin_alert' : 'chat'),
-            isPetition: isPetition
+            type: isPetition ? 'petition' : 'chat',
+            isPetition: isPetition,
+            isResolved: false
         };
         
         if (!db) {
-            // Local storage fallback
             const posts = JSON.parse(localStorage.getItem('sawfish_community_posts') || '[]');
             const newPost = {
                 id: Date.now().toString(),
@@ -1334,520 +1431,499 @@ const CommunityBoard = {
             localStorage.setItem('sawfish_community_posts', JSON.stringify(posts));
             this.renderPosts(posts);
             
-            // Reset petition checkbox
-            if (petitionCheckbox) petitionCheckbox.checked = false;
-            
-            // Award community post achievement
-            if (UserAuth.currentUser) {
+            if (isPetition) {
+                Achievements.checkAchievements('start_petition');
+            } else {
                 Achievements.checkAchievements('community_post');
             }
-            
             return;
         }
         
         try {
-            await db.collection(this.COLLECTION_NAME).add(post);
+            const docRef = await db.collection(this.COLLECTION_NAME).add(post);
+            this.renderPosts(await this.getPosts());
             
-            // Reset petition checkbox
-            if (petitionCheckbox) petitionCheckbox.checked = false;
-            
-            // Award community post achievement
-            if (UserAuth.currentUser) {
+            if (isPetition) {
+                Achievements.checkAchievements('start_petition');
+            } else {
                 Achievements.checkAchievements('community_post');
             }
         } catch (error) {
-            console.error('Error creating post in Firestore:', error);
-            // Fallback to local storage
-            const posts = JSON.parse(localStorage.getItem('sawfish_community_posts') || '[]');
-            const newPost = {
-                id: Date.now().toString(),
-                ...post
-            };
-            posts.unshift(newPost);
-            localStorage.setItem('sawfish_community_posts', JSON.stringify(posts));
-            this.renderPosts(posts);
-            
-            // Reset petition checkbox
-            if (petitionCheckbox) petitionCheckbox.checked = false;
-            
-            // Award community post achievement
-            if (UserAuth.currentUser) {
-                Achievements.checkAchievements('community_post');
-            }
+            console.error('Error creating post:', error);
+            throw error;
         }
     },
     
-    // Load all posts
-    loadPosts: function() {
-        if (!db) {
-            // Use local storage
-            const posts = JSON.parse(localStorage.getItem('sawfish_community_posts') || '[]');
-            this.renderPosts(posts);
+    deletePost: async function(postId) {
+        if (!DeveloperMode.isLoggedIn && !UserAuth.isDeveloperMode) {
+            showNotification('Only developers can delete posts');
+            return;
+        }
+        
+        if (!confirm('Are you sure you want to delete this post?')) return;
+        
+        try {
+            if (db) {
+                await db.collection(this.COLLECTION_NAME).doc(postId).delete();
+                this.renderPosts(await this.getPosts());
+                showNotification('Post deleted!');
+            } else {
+                const posts = JSON.parse(localStorage.getItem('sawfish_community_posts') || '[]');
+                const filteredPosts = posts.filter(p => p.id !== postId);
+                localStorage.setItem('sawfish_community_posts', JSON.stringify(filteredPosts));
+                this.renderPosts(filteredPosts);
+                showNotification('Post deleted!');
+            }
+        } catch (error) {
+            console.error('Error deleting post:', error);
+            showNotification('Failed to delete post');
+        }
+    },
+    
+    resolvePetition: async function(postId, authorId) {
+        if (!DeveloperMode.isLoggedIn && !UserAuth.isDeveloperMode) {
+            showNotification('Only developers can resolve petitions');
             return;
         }
         
         try {
-            // Real-time listener
+            if (db) {
+                await db.collection(this.COLLECTION_NAME).doc(postId).update({
+                    isResolved: true,
+                    resolvedAt: new Date().toISOString(),
+                    resolvedBy: UserAuth.getReviewUsername()
+                });
+                this.renderPosts(await this.getPosts());
+                showNotification('Petition marked as resolved!');
+                Achievements.checkAchievements('resolve_petition');
+                
+                // Award the petition success achievement to the author
+                if (authorId) {
+                    Achievements.checkAchievements('petition_success', { authorId: authorId });
+                }
+            } else {
+                const posts = JSON.parse(localStorage.getItem('sawfish_community_posts') || '[]');
+                const postIndex = posts.findIndex(p => p.id === postId);
+                if (postIndex !== -1) {
+                    posts[postIndex].isResolved = true;
+                    posts[postIndex].resolvedAt = new Date().toISOString();
+                    posts[postIndex].resolvedBy = UserAuth.getReviewUsername();
+                    localStorage.setItem('sawfish_community_posts', JSON.stringify(posts));
+                    this.renderPosts(posts);
+                    showNotification('Petition marked as resolved!');
+                    Achievements.checkAchievements('resolve_petition');
+                }
+            }
+        } catch (error) {
+            console.error('Error resolving petition:', error);
+            showNotification('Failed to resolve petition');
+        }
+    },
+    
+    getPosts: async function() {
+        if (!db) {
+            return JSON.parse(localStorage.getItem('sawfish_community_posts') || '[]');
+        }
+        
+        try {
+            const snapshot = await db.collection(this.COLLECTION_NAME)
+                .orderBy('timestamp', 'desc')
+                .limit(50)
+                .get();
+            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        } catch (error) {
+            console.error('Error getting posts:', error);
+            return [];
+        }
+    },
+    
+    loadPosts: async function() {
+        const container = document.getElementById('community-posts-container');
+        if (!container) return;
+        
+        if (db) {
             this.unsubscribe = db.collection(this.COLLECTION_NAME)
                 .orderBy('timestamp', 'desc')
-                .limit(100)
-                .onSnapshot(
-                    (snapshot) => {
-                        const posts = snapshot.docs.map(doc => ({
-                            id: doc.id,
-                            ...doc.data()
-                        }));
-                        this.renderPosts(posts);
-                    },
-                    (error) => {
-                        console.error('Error loading posts:', error);
-                        // Fallback to local storage
-                        const posts = JSON.parse(localStorage.getItem('sawfish_community_posts') || '[]');
-                        this.renderPosts(posts);
-                    }
-                );
-        } catch (error) {
-            console.error('Error setting up posts listener:', error);
-            const posts = JSON.parse(localStorage.getItem('sawfish_community_posts') || '[]');
+                .limit(50)
+                .onSnapshot((snapshot) => {
+                    const posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    this.renderPosts(posts);
+                }, (error) => {
+                    console.error('Error subscribing to posts:', error);
+                });
+        } else {
+            const posts = await this.getPosts();
             this.renderPosts(posts);
         }
     },
     
-    // Render posts to the community feed
     renderPosts: function(posts) {
         const container = document.getElementById('community-posts-container');
         if (!container) return;
         
         if (!posts || posts.length === 0) {
-            container.innerHTML = `
-                <div class="community-empty">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                    </svg>
-                    <h3>No messages yet</h3>
-                    <p>Be the first to post a message!</p>
-                </div>
-            `;
+            container.innerHTML = '<div class="community-empty"><p>No posts yet. Be the first to share something!</p></div>';
             return;
         }
         
         container.innerHTML = posts.map(post => {
+            const isPetition = post.isPetition === true || post.type === 'petition';
+            const isResolved = post.isResolved === true;
             const isAdmin = post.isAdmin === true;
-            const postType = post.type || 'chat';
-            const isAnonymous = post.author === 'Anonymous';
-            const avatar = isAdmin ? 'A' : (isAnonymous ? '?' : post.author.charAt(0).toUpperCase());
-            const likeCount = post.likes || 0;
+            
+            let badgeHtml = '';
+            if (isPetition) {
+                badgeHtml = `<span class="post-badge ${isResolved ? 'resolved' : 'petition'}">${isResolved ? 'Resolved' : 'Petition'}</span>`;
+            } else if (isAdmin) {
+                badgeHtml = `<span class="post-badge admin">Announcement</span>`;
+            }
+            
+            const formattedDate = formatDate(post.timestamp);
+            
+            // Get author avatar or use initial
+            let avatarHtml = '';
+            if (post.authorAvatar) {
+                avatarHtml = `<img src="${post.authorAvatar}" alt="${escapeHtml(post.author)}" class="post-author-avatar">`;
+            } else {
+                const initial = post.author.charAt(0).toUpperCase();
+                avatarHtml = `<div class="post-author-avatar-default">${initial}</div>`;
+            }
+            
+            let resolveButton = '';
+            if (isPetition && !isResolved && (DeveloperMode.isLoggedIn || UserAuth.isDeveloperMode)) {
+                resolveButton = `<button class="resolve-petition-btn" data-post-id="${post.id}" data-author-id="${post.authorId || ''}" title="Mark as Resolved">✓ Resolve</button>`;
+            }
+            
+            let deleteButton = '';
+            if (DeveloperMode.isLoggedIn || UserAuth.isDeveloperMode) {
+                deleteButton = `<button class="delete-post-btn" data-post-id="${post.id}" title="Delete Post">🗑️</button>`;
+            }
+            
+            let resolvedInfo = '';
+            if (isResolved) {
+                resolvedInfo = `<div class="resolved-info">✓ Resolved by ${escapeHtml(post.resolvedBy || 'Developer')}</div>`;
+            }
             
             return `
-                <article class="community-post" data-type="${postType}" data-id="${post.id}">
-                    <div class="community-post-header">
-                        <div class="community-post-author">
-                            <div class="community-post-avatar ${isAdmin ? 'admin' : ''}">${escapeHtml(avatar)}</div>
-                            <div class="community-post-info">
-                                <span class="community-post-name">
-                                    ${!isAnonymous ? escapeHtml(post.author) : ''}
-                                    ${isAdmin ? '<span class="admin-badge">Admin</span>' : ''}
-                                    ${isAnonymous ? '<span class="anonymous-badge">Anonymous</span>' : ''}
-                                </span>
-                                <span class="community-post-date">${formatDate(post.timestamp)}</span>
+                <article class="community-post ${isPetition ? 'petition' : ''} ${isResolved ? 'resolved' : ''}" data-type="${post.type}" data-id="${post.id}">
+                    <div class="post-header">
+                        <div class="post-author-info">
+                            ${avatarHtml}
+                            <div class="post-author-details">
+                                <span class="post-author-name">${escapeHtml(post.author)}</span>
+                                <span class="post-date">${formattedDate}</span>
                             </div>
                         </div>
-                        <span class="community-post-type ${postType}">
-                            ${postType === 'admin_alert' ? 'Announcement' : (postType === 'petition' ? 'Petition' : 'Chat')}
-                        </span>
+                        <div class="post-badges">
+                            ${badgeHtml}
+                        </div>
                     </div>
-                    <div class="community-post-content">${escapeHtml(post.content)}</div>
-                    <div class="community-post-actions">
-                        <button class="community-action-btn like-btn" onclick="CommunityBoard.likePost('${post.id}')">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                            </svg>
-                            <span class="like-count">${likeCount}</span>
-                        </button>
-                        ${DeveloperMode.isLoggedIn ? `
-                        <button class="community-action-btn delete-btn" onclick="CommunityBoard.deletePost('${post.id}')">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                                <polyline points="3 6 5 6 21 6"/>
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                            </svg>
-                        </button>
-                        ` : ''}
+                    <div class="post-content">
+                        ${escapeHtml(post.content)}
+                    </div>
+                    ${resolvedInfo}
+                    <div class="post-actions">
+                        ${resolveButton}
+                        ${deleteButton}
                     </div>
                 </article>
             `;
         }).join('');
-    },
-    
-    // Like a post
-    likePost: function(postId) {
-        if (!db) {
-            // Local storage fallback for likes
-            const likes = JSON.parse(localStorage.getItem('sawfish_post_likes') || '{}');
-            const postLikes = likes[postId] || 0;
-            likes[postId] = postLikes + 1;
-            localStorage.setItem('sawfish_post_likes', JSON.stringify(likes));
-            
-            // Update the UI immediately
-            const likeCount = document.querySelector(`.community-post[data-id="${postId}"] .like-count`);
-            if (likeCount) {
-                likeCount.textContent = likes[postId];
-            }
-            
-            // Update the like button style
-            const likeBtn = document.querySelector(`.community-post[data-id="${postId}"] .like-btn`);
-            if (likeBtn) {
-                likeBtn.classList.add('liked');
-            }
-            
-            showNotification('Post liked!');
-        } else {
-            // Firestore implementation
-            const postRef = db.collection(this.COLLECTION_NAME).doc(postId);
-            postRef.update({
-                likes: firebase.firestore.FieldValue.increment(1)
-            }).then(() => {
-                showNotification('Post liked!');
-            }).catch(err => {
-                console.error('Error liking post:', err);
-                showNotification('Failed to like post');
-            });
-        }
-    },
-    
-    // Delete a post (developer only)
-    deletePost: function(postId) {
-        if (!DeveloperMode.isLoggedIn) return;
         
-        if (confirm('Are you sure you want to delete this post?')) {
-            if (db) {
-                db.collection(this.COLLECTION_NAME).doc(postId).delete()
-                    .then(() => showNotification('Post deleted'))
-                    .catch(err => {
-                        console.error('Error deleting post:', err);
-                        showNotification('Failed to delete post');
-                    });
-            } else {
-                // Local storage fallback
-                const posts = JSON.parse(localStorage.getItem('sawfish_community_posts') || '[]');
-                const filtered = posts.filter(p => p.id !== postId);
-                localStorage.setItem('sawfish_community_posts', JSON.stringify(filtered));
-                this.renderPosts(filtered);
-                showNotification('Post deleted');
-            }
-        }
+        // Add click handlers for resolve buttons
+        container.querySelectorAll('.resolve-petition-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const postId = btn.dataset.postId;
+                const authorId = btn.dataset.authorId;
+                if (confirm('Mark this petition as resolved? The author will receive an award.')) {
+                    this.resolvePetition(postId, authorId);
+                }
+            });
+        });
+        
+        // Add click handlers for delete buttons
+        container.querySelectorAll('.delete-post-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const postId = btn.dataset.postId;
+                this.deletePost(postId);
+            });
+        });
     },
     
-    // ========== USER SEARCH FUNCTIONALITY ==========
-    USERS_COLLECTION_NAME: 'sawfish_users',
-    allUsers: [],
-    
-    // Initialize user search
     initUserSearch: function() {
         const searchInput = document.getElementById('community-user-search');
         const usersSection = document.getElementById('community-users-section');
-        if (!searchInput) return;
+        const usersList = document.getElementById('community-users-list');
         
-        // Show users section immediately on load
-        if (usersSection) {
+        if (!searchInput || !usersSection || !usersList) return;
+        
+        // Load all users immediately on page load
+        this.loadAllUsers();
+        
+        // Show users section when input is focused
+        searchInput.addEventListener('focus', () => {
             usersSection.classList.remove('hidden');
-        }
-        
-        searchInput.addEventListener('input', (e) => {
-            const query = e.target.value.trim();
-            this.filterUsers(query);
+            this.loadAllUsers();
         });
         
-        searchInput.addEventListener('focus', () => {
-            // Show all users when focusing on search
-            if (!searchInput.value.trim()) {
-                this.renderUsers(this.allUsers);
-                if (usersSection) {
-                    usersSection.classList.remove('hidden');
-                }
+        // Filter users on input
+        searchInput.addEventListener('input', () => {
+            this.filterUsers(searchInput.value);
+        });
+        
+        // Close on click outside
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !usersSection.contains(e.target)) {
+                usersSection.classList.add('hidden');
             }
         });
-        
-        // Load all users on init
-        this.loadUsers();
     },
     
-    // Load all users from Firestore
-    loadUsers: async function() {
-        const usersSection = document.getElementById('community-users-section');
+    loadAllUsers: async function() {
         const usersList = document.getElementById('community-users-list');
-        if (!usersSection || !usersList) return;
+        if (!usersList) return;
+        
+        usersList.innerHTML = '<div class="loading-users">Loading users...</div>';
         
         try {
+            let users = [];
+            
             if (db) {
-                // Load from Firestore
-                const snapshot = await db.collection(this.USERS_COLLECTION_NAME).get();
-                this.allUsers = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
+                const snapshot = await db.collection('users').get();
+                users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             } else {
-                // Fallback to localStorage
                 const storedUsers = JSON.parse(localStorage.getItem('sawfish_users') || '{}');
-                this.allUsers = Object.values(storedUsers).map(user => ({
-                    id: user.uid,
-                    username: user.username,
-                    email: user.email,
-                    bio: user.bio || '',
-                    avatarUrl: user.avatarUrl || null
+                users = Object.values(storedUsers).map(u => ({
+                    uid: u.uid,
+                    username: u.username,
+                    bio: u.bio || '',
+                    email: u.email,
+                    achievements: u.achievements || [],
+                    createdAt: u.createdAt
                 }));
+                
+                // Also add current local user if exists
+                if (UserAuth.currentUser) {
+                    const existingUser = users.find(u => u.uid === UserAuth.currentUser.uid);
+                    if (!existingUser) {
+                        users.unshift({
+                            uid: UserAuth.currentUser.uid,
+                            username: UserAuth.getReviewUsername(),
+                            bio: UserAuth.userProfile?.bio || '',
+                            achievements: UserAuth.userProfile?.achievements || [],
+                            createdAt: UserAuth.userProfile?.createdAt
+                        });
+                    }
+                }
             }
             
-            // Also add current logged in user if not in list
-            if (UserAuth.currentUser && !this.allUsers.find(u => u.id === UserAuth.currentUser.uid)) {
-                this.allUsers.push({
-                    id: UserAuth.currentUser.uid,
-                    username: UserAuth.userProfile?.username || UserAuth.currentUser.displayName,
-                    email: UserAuth.currentUser.email,
-                    bio: UserAuth.userProfile?.bio || '',
-                    avatarUrl: UserAuth.userProfile?.avatarUrl || null
-                });
-            }
-            
-            // Show users section
-            usersSection.classList.remove('hidden');
-            
-            // Render all users initially
-            this.renderUsers(this.allUsers);
-            
+            this.renderUsers(users);
         } catch (error) {
             console.error('Error loading users:', error);
+            usersList.innerHTML = '<div class="error-loading">Failed to load users</div>';
         }
     },
     
-    // Render users to the list
+    filterUsers: function(searchTerm) {
+        const users = document.querySelectorAll('.community-user-card');
+        const term = searchTerm.toLowerCase().trim();
+        
+        users.forEach(card => {
+            const username = card.dataset.username?.toLowerCase() || '';
+            const bio = card.dataset.bio?.toLowerCase() || '';
+            const email = card.dataset.email?.toLowerCase() || '';
+            
+            const matches = !term || 
+                username.includes(term) || 
+                bio.includes(term) ||
+                email.includes(term);
+            
+            card.style.display = matches ? '' : 'none';
+        });
+    },
+    
     renderUsers: function(users) {
         const usersList = document.getElementById('community-users-list');
         if (!usersList) return;
         
         if (!users || users.length === 0) {
-            usersList.innerHTML = `
-                <div class="community-empty">
-                    <p>No users found</p>
-                </div>
-            `;
+            usersList.innerHTML = '<div class="no-users">No users found</div>';
             return;
         }
         
         usersList.innerHTML = users.map(user => {
-            const username = user.username || user.email.split('@')[0];
+            const username = user.username || 'Unknown';
+            const bio = user.bio || '';
             const initial = username.charAt(0).toUpperCase();
-            const avatarUrl = user.avatarUrl;
-            const bio = user.bio || 'No bio yet';
+            
+            // Get achievements
+            const achievements = user.achievements || [];
+            let achievementsHtml = '';
+            if (achievements.length > 0) {
+                achievementsHtml = achievements.slice(0, 5).map(achId => {
+                    const ach = Achievements.getAchievementInfo(achId);
+                    return `<span class="achievement-badge-small" title="${ach.name}: ${ach.description}">${ach.icon}</span>`;
+                }).join('');
+                if (achievements.length > 5) {
+                    achievementsHtml += `<span class="achievement-more">+${achievements.length - 5}</span>`;
+                }
+            }
+            
+            // Use profile picture or default avatar
+            let avatarHtml = '';
+            if (user.avatarUrl) {
+                avatarHtml = `<div class="community-user-avatar"><img src="${user.avatarUrl}" alt="${username}" class="user-avatar-img"></div>`;
+            } else {
+                avatarHtml = `<div class="community-user-avatar"><div class="user-avatar-initial">${initial}</div></div>`;
+            }
             
             return `
-                <div class="community-user-card" data-user-id="${user.id}">
-                    <div class="community-user-avatar">
-                        ${avatarUrl 
-                            ? `<img src="${avatarUrl}" alt="${username}" class="user-avatar-img">`
-                            : `<div class="user-avatar-initial">${initial}</div>`
-                        }
-                    </div>
-                    <div class="community-user-info">
-                        <div class="community-user-name">${username}</div>
-                        <div class="community-user-bio">${this.escapeHtml(bio)}</div>
+                <div class="community-user-card" 
+                     data-username="${escapeHtml(username)}" 
+                     data-bio="${escapeHtml(bio)}"
+                     data-email="${escapeHtml(user.email || '')}"
+                     data-uid="${user.uid}"
+                     onclick="UserAuth.openUserProfile('${user.uid}')">
+                    ${avatarHtml}
+                    <div class="user-card-info">
+                        <div class="user-card-name">${escapeHtml(username)}</div>
+                        ${bio ? `<div class="user-card-bio">${escapeHtml(bio)}</div>` : ''}
+                        ${achievementsHtml ? `<div class="user-card-achievements">${achievementsHtml}</div>` : ''}
                     </div>
                 </div>
             `;
         }).join('');
-    },
-    
-    // Filter users by search query
-    filterUsers: function(query) {
-        const usersList = document.getElementById('community-users-list');
-        const usersSection = document.getElementById('community-users-section');
-        if (!usersList || !usersSection) return;
-        
-        // Always show the section when searching
-        usersSection.classList.remove('hidden');
-        
-        if (!query || !query.trim()) {
-            // Show all users if no query or query is empty
-            this.renderUsers(this.allUsers);
-            return;
-        }
-        
-        const lowerQuery = query.toLowerCase().trim();
-        
-        const filtered = this.allUsers.filter(user => {
-            const username = (user.username || '').toLowerCase();
-            const email = (user.email || '').toLowerCase();
-            const bio = (user.bio || '').toLowerCase();
-            
-            return username.includes(lowerQuery) || 
-                   email.includes(lowerQuery) || 
-                   bio.includes(lowerQuery);
-        });
-        
-        this.renderUsers(filtered);
-    },
-    
-    // Escape HTML to prevent XSS
-    escapeHtml: function(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    },
-    
-    // Cleanup on unload
-    cleanup: function() {
-        if (this.unsubscribe) {
-            this.unsubscribe();
-        }
     }
 };
 
 // ============================================================
-// SEARCH FUNCTIONALITY
+// DEVELOPER MODE SYSTEM
 // ============================================================
-const SearchSystem = {
-    searchIndex: [],
-    DEVELOPER_APPS: ['vscodeweb', 'shadertoy', 'neocities', 'piskel', 'tiddlywiki'],
+const DeveloperMode = {
+    isLoggedIn: false,
     
     init: function() {
-        this.buildSearchIndex();
-        this.setupSearchListeners();
+        this.updateLoginButton();
     },
     
-    // Build search index from app data
-    buildSearchIndex: function() {
-        this.searchIndex = Object.entries(appData).map(([id, app]) => {
-            // Hide developer-only apps from regular users
-            const isDeveloperOnly = this.DEVELOPER_APPS.includes(id);
-            
-            return {
-                id,
-                name: app.name.toLowerCase(),
-                developer: app.developer.toLowerCase(),
-                description: app.description.toLowerCase(),
-                category: app.category.toLowerCase(),
-                tags: `${app.name} ${app.developer} ${app.category}`.toLowerCase(),
-                isDeveloperOnly: isDeveloperOnly
-            };
-        });
-    },
-    
-    // Setup search event listeners
-    setupSearchListeners: function() {
-        const searchInput = document.getElementById('search-input');
-        const searchResults = document.getElementById('search-results');
-        const searchCount = document.getElementById('search-count');
+    updateLoginButton: function() {
+        const btn = document.getElementById('developer-login-button');
+        const statusText = btn?.querySelector('.developer-status-text');
         
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                this.performSearch(e.target.value, searchResults, searchCount);
-            });
+        if (this.isLoggedIn) {
+            if (statusText) statusText.textContent = 'Developer ✓';
+            btn?.classList.add('logged-in');
+        } else {
+            if (statusText) statusText.textContent = 'Developer';
+            btn?.classList.remove('logged-in');
+        }
+        
+        // Update dev-only elements visibility
+        updateDevOnlyElements();
+    },
+    
+    login: function(password) {
+        if (password === '120622') {
+            this.isLoggedIn = true;
+            sessionStorage.setItem('developer_logged_in', 'true');
+            this.updateLoginButton();
             
-            searchInput.addEventListener('focus', () => {
-                if (searchInput.value.length > 0) {
-                    this.performSearch(searchInput.value, searchResults, searchCount);
-                }
-            });
+            const modal = document.getElementById('developer-login-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.setAttribute('aria-hidden', 'true');
+            }
+            
+            showNotification('Developer mode activated');
+            
+            UserAuth.isDeveloperMode = true;
+            UserAuth.currentUser = {
+                uid: 'developer',
+                displayName: 'Developer'
+            };
+            
+            updateDevOnlyElements();
+            return true;
+        }
+        return false;
+    },
+    
+    logout: function() {
+        this.isLoggedIn = false;
+        sessionStorage.removeItem('developer_logged_in');
+        this.updateLoginButton();
+        
+        const dashboard = document.getElementById('developer-dashboard');
+        if (dashboard) {
+            dashboard.classList.add('hidden');
+            dashboard.setAttribute('aria-hidden', 'true');
+        }
+        
+        UserAuth.isDeveloperMode = false;
+        updateDevOnlyElements();
+        
+        showNotification('Developer mode deactivated');
+    },
+    
+    toggleLogin: function() {
+        if (this.isLoggedIn) {
+            this.logout();
+        } else {
+            const modal = document.getElementById('developer-login-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.setAttribute('aria-hidden', 'false');
+            }
         }
     },
     
-    // Perform search
-    performSearch: function(query, resultsContainer, countContainer) {
-        if (!resultsContainer) return;
+    closeLoginModal: function() {
+        const modal = document.getElementById('developer-login-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+    },
+    
+    showAddAppForm: function() {
+        showNotification('App management - Coming soon!');
+    },
+    
+    publishAnnouncement: function() {
+        const title = document.getElementById('announcement-title')?.value.trim();
+        const text = document.getElementById('announcement-text')?.value.trim();
+        const type = document.getElementById('announcement-type')?.value || 'info';
         
-        const searchQuery = query.toLowerCase().trim();
-        
-        if (searchQuery.length < 2) {
-            resultsContainer.classList.add('hidden');
-            if (countContainer) countContainer.textContent = '0';
+        if (!title || !text) {
+            showNotification('Please fill in both title and message');
             return;
         }
         
-        // Filter results based on developer mode
-        const results = this.searchIndex.filter(item => {
-            // item.name, item.developer, item.tags are already lowercase from buildSearchIndex
-            
-            let matchesQuery = false;
-            
-            if (searchQuery.length <= 3) {
-                // For short queries (2-3 chars), use more permissive matching
-                // Allow apps that START with the query string
-                const nameWords = item.name.split(' ');
-                const devWords = item.developer.split(' ');
-                
-                matchesQuery = nameWords.some(word => word.startsWith(searchQuery)) ||
-                               devWords.some(word => word.startsWith(searchQuery)) ||
-                               item.tags.split(' ').some(tag => tag.startsWith(searchQuery));
-            } else {
-                // For longer queries, use more flexible matching
-                matchesQuery = item.name.includes(searchQuery) ||
-                               item.name.split(' ').some(word => word.startsWith(searchQuery)) ||
-                               item.developer.includes(searchQuery) ||
-                               item.tags.includes(searchQuery);
-            }
-            
-            // Hide developer-only apps from non-developers
-            const canSeeDeveloperApps = UserAuth.isDeveloperMode || DeveloperMode.isLoggedIn;
-            const isVisible = !item.isDeveloperOnly || canSeeDeveloperApps;
-            
-            return matchesQuery && isVisible;
-        }).slice(0, 10);
+        const announcement = {
+            title,
+            text,
+            type,
+            timestamp: new Date().toISOString()
+        };
         
-        if (countContainer) {
-            countContainer.textContent = results.length;
-        }
-        
-        if (results.length === 0) {
-            resultsContainer.innerHTML = '<div class="search-no-results">No apps found</div>';
-        } else {
-            resultsContainer.innerHTML = results.map(result => {
-                const app = appData[result.id];
-                return `
-                    <div class="search-result-item" data-app="${result.id}">
-                        <img src="${app.icon}" alt="${app.name}" class="search-result-icon">
-                        <div class="search-result-info">
-                            <span class="search-result-name">${app.name}</span>
-                            <span class="search-result-category">${app.category}</span>
-                        </div>
-                        <span class="search-result-rating" data-avg-rating="${result.id}">—</span>
-                    </div>
-                `;
-            }).join('');
-            
-            // Add click handlers
-            resultsContainer.querySelectorAll('.search-result-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    const appId = item.dataset.app;
-                    if (appId) {
-                        openExpandedApp(appId);
-                        resultsContainer.classList.add('hidden');
-                        document.getElementById('search-input').value = '';
-                    }
+        if (db) {
+            db.collection('sawfish_announcements').add(announcement)
+                .then(() => {
+                    showNotification('Announcement published!');
+                    document.getElementById('announcement-title').value = '';
+                    document.getElementById('announcement-text').value = '';
+                })
+                .catch(error => {
+                    console.error('Error publishing announcement:', error);
+                    showNotification('Failed to publish announcement');
                 });
-            });
-            
-            // Load ratings for results
-            this.loadResultRatings();
-        }
-        
-        resultsContainer.classList.remove('hidden');
-    },
-    
-    // Load ratings for search results
-    loadResultRatings: async function() {
-        const ratingElements = document.querySelectorAll('.search-result-rating');
-        
-        for (const element of ratingElements) {
-            const appId = element.dataset.avgRating;
-            try {
-                const avgRating = await FirestoreComments.getAverageRating(appId);
-                if (avgRating !== null && avgRating !== undefined) {
-                    element.textContent = avgRating.toFixed(1);
-                } else {
-                    element.textContent = '—';
-                }
-            } catch (error) {
-                element.textContent = '—';
-            }
+        } else {
+            const announcements = JSON.parse(localStorage.getItem('sawfish_announcements') || '[]');
+            announcements.unshift({ id: Date.now().toString(), ...announcement });
+            localStorage.setItem('sawfish_announcements', JSON.stringify(announcements));
+            showNotification('Announcement published! (Offline mode)');
         }
     }
 };
@@ -1860,142 +1936,143 @@ const UpdateChecker = {
         this.checkForUpdates();
     },
     
-    checkForUpdates: async function() {
-        try {
-            const response = await fetch(VERSION_CHECK_URL + '?t=' + Date.now());
-            if (response.ok) {
-                const data = await response.json();
-                if (data.version && data.version !== APP_VERSION) {
-                    updateAppStatus('update');
-                } else {
-                    updateAppStatus('ready');
+    checkForUpdates: function() {
+        const status = document.getElementById('update-status');
+        const action = document.getElementById('update-action');
+        
+        if (status) status.textContent = 'Checking for updates...';
+        
+        fetch(VERSION_CHECK_URL + '?t=' + Date.now())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Version check failed');
                 }
-            } else {
-                updateAppStatus('ready');
-            }
-        } catch (error) {
-            console.log('Version check failed, assuming up to date');
-            updateAppStatus('ready');
+                return response.json();
+            })
+            .then(data => {
+                const currentVersion = APP_VERSION;
+                const latestVersion = data.version;
+                
+                if (this.compareVersions(latestVersion, currentVersion) > 0) {
+                    if (status) status.textContent = `Update available (v${latestVersion})`;
+                    if (action) {
+                        action.innerHTML = '<span class="btn-text">Update</span><span class="btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></span>';
+                    }
+                    
+                    if (data.announcement) {
+                        const banner = document.getElementById('announcement-banner');
+                        const bannerText = banner?.querySelector('.announcement-text');
+                        if (bannerText) bannerText.textContent = data.announcement;
+                        if (banner) banner.classList.remove('hidden');
+                    }
+                } else {
+                    if (status) status.textContent = 'Up to date';
+                    if (action) {
+                        action.innerHTML = '<span class="btn-text">Up to date</span>';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Update check failed:', error);
+                if (status) status.textContent = 'Unable to check for updates';
+            });
+    },
+    
+    compareVersions: function(v1, v2) {
+        const parts1 = v1.split('.').map(Number);
+        const parts2 = v2.split('.').map(Number);
+        
+        for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+            const p1 = parts1[i] || 0;
+            const p2 = parts2[i] || 0;
+            
+            if (p1 > p2) return 1;
+            if (p1 < p2) return -1;
         }
+        
+        return 0;
     }
 };
 
 // ============================================================
-// FIRESTORE RATINGS MODULE
+// FIRESTORE COMMENTS / RATINGS SYSTEM
 // ============================================================
 const FirestoreComments = {
-    // Save a review to Firestore
-    saveReview: async function(appId, rating, comment, userName, isDeveloper = false, userAvatar = null) {
+    COLLECTION_NAME: 'sawfish_ratings',
+    
+    saveReview: async function(appId, rating, comment, user, isDeveloper, userAvatar) {
+        const review = {
+            appId,
+            rating,
+            comment,
+            user,
+            userAvatar,
+            isDeveloper: isDeveloper === true,
+            timestamp: new Date().toISOString()
+        };
+        
         if (!db) {
-            console.warn('Firestore not available, using local storage fallback');
-            return RatingsLocalStorage.saveRating(appId, rating, comment, userName);
+            const reviews = JSON.parse(localStorage.getItem('sawfish_ratings') || '[]');
+            const newReview = {
+                id: Date.now().toString(),
+                ...review
+            };
+            reviews.push(newReview);
+            localStorage.setItem('sawfish_ratings', JSON.stringify(reviews));
+            return review;
         }
         
         try {
-            const review = {
-                appId: appId,
-                rating: rating,
-                comment: comment,
-                user: userName || 'Anonymous',
-                userAvatar: userAvatar,
-                isDeveloper: isDeveloper,
-                timestamp: new Date().toISOString()
-            };
-            
-            await db.collection('reviews').add(review);
-            
-            // Update user's total ratings
-            if (UserAuth.currentUser && !isDeveloper) {
-                const userRef = db.collection('users').doc(UserAuth.currentUser.uid);
-                await userRef.update({
-                    totalRatings: firebase.firestore.FieldValue.increment(1)
-                });
-            }
-            
-            console.log('Review saved to Firestore:', review);
-            return review;
+            const docRef = await db.collection(this.COLLECTION_NAME).add(review);
+            return { id: docRef.id, ...review };
         } catch (error) {
-            console.error('Error saving to Firestore:', error);
-            return RatingsLocalStorage.saveRating(appId, rating, comment, userName);
+            console.error('Error saving review:', error);
+            throw error;
         }
     },
     
-    // Get all reviews for an app from Firestore
     getReviews: async function(appId) {
         if (!db) {
-            return RatingsLocalStorage.getAppRatings(appId);
+            const reviews = JSON.parse(localStorage.getItem('sawfish_ratings') || '[]');
+            return reviews.filter(r => r.appId === appId).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
         }
         
         try {
-            const snapshot = await db.collection('reviews')
+            const snapshot = await db.collection(this.COLLECTION_NAME)
                 .where('appId', '==', appId)
                 .orderBy('timestamp', 'desc')
                 .get();
-            
-            return snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
+            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         } catch (error) {
-            console.error('Error fetching from Firestore:', error);
-            return RatingsLocalStorage.getAppRatings(appId);
+            console.error('Error getting reviews:', error);
+            return [];
         }
     },
     
-    // Subscribe to real-time updates for an app's reviews
-    subscribeToReviews: function(appId, callback) {
-        if (!db) {
-            const localReviews = RatingsLocalStorage.getAppRatings(appId);
-            callback(localReviews);
-            return () => {};
-        }
-        
-        try {
-            const unsubscribe = db.collection('reviews')
-                .where('appId', '==', appId)
-                .orderBy('timestamp', 'desc')
-                .onSnapshot(
-                    (snapshot) => {
-                        const reviews = snapshot.docs.map(doc => ({
-                            id: doc.id,
-                            ...doc.data()
-                        }));
-                        callback(reviews);
-                    },
-                    (error) => {
-                        console.error('Firestore subscription error:', error);
-                        callback(RatingsLocalStorage.getAppRatings(appId));
-                    }
-                );
-            
-            return unsubscribe;
-        } catch (error) {
-            console.error('Error setting up Firestore subscription:', error);
-            return () => {};
-        }
-    },
-    
-    // Calculate average rating for an app
     getAverageRating: async function(appId) {
         if (!db) {
-            return RatingsLocalStorage.getAverageRating(appId);
+            const reviews = JSON.parse(localStorage.getItem('sawfish_ratings') || '[]');
+            const appReviews = reviews.filter(r => r.appId === appId);
+            
+            if (appReviews.length === 0) return null;
+            
+            const sum = appReviews.reduce((acc, r) => acc + r.rating, 0);
+            return sum / appReviews.length;
         }
         
         try {
-            const snapshot = await db.collection('reviews')
+            const snapshot = await db.collection(this.COLLECTION_NAME)
                 .where('appId', '==', appId)
                 .get();
             
-            if (snapshot.empty) {
-                return null;
-            }
+            if (snapshot.empty) return null;
             
             let sum = 0;
             let count = 0;
             
             snapshot.forEach(doc => {
                 const data = doc.data();
-                if (typeof data.rating === 'number') {
+                if (data.rating) {
                     sum += data.rating;
                     count++;
                 }
@@ -2003,19 +2080,29 @@ const FirestoreComments = {
             
             return count > 0 ? sum / count : null;
         } catch (error) {
-            console.error('Error calculating average:', error);
-            return RatingsLocalStorage.getAverageRating(appId);
+            console.error('Error getting average rating:', error);
+            return null;
         }
     },
     
-    // Get rating distribution for an app
     getRatingDistribution: async function(appId) {
         if (!db) {
-            return RatingsLocalStorage.getRatingDistribution(appId);
+            const reviews = JSON.parse(localStorage.getItem('sawfish_ratings') || '[]');
+            const appReviews = reviews.filter(r => r.appId === appId);
+            
+            const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+            appReviews.forEach(r => {
+                const rating = Math.round(r.rating);
+                if (distribution[rating] !== undefined) {
+                    distribution[rating]++;
+                }
+            });
+            
+            return distribution;
         }
         
         try {
-            const snapshot = await db.collection('reviews')
+            const snapshot = await db.collection(this.COLLECTION_NAME)
                 .where('appId', '==', appId)
                 .get();
             
@@ -2023,508 +2110,257 @@ const FirestoreComments = {
             
             snapshot.forEach(doc => {
                 const data = doc.data();
-                if (distribution[data.rating] !== undefined) {
-                    distribution[data.rating]++;
+                if (data.rating) {
+                    const rating = Math.round(data.rating);
+                    if (distribution[rating] !== undefined) {
+                        distribution[rating]++;
+                    }
                 }
             });
             
             return distribution;
         } catch (error) {
-            console.error('Error getting distribution:', error);
-            return RatingsLocalStorage.getRatingDistribution(appId);
+            console.error('Error getting rating distribution:', error);
+            return { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
         }
     },
     
-    // Get total review count for an app
     getTotalReviews: async function(appId) {
         if (!db) {
-            return RatingsLocalStorage.getTotalReviews(appId);
+            const reviews = JSON.parse(localStorage.getItem('sawfish_ratings') || '[]');
+            return reviews.filter(r => r.appId === appId).length;
         }
         
         try {
-            const snapshot = await db.collection('reviews')
+            const snapshot = await db.collection(this.COLLECTION_NAME)
                 .where('appId', '==', appId)
                 .get();
-            
             return snapshot.size;
         } catch (error) {
-            console.error('Error getting count:', error);
-            return RatingsLocalStorage.getTotalReviews(appId);
+            console.error('Error getting total reviews:', error);
+            return 0;
         }
     },
     
-    // Get all reviews across all apps (for analytics)
-    getAllReviews: async function() {
+    subscribeToReviews: function(appId, callback) {
         if (!db) {
-            const allRatings = RatingsLocalStorage.getAllRatings();
-            let allReviews = [];
-            Object.keys(allRatings).forEach(appId => {
-                allReviews = allReviews.concat(allRatings[appId]);
+            callback([]);
+            return () => {};
+        }
+        
+        const unsubscribe = db.collection(this.COLLECTION_NAME)
+            .where('appId', '==', appId)
+            .orderBy('timestamp', 'desc')
+            .onSnapshot((snapshot) => {
+                const reviews = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                callback(reviews);
+            }, (error) => {
+                console.error('Error subscribing to reviews:', error);
             });
-            return allReviews;
-        }
         
-        try {
-            const snapshot = await db.collection('reviews')
-                .orderBy('timestamp', 'desc')
-                .get();
-            
-            return snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-        } catch (error) {
-            console.error('Error getting all reviews:', error);
-            return [];
-        }
-    },
-    
-    // Delete a review
-    deleteReview: async function(reviewId) {
-        if (!db) {
-            console.warn('Firestore not available');
-            return false;
-        }
-        
-        try {
-            await db.collection('reviews').doc(reviewId).delete();
-            console.log('Review deleted:', reviewId);
-            return true;
-        } catch (error) {
-            console.error('Error deleting review:', error);
-            return false;
-        }
+        return unsubscribe;
     }
 };
 
 // ============================================================
-// LOCAL STORAGE FALLBACK FOR RATINGS
+// LIKE SYSTEM
 // ============================================================
-const RatingsLocalStorage = {
-    STORAGE_KEY: 'sawfish_app_ratings',
-    
-    getAllRatings: function() {
-        try {
-            const data = localStorage.getItem(this.STORAGE_KEY);
-            return data ? JSON.parse(data) : {};
-        } catch (e) {
-            console.error('Error reading ratings from localStorage:', e);
-            return {};
-        }
-    },
-    
-    saveRating: function(appId, rating, comment, userName) {
-        try {
-            const ratings = this.getAllRatings();
-            if (!ratings[appId]) {
-                ratings[appId] = [];
-            }
-            
-            const newReview = {
-                id: Date.now().toString(),
-                rating: rating,
-                comment: comment,
-                user: userName || 'Anonymous',
-                isDeveloper: false,
-                timestamp: new Date().toISOString()
-            };
-            
-            ratings[appId].unshift(newReview);
-            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(ratings));
-            return newReview;
-        } catch (e) {
-            console.error('Error saving rating to localStorage:', e);
-            return null;
-        }
-    },
-    
-    getAppRatings: function(appId) {
-        const ratings = this.getAllRatings();
-        return ratings[appId] || [];
-    },
-    
-    getAverageRating: function(appId) {
-        const ratings = this.getAppRatings(appId);
-        if (ratings.length === 0) return null;
-        
-        const sum = ratings.reduce((acc, review) => acc + review.rating, 0);
-        return sum / ratings.length;
-    },
-    
-    getRatingDistribution: function(appId) {
-        const ratings = this.getAppRatings(appId);
-        const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-        
-        ratings.forEach(review => {
-            if (distribution[review.rating] !== undefined) {
-                distribution[review.rating]++;
-            }
-        });
-        
-        return distribution;
-    },
-    
-    getTotalReviews: function(appId) {
-        return this.getAppRatings(appId).length;
-    }
-};
-
-// ============================================================
-// NUMERIC RATING DISPLAY SYSTEM
-// ============================================================
-function getNumericRatingDisplay(rating) {
-    if (rating === null || rating === undefined || isNaN(rating)) {
-        return '<span class="rating-na">—</span>';
-    }
-    
-    const formattedRating = rating.toFixed(1);
-    
-    // Color based on rating
-    let colorClass = 'rating-poor';
-    if (rating >= 4.5) colorClass = 'rating-excellent';
-    else if (rating >= 3.5) colorClass = 'rating-good';
-    else if (rating >= 2.5) colorClass = 'rating-average';
-    
-    return `<span class="numeric-rating ${colorClass}">${formattedRating} ⭐</span>`;
-}
-
-// ============================================================
-// DEVELOPER MODE MODULE
-// ============================================================
-const DeveloperMode = {
-    isLoggedIn: false,
-    DEVELOPER_PASSWORD: '120622',
+const LikeSystem = {
+    likes: {},
     
     init: function() {
-        if (sessionStorage.getItem('developer_logged_in') === 'true') {
-            this.isLoggedIn = true;
-        }
-        this.updateLoginButton();
-        updateDevOnlyElements();
+        this.loadLikes();
     },
     
-    toggleLogin: function() {
-        if (this.isLoggedIn) {
-            this.openDashboard();
-        } else {
-            this.openLoginModal();
-        }
-    },
-    
-    openLoginModal: function() {
-        const modal = document.getElementById('developer-login-modal');
-        if (modal) {
-            modal.classList.remove('hidden');
-            modal.setAttribute('aria-hidden', 'false');
-            
-            // Focus password input
-            setTimeout(() => {
-                const passwordInput = document.getElementById('developer-password');
-                if (passwordInput) passwordInput.focus();
-            }, 100);
-        }
-    },
-    
-    closeLoginModal: function() {
-        const modal = document.getElementById('developer-login-modal');
-        if (modal) {
-            modal.classList.add('hidden');
-            modal.setAttribute('aria-hidden', 'true');
-            
-            // Clear password
-            const passwordInput = document.getElementById('developer-password');
-            if (passwordInput) passwordInput.value = '';
-        }
-    },
-    
-    login: function(password) {
-        if (password === this.DEVELOPER_PASSWORD) {
-            this.isLoggedIn = true;
-            sessionStorage.setItem('developer_logged_in', 'true');
-            
-            // Set UserAuth developer mode
-            UserAuth.isDeveloperMode = true;
-            
-            this.closeLoginModal();
-            this.updateLoginButton();
-            updateDevOnlyElements();
-            this.openDashboard();
-            
-            showNotification('Developer mode activated');
-            return true;
-        }
-        return false;
-    },
-    
-    logout: function() {
-        this.isLoggedIn = false;
-        sessionStorage.removeItem('developer_logged_in');
-        
-        // Clear UserAuth developer mode
-        UserAuth.isDeveloperMode = false;
-        
-        this.closeDashboard();
-        this.updateLoginButton();
-        updateDevOnlyElements();
-        
-        showNotification('Developer mode deactivated');
-    },
-    
-    openDashboard: function() {
-        const dashboard = document.getElementById('developer-dashboard');
-        if (dashboard) {
-            dashboard.classList.remove('hidden');
-            dashboard.setAttribute('aria-hidden', 'false');
-            this.loadAnalytics();
-            this.loadAppManager();
-            this.loadAnnouncements();
-            this.loadModeration();
-        }
-    },
-    
-    closeDashboard: function() {
-        const dashboard = document.getElementById('developer-dashboard');
-        if (dashboard) {
-            dashboard.classList.add('hidden');
-            dashboard.setAttribute('aria-hidden', 'true');
-        }
-        // Exit developer mode when closing dashboard
-        this.logout();
-    },
-    
-    updateLoginButton: function() {
-        const btn = document.getElementById('developer-login-button');
-        if (!btn) return;
-        
-        const statusText = btn.querySelector('.developer-status-text');
-        const icon = btn.querySelector('svg');
-        
-        if (this.isLoggedIn) {
-            btn.classList.add('logged-in');
-            if (statusText) statusText.textContent = 'Dashboard';
-            if (icon) {
-                icon.innerHTML = `<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>`;
-            }
-        } else {
-            btn.classList.remove('logged-in');
-            if (statusText) statusText.textContent = 'Developer';
-            if (icon) {
-                icon.innerHTML = `<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>`;
-            }
-        }
-    },
-    
-    loadAnalytics: async function() {
-        const statTotalReviews = document.getElementById('stat-total-reviews');
-        const statTotalApps = document.getElementById('stat-total-apps');
-        const statAvgRating = document.getElementById('stat-avg-rating');
-        const statDevResponses = document.getElementById('stat-developer-responses');
-        const topAppsList = document.getElementById('top-rated-apps');
-        
-        if (statTotalApps) statTotalApps.textContent = Object.keys(appData).length;
-        
+    loadLikes: function() {
         try {
-            const allReviews = await FirestoreComments.getAllReviews();
-            if (statTotalReviews) statTotalReviews.textContent = allReviews.length;
-            
-            // Calculate average rating
-            let totalRating = 0;
-            let ratingCount = 0;
-            allReviews.forEach(review => {
-                if (typeof review.rating === 'number') {
-                    totalRating += review.rating;
-                    ratingCount++;
-                }
-            });
-            if (statAvgRating && ratingCount > 0) {
-                statAvgRating.textContent = (totalRating / ratingCount).toFixed(1);
-            }
-            
-            // Count developer responses
-            const devResponses = allReviews.filter(r => r.isDeveloper === true);
-            if (statDevResponses) statDevResponses.textContent = devResponses.length;
-            
-            // Get top rated apps
-            const appRatings = [];
-            for (const appId of Object.keys(appData)) {
-                const avgRating = await FirestoreComments.getAverageRating(appId);
-                if (avgRating !== null) {
-                    appRatings.push({ id: appId, rating: avgRating, name: appData[appId].name });
-                }
-            }
-            appRatings.sort((a, b) => b.rating - a.rating);
-            
-            if (topAppsList && appRatings.length > 0) {
-                topAppsList.innerHTML = appRatings.slice(0, 5).map((app, i) => `
-                    <div class="top-rated-item">
-                        <span class="top-ranked">#${i + 1}</span>
-                        <span class="top-app-name">${app.name}</span>
-                        <span class="top-app-rating">${app.rating.toFixed(1)}</span>
-                    </div>
-                `).join('');
+            const stored = localStorage.getItem('sawfish_likes');
+            if (stored) {
+                this.likes = JSON.parse(stored);
             }
         } catch (error) {
-            console.error('Error loading analytics:', error);
+            console.error('Error loading likes:', error);
         }
     },
     
-    loadAppManager: function() {
-        const appList = document.getElementById('app-manager-list');
-        if (!appList) return;
-        
-        appList.innerHTML = Object.entries(appData).map(([id, app]) => `
-            <div class="app-manager-item">
-                <img src="${app.icon}" alt="${app.name}" class="app-manager-icon">
-                <div class="app-manager-info">
-                    <span class="app-manager-name">${app.name}</span>
-                    <span class="app-manager-category">${app.category}</span>
-                </div>
-                <div class="app-manager-actions">
-                    <button class="app-manager-btn edit" onclick="DeveloperMode.editApp('${id}')">Edit</button>
-                </div>
-            </div>
-        `).join('');
+    saveLikes: function() {
+        try {
+            localStorage.setItem('sawfish_likes', JSON.stringify(this.likes));
+        } catch (error) {
+            console.error('Error saving likes:', error);
+        }
     },
     
-    editApp: function(appId) {
-        showNotification('Edit app: ' + appId);
-    },
-    
-    loadAnnouncements: function() {
-        const announcementList = document.getElementById('announcement-list');
-        if (!announcementList) return;
+    toggleLike: function(appId) {
+        const hasLiked = this.likes[appId] === true;
         
-        // Load from localStorage or Firestore
-        const announcements = JSON.parse(localStorage.getItem('sawfish_announcements') || '[]');
-        
-        if (announcements.length === 0) {
-            announcementList.innerHTML = '<p class="muted">No announcements yet</p>';
+        if (hasLiked) {
+            delete this.likes[appId];
         } else {
-            announcementList.innerHTML = announcements.map(a => `
-                <div class="announcement-item">
-                    <div class="announcement-item-header">
-                        <span class="announcement-item-title">${escapeHtml(a.title)}</span>
-                        <span class="announcement-item-type type-${a.type}">${a.type}</span>
-                    </div>
-                    <p class="announcement-item-text">${escapeHtml(a.text)}</p>
-                </div>
-            `).join('');
+            this.likes[appId] = true;
+            Achievements.checkAchievements('like_app');
         }
+        
+        this.saveLikes();
+        return !hasLiked;
     },
     
-    publishAnnouncement: function() {
-        const titleInput = document.getElementById('announcement-title');
-        const textInput = document.getElementById('announcement-text');
-        const typeSelect = document.getElementById('announcement-type');
+    hasLiked: function(appId) {
+        return this.likes[appId] === true;
+    },
+    
+    getLikeCount: function(appId) {
+        const stored = localStorage.getItem('sawfish_like_counts');
+        const counts = stored ? JSON.parse(stored) : {};
+        return counts[appId] || 0;
+    },
+    
+    incrementLikeCount: function(appId) {
+        const stored = localStorage.getItem('sawfish_like_counts');
+        const counts = stored ? JSON.parse(stored) : {};
+        counts[appId] = (counts[appId] || 0) + 1;
+        localStorage.setItem('sawfish_like_counts', JSON.stringify(counts));
+        return counts[appId];
+    }
+};
+
+// ============================================================
+// SEARCH SYSTEM
+// ============================================================
+const SearchSystem = {
+    init: function() {
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
+        const searchCount = document.getElementById('search-count');
+        const noResults = document.getElementById('search-no-results');
         
-        const title = titleInput?.value.trim();
-        const text = textInput?.value.trim();
-        const type = typeSelect?.value || 'info';
+        if (!searchInput || !searchResults) return;
         
-        if (!title || !text) {
-            showNotification('Please fill in title and message');
+        let currentCategory = 'all';
+        let currentResults = [];
+        
+        const categoryBtns = document.querySelectorAll('.search-category-btn');
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                categoryBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCategory = btn.dataset.searchCategory;
+                this.performSearch(searchInput.value, currentCategory, searchResults, searchCount, noResults);
+            });
+        });
+        
+        let debounceTimer;
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                this.performSearch(e.target.value, currentCategory, searchResults, searchCount, noResults);
+            }, 200);
+        });
+        
+        this.performSearch('', currentCategory, searchResults, searchCount, noResults);
+    },
+    
+    performSearch: function(query, category, resultsContainer, countContainer, noResultsContainer) {
+        const term = query.toLowerCase().trim();
+        const results = Object.entries(appData).filter(([id, app]) => {
+            const matchesTerm = !term || 
+                app.name.toLowerCase().includes(term) || 
+                app.developer.toLowerCase().includes(term) ||
+                app.description.toLowerCase().includes(term) ||
+                app.category.toLowerCase().includes(term);
+            
+            if (!matchesTerm) return false;
+            
+            if (category === 'all') return true;
+            
+            if (category === 'Games') {
+                return app.category.toLowerCase().includes('game');
+            }
+            if (category === 'Social') {
+                return app.category.toLowerCase().includes('social') || app.name.toLowerCase().includes('chat');
+            }
+            if (category === 'Operating System' || category === 'OS') {
+                return app.category.toLowerCase().includes('operating system');
+            }
+            if (category === 'Educational') {
+                return app.category.toLowerCase().includes('educational') || app.category.toLowerCase().includes('productivity');
+            }
+            if (category === 'Utilities') {
+                return app.category.toLowerCase().includes('miscellaneous') || app.category.toLowerCase().includes('tools');
+            }
+            
+            return app.category.toLowerCase().includes(category.toLowerCase());
+        });
+        
+        currentResults = results;
+        
+        if (countContainer) {
+            countContainer.textContent = results.length;
+        }
+        
+        if (results.length === 0) {
+            if (resultsContainer) resultsContainer.innerHTML = '';
+            if (noResultsContainer) noResultsContainer.classList.remove('hidden');
             return;
         }
         
-        const announcement = {
-            title,
-            text,
-            type,
-            timestamp: new Date().toISOString()
-        };
+        if (noResultsContainer) noResultsContainer.classList.add('hidden');
         
-        // Store announcement
-        const announcements = JSON.parse(localStorage.getItem('sawfish_announcements') || '[]');
-        announcements.unshift(announcement);
-        localStorage.setItem('sawfish_announcements', JSON.stringify(announcements));
-        
-        // Clear form
-        if (titleInput) titleInput.value = '';
-        if (textInput) textInput.value = '';
-        
-        this.loadAnnouncements();
-        showNotification('Announcement published!');
-    },
-    
-    loadModeration: function() {
-        const moderationList = document.getElementById('moderation-list');
-        if (!moderationList) return;
-        
-        moderationList.innerHTML = '<p class="muted">Select reviews from the analytics tab to moderate</p>';
-    }
-};
-
-// ============================================================
-// UPDATE DEVELOPER-ONLY ELEMENTS
-// ============================================================
-function updateDevOnlyElements() {
-    const isDeveloper = UserAuth.isDeveloperMode || DeveloperMode.isLoggedIn;
-    
-    // Update developer-only app visibility
-    const developerApps = ['vscodeweb', 'shadertoy', 'neocities', 'piskel', 'tiddlywiki'];
-    
-    developerApps.forEach(appId => {
-        const card = document.querySelector(`[data-app="${appId}"]`);
-        if (card) {
-            card.style.display = isDeveloper ? '' : 'none';
-        }
-    });
-    
-    // Update body class for CSS styling
-    if (isDeveloper) {
-        document.body.classList.add('developer-mode-active');
-    } else {
-        document.body.classList.remove('developer-mode-active');
-    }
-}
-
-// ============================================================
-// MINECRAFT WARNING SYSTEM
-// ============================================================
-const minecraftWarningSystem = {
-    showWarning: function(appName, appLink) {
-        const overlay = document.getElementById('minecraft-warning-overlay');
-        const title = document.getElementById('minecraft-warning-title');
-        const message = document.getElementById('minecraft-warning-message');
-        const launchBtn = document.getElementById('minecraft-launch-btn');
-        const cancelBtn = document.getElementById('minecraft-cancel-btn');
-        
-        if (title) title.textContent = `${appName} - Multiplayer Notice`;
-        if (message) {
-            message.innerHTML = `
-                <p><strong>Multiplayer requires re-guesting to work properly.</strong></p>
-                <p>To play multiplayer in ${appName}, you need to refresh/re-guest the game page. This is necessary because:</p>
-                <ul>
-                    <li>Multiplayer sessions require fresh network connections</li>
-                    <li>Cached data can interfere with server communication</li>
-                    <li>Server authentication needs to be re-established</li>
-                </ul>
-                <p>Click "Launch Game" to open the game, then refresh the page when you want to play multiplayer.</p>
-            `;
-        }
-        
-        if (launchBtn) {
-            launchBtn.onclick = () => {
-                window.open(appLink, '_blank');
-                this.closeWarning();
-            };
-        }
-        
-        if (cancelBtn) {
-            cancelBtn.onclick = () => this.closeWarning();
-        }
-        
-        if (overlay) {
-            overlay.classList.remove('hidden');
-            overlay.setAttribute('aria-hidden', 'false');
-        }
-    },
-    
-    closeWarning: function() {
-        const overlay = document.getElementById('minecraft-warning-overlay');
-        if (overlay) {
-            overlay.classList.add('hidden');
-            overlay.setAttribute('aria-hidden', 'true');
+        if (resultsContainer) {
+            resultsContainer.innerHTML = results.map(([id, app]) => {
+                const liked = LikeSystem.hasLiked(id);
+                const likeCount = LikeSystem.getLikeCount(id);
+                
+                return `
+                    <article class="app-card" data-app="${id}">
+                        <div class="card-icon">
+                            <img src="${app.icon}" alt="${escapeHtml(app.name)} Icon" loading="lazy">
+                        </div>
+                        <div class="card-content">
+                            <h4>${escapeHtml(app.name)}</h4>
+                            <p class="card-desc">${escapeHtml(app.description.substring(0, 80))}${app.description.length > 80 ? '...' : ''}</p>
+                            <div class="card-rating" data-avg-rating="${id}">—</div>
+                            <button class="like-btn ${liked ? 'liked' : ''}" data-app-id="${id}" aria-label="${liked ? 'Unlike' : 'Like'} this app">
+                                <svg viewBox="0 0 24 24" fill="${liked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                                </svg>
+                                <span class="like-count">${likeCount}</span>
+                            </button>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+            
+            resultsContainer.querySelectorAll('.like-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const appId = btn.dataset.appId;
+                    const newLikedState = LikeSystem.toggleLike(appId);
+                    btn.classList.toggle('liked', newLikedState);
+                    
+                    const icon = btn.querySelector('svg');
+                    if (icon) {
+                        icon.setAttribute('fill', newLikedState ? 'currentColor' : 'none');
+                    }
+                    
+                    const likeCountSpan = btn.querySelector('.like-count');
+                    if (likeCountSpan) {
+                        const newCount = LikeSystem.incrementLikeCount(appId);
+                        likeCountSpan.textContent = newCount;
+                    }
+                    
+                    Achievements.checkAchievements('like_app');
+                });
+            });
+            
+            resultsContainer.querySelectorAll('.app-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const appId = this.dataset.app;
+                    if (appId) {
+                        openExpandedApp(appId);
+                    }
+                });
+            });
         }
     }
 };
@@ -2533,28 +2369,27 @@ const minecraftWarningSystem = {
 // APP DATA
 // ============================================================
 const appData = {
-    // Games
     portal: {
         name: "Sawfish Game Portal",
         developer: "Sawfish",
         icon: "icons/game-portal.png",
-        category: "Games / Launcher",
+        category: "Games / Portal",
         description: "Central launcher for all approved Sawfish games in one place.",
-        features: "Quick launch for all games, organized categories, search functionality, favorites list, recent games history, and offline support for selected games.",
-        additional: "This is your go-to hub for accessing all games in the Sawfish ecosystem. Games are carefully curated for school safety.",
-        link: "https://the-sawfish.github.io/game-portal/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Game+Portal+Launcher", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Game+Categories"]
+        features: "Browse games by category, see what's popular, quick launch any game.",
+        additional: "This portal serves as your gateway to all the games available.",
+        link: "https://the-sawfish.github.io/portal/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Game+Portal", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Game+Library"]
     },
     chat: {
         name: "Chat App",
-        developer: "Jimeneutron",
+        developer: "Sawfish",
         icon: "icons/chat.png",
         category: "Social / Communication",
-        description: "Real-time messaging for students with rooms and channels.",
-        features: "Instant messaging, room creation, channel subscriptions, message history, emoji reactions, and @mentions.",
-        additional: "Designed for school collaboration. All messages are logged for safety. Respect the community guidelines.",
-        link: "https://jimeneutron.github.io/chatapp/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Chat+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Channel+View"]
+        description: "Real-time browser-based messaging with rooms and channels.",
+        features: "Join topic-based rooms, create channels, share text messages instantly.",
+        additional: "Perfect for study groups and class discussions.",
+        link: "https://the-sawfish.github.io/chat/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Chat+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Message+Rooms"]
     },
     call: {
         name: "Call App",
@@ -2562,10 +2397,10 @@ const appData = {
         icon: "icons/call.png",
         category: "Social / Communication",
         description: "Fast, simple browser-based voice calling interface.",
-        features: "One-click voice calls, no registration required, low latency audio, works on all modern browsers.",
-        additional: "For quick voice conversations with classmates. Ideal for study groups and project discussions.",
-        link: "https://the-sawfish.github.io/call-app/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Call+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Call+Controls"]
+        features: "One-click calling, no app installation required, low latency audio.",
+        additional: "Great for quick check-ins with study partners.",
+        link: "https://the-sawfish.github.io/call/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Call+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Voice+Call"]
     },
     circle: {
         name: "Draw a Circle",
@@ -2573,32 +2408,32 @@ const appData = {
         icon: "icons/circle.png",
         category: "Games / Puzzle",
         description: "Quick reflex challenge - draw the most perfect circle you can.",
-        features: "Instant play, accuracy scoring, global leaderboard, practice mode, and streak bonuses.",
-        additional: "Often used as a hack - clicking the OFFLINE tag reveals the hack site password.",
-        link: "https://the-sawfish.github.io/circle/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Draw+a+Circle+Game", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Accuracy+Score"]
+        features: "Instant feedback on circle precision, score tracking.",
+        additional: "Perfect for quick breaks between classes. Works offline once loaded.",
+        link: "https://the-sawfish.github.io/seraph/games/circle/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Draw+a+Circle", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Score+Screen"]
+    },
+    sandboxels: {
+        name: "Sandboxels",
+        developer: "Rhex Lorenz",
+        icon: "icons/sandboxels.png",
+        category: "Games / Simulation",
+        description: "Falling sand physics simulator with over 500 unique elements.",
+        features: "Hundreds of different elements, realistic physics simulation.",
+        additional: "A great way to learn about cellular automata and physics.",
+        link: "https://sandboxels.riverside.rocks/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Sandboxels+Simulation", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Physics+Elements"]
     },
     minecraft: {
         name: "Minecraft Web (Beta)",
         developer: "Zardoy",
         icon: "icons/minecraft.png",
         category: "Games / Sandbox",
-        description: "The iconic sandbox building game, now in your browser. Build, explore, and create without downloads.",
-        features: "Browser-based Minecraft, multiplayer servers, creative/survival modes, skin support, and cross-device save sync.",
-        additional: "NOTE: Multiplayer requires re-guesting/refresh to work properly. This is a web version limitation. Single player mode available but crafting is disabled in web version.",
+        description: "The iconic sandbox building game, now in your browser.",
+        features: "Full block-based world generation, mining and crafting, multiplayer support.",
+        additional: "This is a browser-based recreation of Minecraft.",
         link: "https://zardoy.github.io/minecraft-web-client/",
-        screenshots: ["IMG_0610.jpeg", "IMG_0611.jpeg"]
-    },
-    sandboxels: {
-        name: "Sandboxels",
-        developer: "Rother",
-        icon: "icons/sandboxels.png",
-        category: "Games / Simulation",
-        description: "Falling sand physics simulator with over 500 elements.",
-        features: "500+ elements, realistic physics, cellular automata, color mixing, and element interactions.",
-        additional: "Excellent for learning about physics and creating art. Very satisfying to play with.",
-        link: "https://the-sawfish.github.io/sandboxels/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Sandboxels+Physics", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Element+Interactions"]
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Minecraft+Web", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Block+Building"]
     },
     blockblast: {
         name: "Block Blast",
@@ -2606,146 +2441,96 @@ const appData = {
         icon: "icons/blockblast.png",
         category: "Games / Puzzle",
         description: "Fast-paced block placement puzzle game with competitive scoring.",
-        features: "Classic block puzzle mechanics, competitive scoring, daily challenges, and offline play.",
-        additional: "Often used as a hack - clicking the OFFLINE tag reveals the hack site password.",
-        link: "https://the-sawfish.github.io/blockblast/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Block+Blast+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Block+Placement"]
+        features: "Classic block puzzle mechanics, competitive scoring system.",
+        additional: "Perfect for quick gaming sessions. Works offline once loaded.",
+        link: "https://the-sawfish.github.io/seraph/games/blockblast/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Block+Blast", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Puzzle+Gameplay"]
     },
     run3: {
         name: "Run 3",
-        developer: "Nitrome",
+        developer: "Jupiter Hadley",
         icon: "icons/run3.png",
         category: "Games / Platformer",
-        description: "Endless space runner with gravity-shifting tunnel gameplay.",
-        features: "Infinite tunnel running, gravity shifting, character unlocking, achievements, and upgrade system.",
-        additional: "One of the most popular unblocked games. Works great on school networks.",
-        link: "https://the-sawfish.github.io/Run3Final/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Run+3+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Tunnel+Navigation"]
+        description: "Endless space runner through procedurally generated tunnels.",
+        features: "Procedurally generated endless tunnels, wall-running mechanics.",
+        additional: "A classic endless runner with a unique 3D tunnel perspective.",
+        link: "https://the-sawfish.github.io/seraph/games/run3/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Run+3+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Space+Tunnels"]
     },
-    syrup: {
-        name: "Syrup Games",
-        developer: "Jimeneutron",
-        icon: "icons/syrup.png",
-        category: "Games / Launcher",
-        description: "Alternative game launcher with unique browser-based titles.",
-        features: "Syrup's flagship games including Nitter and other titles, integrated launcher, achievement tracking.",
-        additional: "Provides access to Syrup's suite of unique browser games. Often hosts events and challenges.",
-        link: "https://jimeneutron.github.io/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Syrup+Games+Launcher", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Available+Games"]
+    retrobowl: {
+        name: "Retro Bowl",
+        developer: "Collin Crews",
+        icon: "icons/retrobowl.png",
+        category: "Games / Sports",
+        description: "Classic American football management game with retro aesthetics.",
+        features: "Team management, strategic playcalling, retro pixel art style.",
+        additional: "The perfect game for football fans.",
+        link: "https://the-sawfish.github.io/seraph/games/retrobowl/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Retro+Bowl", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Football+Action"]
+    },
+    paperio2: {
+        name: "Paper Io 2",
+        developer: "Voodoo",
+        icon: "icons/paperio2.png",
+        category: "Games / Action",
+        description: "Territory conquest game. Capture territory and defeat opponents.",
+        features: "Territory capture mechanics, real-time multiplayer battles.",
+        additional: "A highly addictive territory conquest game.",
+        link: "https://the-sawfish.github.io/seraph/games/paperio2/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Paper+IO+2", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Territory+Capture"]
     },
     bobtherobber: {
         name: "Bob The Robber",
         developer: "Bob The Robber Team",
         icon: "icons/bobtherobber.png",
         category: "Games / Puzzle",
-        description: "Stealth puzzle game series. Infiltrate locations and steal treasure.",
-        features: "Stealth mechanics, puzzle-solving, level progression, character upgrades, and multiple installments.",
-        additional: "Fun puzzle series that requires thinking ahead. Each level is a new challenge.",
+        description: "Stealth puzzle game series. Infiltrate locations and steal treasures.",
+        features: "Progressive level difficulty, stealth mechanics.",
+        additional: "A beloved stealth puzzle series.",
         link: "https://the-sawfish.github.io/seraph/games/bobtherobber/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Bob+The+Robber+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Stealth+Puzzles"]
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Bob+The+Robber", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Stealth+Action"]
     },
-    retrobowl: {
-        name: "Retro Bowl",
-        developer: "Retro Bowl Team",
-        icon: "icons/retrobowl.png",
-        category: "Games / Sports",
-        description: "Classic American football management game with retro aesthetics.",
-        features: "Team management, game simulation, player trading, stadium upgrades, and retro graphics.",
-        additional: "Provides the classic football gaming experience with modern gameplay mechanics. Perfect for sports fans.",
-        link: "https://the-sawfish.github.io/seraph/games/retrobowl/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Retro+Bowl+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Team+Management"]
-    },
-    paperio2: {
-        name: "Paper Io 2",
-        developer: "Paper Io Team",
-        icon: "icons/paperio2.png",
-        category: "Games / Arcade",
-        description: "Paper Io 2 is an addictive territory conquest game where you control a character to capture territory, expand your kingdom, and compete against other players in fast-paced battles.",
-        features: "The game features both single-player mode against AI opponents and multiplayer mode against real players. Includes daily challenges, seasonal events, and unlockable skins and achievements.",
-        additional: "Paper Io 2 is designed for quick, exciting matches that can be played in short bursts. The simple controls make it accessible while the strategy depth keeps it engaging.",
-        link: "https://the-sawfish.github.io/seraph/games/paperio2/index.html",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Paper+Io+2+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Territory+Capture"]
-    },
-    hextris: {
-        name: "Hextris",
-        developer: "Hextris",
-        icon: "icons/hextris.png",
-        category: "Games / Puzzle",
-        description: "Hextris is a fast-paced puzzle game inspired by Tetris, played on a hexagonal grid. Rotate the hexagon to stack blocks and prevent the game from ending in this addictive challenge.",
-        features: "Features include addictive gameplay with increasing difficulty, colorful hexagonal visuals, high score tracking, combo multipliers, and smooth animations.",
-        additional: "Often hosted on GitHub Pages, making it less likely to be blocked by school filters. Perfect for quick gaming sessions during breaks.",
-        link: "https://codechefvit.github.io/DevTris/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Hextris+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Hexagonal+Puzzle"]
-    },
-    
-    // New Arcade Games (January 2026)
     tinyfishing: {
         name: "Tiny Fishing",
-        developer: "Kongregate",
+        developer: "Ketchapp",
         icon: "icons/tinyfishing.png",
-        category: "Games / Arcade",
-        description: "Tiny Fishing is an addictive arcade game where you cast your line into the water and catch fish of various sizes. Upgrade your gear and discover new fishing spots as you progress.",
-        features: "Features include simple tap-to-cast mechanics, upgradeable fishing rods and lines, multiple fishing locations with different fish species, and satisfying catch animations.",
-        additional: "Perfect for quick gaming sessions during breaks. The colorful graphics and relaxing gameplay make it a great way to unwind between classes.",
-        link: "https://the-sawfish.github.io/legalizenuclearbombs5.github.io/games/Tiny%20Fishing",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Tiny+Fishing+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Catch+Fish"]
+        category: "Games / Casual",
+        description: "Addictive fishing game. Catch fish and upgrade your gear.",
+        features: "Hook fish of various sizes, upgrade your fishing gear.",
+        additional: "A simple yet addictive fishing game.",
+        link: "https://the-sawfish.github.io/seraph/games/tinyfishing/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Tiny+Fishing", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Fish+Collection"]
     },
     ovo: {
         name: "OVO",
-        developer: "Madbox",
+        developer: "Maestro",
         icon: "icons/ovo.png",
         category: "Games / Platformer",
-        description: "OVO is a fast-paced platformer game featuring a small circular character navigating through obstacle courses. Jump, slide, and bounce your way through challenging levels.",
-        features: "Features include smooth parkour mechanics, challenging obstacle courses, time trial modes, and unlockable character skins. The controls are tight and responsive for precise platforming.",
-        additional: "OVO is known for its difficulty and rewarding gameplay. Master the mechanics to achieve fastest completion times and compete on leaderboards.",
-        link: "https://the-sawfish.github.io/legalizenuclearbombs5.github.io/games/ovo.html",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=OVO+Platformer", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Obstacle+Course"]
+        description: "Fast-paced parkour game. Jump, slide, and wall-run through obstacles.",
+        features: "Smooth parkour mechanics, challenging obstacle courses.",
+        additional: "A beloved parkour platformer with fluid movement controls.",
+        link: "https://the-sawfish.github.io/seraph/games/ovo/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=OVO+Parkour", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Obstacle+Course"]
     },
     towerofdestiny: {
         name: "Tower of Destiny",
-        developer: "Ketchapp",
+        developer: "Sawfish",
         icon: "icons/towerofdestiny.png",
         category: "Games / Adventure",
-        description: "Tower of Destiny is an exciting adventure game where you build and ascend a tower while fighting enemies and collecting treasures. Upgrade your hero and conquer each floor.",
-        features: "Features include procedurally generated levels, diverse enemy types, power-ups and collectibles, hero upgrades and skill trees, and boss battles on certain floors.",
-        additional: "The tower keeps getting taller as you progress, offering new challenges and rewards. Perfect for fans of roguelike and tower defense games.",
+        description: "Exciting adventure game where you build and ascend a tower.",
+        features: "Procedurally generated levels, hero upgrades, boss battles.",
+        additional: "The tower keeps getting taller as you progress.",
         link: "https://the-sawfish.github.io/legalizenuclearbombs5.github.io/games/Tower%20of%20Destiny",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Tower+of+Destiny", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Ascend+the+Tower"]
     },
-    
-    // Educational / Productivity
-    monkeytype: {
-        name: "Monkeytype",
-        developer: "Miodec",
-        icon: "icons/monkeytype.png",
-        category: "Educational / Typing",
-        description: "Monkeytype is a minimalist, customizable typing test that helps you improve your typing speed and accuracy. Practice typing with beautiful themes and detailed statistics while tracking your progress over time.",
-        features: "Features customizable themes, difficulty levels (easy, normal, hard, expert), typing modes (time, words, quotes,zen), and comprehensive statistics showing WPM, accuracy, character count, and key distributions.",
-        additional: "Open source and completely ad-free. Great for practice during study breaks. The minimal design eliminates distractions so you can focus entirely on your typing practice.",
-        link: "https://monkeytype.com/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Monkeytype+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Typing+Statistics"]
-    },
-    lichess: {
-        name: "Lichess",
-        developer: "Lichess Team",
-        icon: "icons/lichess.png",
-        category: "Games / Strategy",
-        description: "Lichess is a free, open-source chess platform with no ads, no tracking, and completely free to play. Challenge AI opponents, play with friends, or compete against chess players worldwide.",
-        features: "Multiple game modes including blitz, rapid, classical, and correspondence chess. Features puzzles, tactics training, analysis boards with Stockfish integration, tournaments, and team championships.",
-        additional: "One of the least blocked chess sites on school networks due to its educational nature. The site is entirely supported by donations and has no commercial interests.",
-        link: "https://lichess.org/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Lichess+Chess+Board", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Chess+Analysis"]
-    },
-    
-    // Operating Systems
     novaos: {
         name: "NovaOS",
         developer: "RunNova",
         icon: "icons/novaos.png",
         category: "Operating System",
-        description: "NovaOS is a full-featured browser-based desktop operating system environment that brings the concept of a web OS to life. Experience a complete desktop interface running entirely in your browser.",
-        features: "The OS features a customizable desktop with drag-and-drop widgets, window management with minimize/maximize/close, file manager, text editor, calculator, music player, and a built-in app store.",
-        additional: "For the full NovaOS experience, we recommend opening the OS directly in a new tab. This provides better performance and more screen space for the desktop environment.",
+        description: "Full-featured browser-based desktop operating system environment.",
+        features: "Customizable desktop, window management, file manager.",
+        additional: "For the full NovaOS experience, open in a new tab.",
         link: "https://runnova.github.io/NovaOS/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=NovaOS+Desktop", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=NovaOS+Apps"]
     },
@@ -2754,9 +2539,9 @@ const appData = {
         developer: "Ripenos",
         icon: "icons/winripen.png",
         category: "Operating System",
-        description: "WinRipen is a web-based operating system that recreates the familiar look and feel of classic Windows operating systems. Relive the Windows experience right in your browser.",
-        features: "The OS features authentic-looking windows with title bars, minimize/maximize/close buttons, and resizing handles. Includes a start menu, taskbar, desktop icons, and several built-in applications.",
-        additional: "Due to browser security restrictions, full interaction with WinRipen requires opening it directly in a new tab. This provides access to all features without iframe limitations.",
+        description: "Web-based operating system recreating classic Windows.",
+        features: "Authentic Windows-like interface, window management.",
+        additional: "Due to browser security restrictions, open in a new tab.",
         link: "https://ripenos.web.app/WinRipen/index.html",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=WinRipen+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Windows+Apps"]
     },
@@ -2765,9 +2550,9 @@ const appData = {
         developer: "Zeon",
         icon: "icons/plutoos.png",
         category: "Operating System",
-        description: "PlutoOS represents a futuristic vision of what a web-based operating system could be, with a focus on modern design aesthetics and smooth user interactions. Experience the next generation of web operating systems.",
-        features: "The OS features a modular design with glass-morphism effects, smooth gradients, subtle shadows, and fluid animations. Includes customizable themes, widget support, and a sleek application launcher.",
-        additional: "PlutoOS is an experimental project that demonstrates the cutting edge of browser-based computing. While it's primarily for exploration, it shows what's possible with modern web technologies.",
+        description: "Futuristic vision of a web-based operating system.",
+        features: "Modular design, glass-morphism effects, smooth animations.",
+        additional: "An experimental project demonstrating cutting edge web computing.",
         link: "https://pluto-app.zeon.dev",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=PlutoOS+Modern+UI", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Fluid+Animations"]
     },
@@ -2776,35 +2561,31 @@ const appData = {
         developer: "Ripenos",
         icon: "icons/ripenos.png",
         category: "Operating System",
-        description: "Ripenos is a lightweight, modular web-based operating system framework designed for speed and efficiency. Experience a clean, fast desktop environment in your browser.",
-        features: "The core OS provides essential desktop functionality including window management, app launching, system settings, and file management. Its modular architecture allows for easy customization and extension.",
-        additional: "Ripenos is particularly suitable for educational environments where performance on varied hardware is important. It loads quickly and runs smoothly even on older devices.",
+        description: "Lightweight, modular web-based operating system framework.",
+        features: "Essential desktop functionality, modular architecture.",
+        additional: "Suitable for educational environments with varied hardware.",
         link: "https://ripenos.web.app/Ripenos/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Ripenos+Desktop", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Modular+Apps"]
     },
-    
-    // Developer Tools
     piskel: {
         name: "Piskel",
         developer: "Piskel Team",
         icon: "icons/piskel.png",
         category: "Developer Tools / Graphics",
-        description: "Piskel is a free online editor for creating animated sprites, pixel art, and static images. Create pixel-perfect artwork with powerful drawing tools and export to various formats.",
-        features: "Features include layers, advanced color palettes, onion skinning for animation, frame management, various brush types, and export options including GIF, PNG spritesheets, and APNG.",
-        additional: "Perfect for creating game assets, avatars, and pixel art. Works offline once loaded and all processing happens in your browser for privacy.",
+        description: "Free online editor for creating animated sprites and pixel art.",
+        features: "Layers, color palettes, onion skinning, animation timeline.",
+        additional: "Perfect for creating game assets and pixel art.",
         link: "https://www.piskelapp.com/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Piskel+Pixel+Editor", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Animation+Timeline"]
     },
-    
-    // Developer-only apps (only visible when developer mode is active)
     vscodeweb: {
         name: "VS Code Web",
         developer: "Microsoft",
         icon: "icons/vscode.png",
         category: "Developer Tools / Code",
-        description: "VS Code Web brings the powerful Visual Studio Code editor to your browser. Write, edit, and debug code directly in your browser with syntax highlighting and extensions support.",
-        features: "Features include syntax highlighting for multiple languages, IntelliSense code completion, integrated terminal, Git integration, and access to the VS Code extension marketplace (compatible extensions).",
-        additional: "Requires a Microsoft account for full functionality. Perfect for quick code edits, reviewing pull requests, and working on projects from any computer.",
+        description: "Visual Studio Code editor in your browser.",
+        features: "Syntax highlighting, IntelliSense, Git integration.",
+        additional: "Requires a Microsoft account for full functionality.",
         link: "https://vscode.dev/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=VS+Code+Editor", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Code+IntelliSense"]
     },
@@ -2813,22 +2594,20 @@ const appData = {
         developer: "ShaderToy Team",
         icon: "icons/shadertoy.png",
         category: "Developer Tools / Graphics",
-        description: "ShaderToy is the world's first platform for learning, sharing, and connecting with creative coders to create and share GLSL shaders. Create stunning visual effects with code.",
-        features: "Features include a powerful shader editor, thousands of example shaders, real-time preview, the ability to fork and modify other shaders, and a community to share your creations.",
-        additional: "Perfect for learning computer graphics, creating visual effects, or just exploring the creative possibilities of shader programming. Great for both beginners and experts.",
+        description: "Platform for learning and sharing GLSL shaders.",
+        features: "Powerful shader editor, thousands of example shaders.",
+        additional: "Perfect for learning computer graphics programming.",
         link: "https://www.shadertoy.com/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=ShaderToy+Editor", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=GLSL+Shaders"]
     },
-    
-    // Productivity
     photopea: {
         name: "Photopea",
         developer: "Ivan Kuckir",
         icon: "icons/photopea.png",
         category: "Productivity / Graphics",
-        description: "Photopea is a powerful online image editor that works directly in your browser without any installation. It supports PSD, AI, Sketch, and many other file formats.",
-        features: "Features include layer support, filters, adjustment layers, brushes, text tools, vector shapes, animation, and smart objects. Works offline once loaded.",
-        additional: "All processing happens in your browser - no uploads required, ensuring privacy. A great free alternative to Photoshop for basic to intermediate image editing needs.",
+        description: "Powerful online image editor in your browser.",
+        features: "Layer support, filters, brushes, vector shapes.",
+        additional: "All processing happens in your browser for privacy.",
         link: "https://www.photopea.com/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Photopea+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Image+Editing"]
     },
@@ -2837,33 +2616,42 @@ const appData = {
         developer: "TiddlyWiki Community",
         icon: "icons/tiddlywiki.png",
         category: "Productivity / Notes",
-        description: "TiddlyWiki is a unique personal wiki and non-linear notebook for capturing, organizing, and sharing your thoughts, ideas, and information in a flexible format.",
-        features: "Features include powerful linking between tiddlers, tagging system, rich text editing, plugins and themes, and the ability to save everything in a single HTML file.",
-        additional: "Completely self-contained - your entire wiki lives in one HTML file that you can back up, share, and access from anywhere. Perfect for notes, journals, and personal knowledge management.",
+        description: "Personal wiki and non-linear notebook for organizing thoughts.",
+        features: "Powerful linking, tagging system, rich text editing.",
+        additional: "Completely self-contained in one HTML file.",
         link: "https://tiddlywiki.com/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=TiddlyWiki+Notebook", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Wiki+Organization"]
     },
-    
-    // Media & Social
-    spotifyweb: {
-        name: "Spotify Web",
-        developer: "Spotify",
-        icon: "icons/spotify.png",
-        category: "Media / Music",
-        description: "Stream millions of songs, podcasts, and audiobooks directly in your browser with Spotify Web Player. Discover new music and enjoy your favorite playlists anywhere.",
-        features: "Features include streaming quality options, playlist management, radio stations, podcast access, and social features to share music with friends.",
-        additional: "Requires a Spotify account. Free tier available with shuffle play only. Premium removes ads and enables on-demand playback.",
-        link: "https://open.spotify.com/",
-        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Spotify+Web+Player", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Music+Library"]
+    monkeytype: {
+        name: "Monkeytype",
+        developer: "Miodec",
+        icon: "icons/monkeytype.png",
+        category: "Educational / Typing",
+        description: "Minimalist typing test for improving speed and accuracy.",
+        features: "Customizable themes, difficulty levels, comprehensive statistics.",
+        additional: "Open source and completely ad-free.",
+        link: "https://monkeytype.com/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Monkeytype+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Typing+Statistics"]
+    },
+    lichess: {
+        name: "Lichess",
+        developer: "Lichess Team",
+        icon: "icons/lichess.png",
+        category: "Games / Strategy",
+        description: "Free, open-source chess platform with no ads or tracking.",
+        features: "Multiple game modes, puzzles, tactics training, tournaments.",
+        additional: "One of the least blocked chess sites on school networks.",
+        link: "https://lichess.org/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Lichess+Chess+Board", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Chess+Analysis"]
     },
     neocities: {
         name: "Neocities",
         developer: "Neocities Inc",
         icon: "icons/neocities.png",
         category: "Social / Web Publishing",
-        description: "Neocities is a free service that lets you create your own website for free, with no coding required. Join a community of creators and bring the creative, independent spirit of the early web back to life.",
-        features: "Features include free hosting with custom domains, site templates, drag-and-drop file uploads, a CLI tool, and an active community of creators sharing tips and feedback.",
-        additional: "Neocities has revived the spirit of early web publishing. Create personal websites, portfolios, or experiment with HTML and CSS in a supportive community environment.",
+        description: "Free service for creating your own website.",
+        features: "Free hosting, site templates, drag-and-drop uploads.",
+        additional: "Revives the spirit of early web publishing.",
         link: "https://neocities.org/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Neocities+Create", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Website+Builder"]
     },
@@ -2872,9 +2660,9 @@ const appData = {
         developer: "Sawfish",
         icon: "icons/hack.png",
         category: "Miscellaneous / Tools",
-        description: "Restricted utilities and experimental tools for advanced users. Access various hacking simulations and security testing tools in a safe environment.",
-        features: "Password generator, cipher tools, hash generator, and various security utilities for educational purposes.",
-        additional: "For educational purposes only. These tools are designed to help students understand cybersecurity concepts. DO NOT use for malicious purposes.",
+        description: "Utilities and experimental tools for advanced users.",
+        features: "Password generator, cipher tools, hash generator.",
+        additional: "For educational purposes only.",
         link: "https://the-sawfish.github.io/hack/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Hack+Tools+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Password+Generator"]
     },
@@ -2883,9 +2671,9 @@ const appData = {
         developer: "Jimeneutron",
         icon: "icons/IMG_0636.jpeg",
         category: "Miscellaneous / Tools",
-        description: "Encrypt and decrypt messages securely. Protect your private conversations with military-grade encryption.",
-        features: "AES-256 encryption, message encoding/decoding, secure key generation, and base64 conversion tools.",
-        additional: "Learn about encryption and data security. Perfect for understanding how modern encryption works while keeping your messages private.",
+        description: "Encrypt and decrypt messages securely.",
+        features: "AES-256 encryption, message encoding, key generation.",
+        additional: "Learn about encryption and data security.",
         link: "https://jimeneutron.github.io/SecureCommunication/",
         screenshots: ["icons/IMG_0634.jpeg", "icons/IMG_0635.jpeg"]
     },
@@ -2894,9 +2682,9 @@ const appData = {
         developer: "Gabriele Cirulli",
         icon: "icons/2048.png",
         category: "Games / Puzzle",
-        description: "Classic number puzzle game. Combine matching tiles to reach the 2048 tile and win the game.",
-        features: "Simple swipe controls, score tracking, undo functionality, and mobile-friendly design.",
-        additional: "One of the most popular puzzle games of all time. Train your brain while having fun combining numbers.",
+        description: "Classic number puzzle game. Combine tiles to reach 2048.",
+        features: "Simple swipe controls, score tracking, undo functionality.",
+        additional: "One of the most popular puzzle games of all time.",
         link: "https://the-sawfish.github.io/seraph/games/2048/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=2048+Game+Board", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=2048+Win+Screen"]
     },
@@ -2905,11 +2693,33 @@ const appData = {
         developer: "Y Combinator",
         icon: "icons/hackernews.png",
         category: "News / Technology",
-        description: "Hacker News is a social news website focusing on computer science, technology, and entrepreneurship. Read the latest discussions, insights, and stories from the tech world.",
-        features: "Features include user-submitted stories, threaded comments, karma points, YC job board integration, and an active community of developers, entrepreneurs, and tech enthusiasts.",
-        additional: "One of the best sources for staying informed about technology trends, startup news, and programming discussions. The community is known for thoughtful, in-depth conversations.",
+        description: "Social news website focusing on computer science and technology.",
+        features: "User-submitted stories, threaded comments, karma points.",
+        additional: "One of the best sources for technology news.",
         link: "https://news.ycombinator.com/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Hacker+News+Front+Page", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Tech+Discussions"]
+    },
+    syrup: {
+        name: "Syrup Games",
+        developer: "Syrup Games",
+        icon: "icons/syrup.png",
+        category: "Games / Arcade",
+        description: "Alternative game launcher with unique browser-based titles.",
+        features: "Collection of indie games, daily challenges, leaderboards.",
+        additional: "Discover unique indie games you won't find anywhere else.",
+        link: "https://syrup.games/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Syrup+Games+Launcher", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Indie+Games"]
+    },
+    hextris: {
+        name: "Hextris",
+        developer: "Hextris",
+        icon: "icons/hextris.png",
+        category: "Games / Puzzle",
+        description: "Addictive puzzle game played on a hexagonal grid.",
+        features: "Fast-paced gameplay, score tracking, increasing difficulty.",
+        additional: "A unique twist on the classic tetris-style gameplay.",
+        link: "https://the-sawfish.github.io/seraph/games/hextris/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Hextris+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Hexagonal+Puzzle"]
     }
 };
 
@@ -2961,7 +2771,6 @@ document.addEventListener('DOMContentLoaded', function() {
     checkFirstVisit();
     removeLoadingClass();
     
-    // Initialize modules
     console.log('Initializing UserAuth...');
     UserAuth.init();
     console.log('Initializing DeveloperMode...');
@@ -2972,6 +2781,8 @@ document.addEventListener('DOMContentLoaded', function() {
     UpdateChecker.init();
     console.log('Initializing CommunityBoard...');
     CommunityBoard.init();
+    console.log('Initializing LikeSystem...');
+    LikeSystem.init();
     
     console.log('Sawfish App Store initialized');
 });
@@ -2999,7 +2810,6 @@ function initializeElements() {
 }
 
 function detectPWA() {
-    // Check if running in standalone mode (installed as PWA)
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
     const isStandaloneiOS = window.navigator.standalone === true;
     const isAndroidApp = document.referrer.includes('android-app://');
@@ -3181,7 +2991,6 @@ function setupServiceWorkerListeners() {
 }
 
 function setupDeveloperDashboardListeners() {
-    // Close/exit dashboard button - actually exits developer mode
     const closeBtn = document.getElementById('developer-close-dashboard');
     if (closeBtn) {
         closeBtn.addEventListener('click', () => {
@@ -3189,7 +2998,6 @@ function setupDeveloperDashboardListeners() {
         });
     }
     
-    // Dashboard navigation
     const navBtns = document.querySelectorAll('.developer-nav-btn');
     navBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -3198,25 +3006,21 @@ function setupDeveloperDashboardListeners() {
         });
     });
     
-    // Add new app button
     const addAppBtn = document.getElementById('add-new-app-btn');
     if (addAppBtn) {
         addAppBtn.addEventListener('click', () => DeveloperMode.showAddAppForm());
     }
     
-    // Publish announcement button
     const publishBtn = document.getElementById('publish-announcement');
     if (publishBtn) {
         publishBtn.addEventListener('click', () => DeveloperMode.publishAnnouncement());
     }
     
-    // Developer login button in sidebar
     const devLoginBtn = document.getElementById('developer-login-button');
     if (devLoginBtn) {
         devLoginBtn.addEventListener('click', () => DeveloperMode.toggleLogin());
     }
     
-    // Developer login modal handlers
     const devCancelBtn = document.getElementById('developer-cancel');
     if (devCancelBtn) {
         devCancelBtn.addEventListener('click', () => DeveloperMode.closeLoginModal());
@@ -3236,7 +3040,6 @@ function setupDeveloperDashboardListeners() {
         });
     }
     
-    // Exit developer mode button in dashboard
     const exitDevBtn = document.getElementById('exit-developer-mode');
     if (exitDevBtn) {
         exitDevBtn.addEventListener('click', () => {
@@ -3244,7 +3047,6 @@ function setupDeveloperDashboardListeners() {
         });
     }
     
-    // Close modal on backdrop click
     const devModal = document.getElementById('developer-login-modal');
     if (devModal) {
         const backdrop = devModal.querySelector('.modal-backdrop');
@@ -3253,7 +3055,6 @@ function setupDeveloperDashboardListeners() {
         }
     }
     
-    // Enter key to submit developer password
     const devPasswordInput = document.getElementById('developer-password');
     if (devPasswordInput) {
         devPasswordInput.addEventListener('keydown', (e) => {
@@ -3270,11 +3071,9 @@ function setupDeveloperDashboardListeners() {
 
 function setupAuthModalListeners() {
     // Already handled in UserAuth.setupAuthListeners()
-    // Additional auth modal setup can go here
 }
 
 function setupOfflineTagListeners() {
-    // Use event delegation for offline tags
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('offline-tag')) {
             e.stopPropagation();
@@ -3286,7 +3085,6 @@ function setupOfflineTagListeners() {
         }
     });
     
-    // Prevent card click when clicking offline tag
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('offline-tag')) {
             e.stopPropagation();
@@ -3384,7 +3182,6 @@ function openExpandedApp(appId) {
     
     AppState.expandedApp = appId;
     
-    // Check if this is Minecraft and show warning
     if (appId === 'minecraft') {
         MinecraftReGuest.showWarning(appId, app.name, app.link);
         return;
@@ -3417,7 +3214,6 @@ async function loadAppRatings(appId) {
         
         loadReviews(appId);
         
-        // Update main card grid
         const displayElement = document.querySelector(`[data-avg-rating="${appId}"]`);
         
         if (displayElement) {
@@ -3647,13 +3443,11 @@ async function submitReview(appId, rating, comment) {
         const textarea = document.getElementById(`comment-input-${appId}`);
         if (textarea) textarea.value = '';
         
-        // Clear rating selection
         const form = document.getElementById(`comment-form-${appId}`);
         if (form) {
             form.querySelectorAll('.rating-num-btn').forEach(btn => btn.classList.remove('active'));
         }
         
-        // Award achievement for rating
         Achievements.checkAchievements('submit_rating');
     } else {
         alert('Failed to submit review. Please try again.');
@@ -3692,7 +3486,6 @@ function displayReviews(appId, reviews) {
         const isDeveloperReview = review.isDeveloper === true;
         const reviewClass = isDeveloperReview ? 'comment-item developer-response' : 'comment-item';
         
-        // Get avatar or use initial
         let avatarHtml = '';
         if (review.userAvatar) {
             avatarHtml = `<img src="${review.userAvatar}" alt="${escapeHtml(review.user)}" class="comment-avatar-img">`;
@@ -3879,6 +3672,26 @@ function showNotification(message) {
         notification.style.animation = 'fadeOut 0.3s ease';
         setTimeout(() => notification.remove(), 300);
     }, 3000);
+}
+
+function getNumericRatingDisplay(rating) {
+    if (rating === null || rating === undefined) return '<span class="rating-na">—</span>';
+    return `<span class="rating-number">${rating.toFixed(1)}</span>`;
+}
+
+function updateDevOnlyElements() {
+    const devOnlyElements = document.querySelectorAll('.developer-only');
+    const isDev = DeveloperMode.isLoggedIn || UserAuth.isDeveloperMode;
+    
+    devOnlyElements.forEach(el => {
+        if (isDev) {
+            el.style.display = '';
+            el.classList.add('visible');
+        } else {
+            el.style.display = 'none';
+            el.classList.remove('visible');
+        }
+    });
 }
 
 // ============================================================
