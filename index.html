@@ -9,8 +9,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Sawfish Store">
-    <link rel="manifest" href="manifest.json?v=2">
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
     <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
     <link rel="version" href="version.json">
 </head>
@@ -1059,20 +1059,46 @@
             <section class="changelog-meta">
                 <div class="meta-card">
                     <div class="meta-label">Current Version</div>
-                    <div class="meta-value" id="changelog-version">2.3.0</div>
+                    <div class="meta-value" id="changelog-version">2.5.0</div>
                 </div>
                 <div class="meta-card">
                     <div class="meta-label">Last Updated</div>
-                    <div class="meta-value" id="changelog-date">January 9, 2026</div>
+                    <div class="meta-value" id="changelog-date">January 10, 2026</div>
                 </div>
                 <div class="meta-card">
                     <div class="meta-label">Total Changes</div>
-                    <div class="meta-value">142</div>
+                    <div class="meta-value">152</div>
                 </div>
             </section>
 
             <section class="changelog-timeline">
                 <article class="changelog-entry latest">
+                    <div class="entry-header">
+                        <div class="entry-version">v2.5.0</div>
+                        <div class="entry-date">January 10, 2026</div>
+                        <div class="entry-badge major">New Features</div>
+                    </div>
+                    <div class="entry-content">
+                        <h4>New Features</h4>
+                        <ul>
+                            <li>Added comprehensive achievements system with badges displayed next to user bio in profile</li>
+                            <li>New achievements: First Ratings, Rate All Apps, Make Comment, Start Petition, Resolve Petition</li>
+                            <li>Achievements display as a small clickable circle that shows details on click (not hover)</li>
+                            <li>Developers can now resolve petitions with a dedicated "Resolved" button</li>
+                            <li>Resolving a petition awards the "Petition Resolved" achievement to the petition author</li>
+                            <li>Added achievement badge display in user search results with detailed popup modal</li>
+                        </ul>
+                        <h4>Bug Fixes</h4>
+                        <ul>
+                            <li>Fixed profile picture upload - images now upload correctly to Firebase Storage with proper getDownloadURL handling</li>
+                            <li>Fixed user search - now shows all users immediately and searches across username, email, and bio</li>
+                            <li>Fixed achievement tracking - achievements now properly save to Firestore and localStorage</li>
+                            <li>Fixed petition resolution - developers can now mark petitions as resolved with proper status updates</li>
+                        </ul>
+                    </div>
+                </article>
+                
+                <article class="changelog-entry">
                     <div class="entry-header">
                         <div class="entry-version">v2.4.0</div>
                         <div class="entry-date">January 9, 2026</div>
@@ -1664,6 +1690,12 @@
                     <p id="profile-email">Not signed in</p>
                     <span class="profile-status" id="profile-status-badge">Guest</span>
                 </div>
+                <!-- Achievements Badge Display -->
+                <div class="profile-achievements-container" id="profile-achievements-container">
+                    <div class="achievements-circle" id="achievements-circle" title="View your achievements">
+                        <span class="achievements-count" id="achievements-count">0</span>
+                    </div>
+                </div>
             </div>
             
             <div class="profile-body">
@@ -1709,6 +1741,44 @@
             
             <div class="modal-footer">
                 <button id="profile-close" class="modal-cancel-btn" type="button">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ACHIEVEMENTS DETAIL MODAL ================= -->
+    <div id="achievements-modal" class="modal-overlay hidden" aria-hidden="true">
+        <div class="modal-backdrop"></div>
+        <div class="modal-container achievements-modal">
+            <div class="modal-header">
+                <h2>Your Achievements</h2>
+                <p class="modal-subtitle">Badges you've earned through your activity</p>
+            </div>
+            <div class="modal-body">
+                <div class="achievements-grid" id="achievements-grid">
+                    <!-- Achievements will be populated here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="achievements-close" class="modal-cancel-btn" type="button">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= USER ACHIEVEMENTS MODAL (for other users) ================= -->
+    <div id="user-achievements-modal" class="modal-overlay hidden" aria-hidden="true">
+        <div class="modal-backdrop"></div>
+        <div class="modal-container achievements-modal">
+            <div class="modal-header">
+                <h2 id="user-achievements-title">User Achievements</h2>
+                <p class="modal-subtitle">Badges this user has earned</p>
+            </div>
+            <div class="modal-body">
+                <div class="achievements-grid" id="user-achievements-grid">
+                    <!-- User achievements will be populated here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="user-achievements-close" class="modal-cancel-btn" type="button">Close</button>
             </div>
         </div>
     </div>
@@ -1939,7 +2009,7 @@
     }
 </script>
 
-<script src="app.js?v=2"></script>
+<script src="app.js"></script>
 
 </body>
 </html>
