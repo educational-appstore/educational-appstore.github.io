@@ -2101,7 +2101,7 @@ const appData = {
         description: "Falling sand physics simulator with over 500 elements. Create amazing sand art!",
         features: "500+ elements, realistic physics, cellular automata simulation.",
         additional: "A beloved falling sand game. Highly addictive and creative.",
-        link: "https://sandboxels.r74n.com/",
+        link: "https://the-sawfish.github.io/sandboxels/",
         screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Sandboxels+Simulation", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Sand+Physics"]
     },
     run3: {
@@ -2112,7 +2112,7 @@ const appData = {
         description: "Endless space runner with gravity-shifting tunnel gameplay. Run through infinite tunnels!",
         features: "Gravity-shifting mechanics, endless gameplay, challenging obstacles.",
         additional: "A beloved space runner. One of the most popular browser games.",
-        link: "https://run3play.com/",
+        link: "https://the-sawfish.github.io/Run3Final/",
         screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Run+3+Gameplay", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Space+Runner"]
     },
     blockblast: {
@@ -2123,18 +2123,18 @@ const appData = {
         description: "Fast-paced block placement puzzle with competitive scoring. Match blocks to score high!",
         features: "Competitive scoring, challenging puzzles, smooth animations.",
         additional: "A highly addictive block puzzle game. Works offline!",
-        link: "https://blockblaster.github.io/",
+        link: "https://aappqq.github.io/blockblast",
         screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Block+Blast", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Block+Puzzle"]
     },
     chat: {
         name: "Chat App",
-        developer: "Sawfish",
+        developer: "Jimeneutron",
         icon: "icons/chat.png",
         category: "Social / Messaging",
         description: "Real-time browser-based messaging with rooms and channels for students.",
         features: "Real-time messaging, rooms and channels, school-friendly.",
         additional: "Connect with classmates instantly. Works in browser.",
-        link: "https://the-sawfish.github.io/seraph/chat/",
+        link: "https://jimeneutron.github.io/chatapp/",
         screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Chat+App", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Real+Time+Messaging"]
     },
     call: {
@@ -2145,7 +2145,7 @@ const appData = {
         description: "Fast, simple browser-based voice calling interface for quick communication.",
         features: "WebRTC voice calls, low latency, simple interface.",
         additional: "Call classmates directly from your browser. No app needed!",
-        link: "https://the-sawfish.github.io/seraph/call/",
+        link: "https://the-sawfish.github.io/callapp",
         screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Call+App", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Voice+Calling"]
     },
     retrobowl: {
@@ -2156,7 +2156,7 @@ const appData = {
         description: "Classic American football management game with retro aesthetics and exciting gameplay.",
         features: "Team management, retro graphics, challenging gameplay.",
         additional: "The beloved American football game. Very popular!",
-        link: "https://retrobowl.com/",
+        link: "https://the-sawfish.github.io/seraph/games/retrobowl/index.html",
         screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Retro+Bowl", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Football+Game"]
     },
     novaos: {
@@ -2222,7 +2222,7 @@ const appData = {
         description: "Territory conquest game. Capture territory and defeat opponents in this addictive IO game!",
         features: "Territory capture mechanics, real-time multiplayer battles, power-ups.",
         additional: "A highly addictive territory conquest game. Capture as much territory as possible!",
-        link: "https://paper-io.com/",
+        link: "https://the-sawfish.github.io/seraph/games/paperio2/index.html",
         screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Paper+IO+2", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Territory+Capture"]
     },
     bobtherobber: {
@@ -2244,7 +2244,7 @@ const appData = {
         description: "Addictive fishing game. Catch fish and upgrade your gear to catch bigger fish!",
         features: "Hook fish of various sizes, upgrade your fishing gear, relaxing gameplay.",
         additional: "A simple yet addictive fishing game. IKR??",
-        link: "https://tinyfishinggame.com/",
+        link: "https://the-sawfish.github.io/seraph/games/tinyfishing",
         screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Tiny+Fishing", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Fish+Collection"]
     },
     ovo: {
@@ -2255,7 +2255,7 @@ const appData = {
         description: "Fast-paced parkour game. Jump, slide, and wall-run through challenging obstacle courses!",
         features: "Smooth parkour mechanics, challenging obstacle courses, speedrun times.",
         additional: "A beloved parkour platformer with fluid movement controls. So satisfying!",
-        link: "https://ovo2game.github.io/",
+        link: "https://the-sawfish.github.io/legalizenuclearbombs5.github.io/games/ovo.html",
         screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=OVO+Parkour", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Obstacle+Course"]
     },
     towerofdestiny: {
@@ -2266,7 +2266,7 @@ const appData = {
         description: "Exciting adventure game where you build and ascend a tower while avoiding obstacles!",
         features: "Procedurally generated levels, hero upgrades, boss battles, addictive gameplay.",
         additional: "The tower keeps getting taller as you progress. mhm!",
-        link: "https://towerofdestiny.io/",
+        link: "https://the-sawfish.github.io/legalizenuclearbombs5.github.io/games/Tower%20of%20Destiny",
         screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Tower+of+Destiny", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Ascend+the+Tower"]
     },
     lichess: {
@@ -2299,7 +2299,7 @@ const appData = {
         description: "Quick reflex challenge. Draw the most perfect circle you can and see how close you got!",
         features: "Circle drawing accuracy test, high scores, quick gameplay.",
         additional: "A simple but addictive skill game. How steady is your hand?",
-        link: "https://draw-a-circle.com/",
+        link: "https://the-sawfish.github.io/circle/",
         screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Draw+a+Circle", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Circle+Accuracy"]
     },
     gameportal: {
@@ -2310,7 +2310,7 @@ const appData = {
         description: "Central hub for all approved browser games in one convenient location.",
         features: "Game collection, easy access, regular updates, user suggestions.",
         additional: "The ultimate browser game hub. New games added regularly!",
-        link: "https://the-sawfish.github.io/seraph/",
+        link: "https://the-sawfish.github.io/game-portal/",
         screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Game+Portal", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Game+Collection"]
     },
     piskel: {
@@ -2431,7 +2431,7 @@ const appData = {
         description: "Alternative game launcher with unique browser-based titles.",
         features: "Collection of indie games, daily challenges, leaderboards.",
         additional: "Discover unique indie games you won't find anywhere else. Unique!",
-        link: "https://syrup.games/",
+        link: "https://jimeneutron.github.io",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Syrup+Games+Launcher", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Indie+Games"]
     },
     hextris: {
@@ -2442,7 +2442,7 @@ const appData = {
         description: "Addictive puzzle game played on a hexagonal grid. Twist and turn to survive!",
         features: "Fast-paced gameplay, score tracking, increasing difficulty.",
         additional: "A unique twist on the classic tetris-style gameplay. Challenging!",
-        link: "https://hextris.io/",
+        link: "https://codechefvit.github.io/DevTris/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Hextris+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Hexagonal+Puzzle"]
     },
     snowrider3d: {
@@ -2497,7 +2497,7 @@ const appData = {
         description: "Strategic territory conquest game with real-time battles. Conquer the map!",
         features: "Territory expansion, unit management, real-time multiplayer, strategy.",
         additional: "A highly strategic conquest game. Think tactically!",
-        link: "https://territorial.io/",
+        link: "https://the-sawfish.github.io/seraph/games/slope/index.html",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Territorial.io", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Territory+Conquest"]
     },
     slope: {
@@ -2519,7 +2519,7 @@ const appData = {
         description: "AI-powered task management and automation assistant. Boost your productivity!",
         features: "Smart scheduling, task prioritization, workflow automation, AI assistance.",
         additional: "Boost your productivity with AI assistance. Powerful!",
-        link: "https://agent.minimax.chat/",
+        link: "https://agent.minimax.io/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Agent+Minimax", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=AI+Assistant"],
         isDev: true
     },
@@ -2531,7 +2531,7 @@ const appData = {
         description: "Free static web hosting for GitHub repositories. Deploy your sites easily!",
         features: "Free hosting, custom domains, HTTPS support, easy deployment.",
         additional: "Deploy static sites directly from your repositories. Convenient!",
-        link: "https://pages.github.com/",
+        link: "https://github.io",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=GitHub+Pages", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Static+Hosting"],
         isDev: true
     }
