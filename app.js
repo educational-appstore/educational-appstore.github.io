@@ -9,7 +9,7 @@
 // ============================================================
 // VERSION CONFIGURATION
 // ============================================================
-const APP_VERSION = '2.6.0';
+const APP_VERSION = '2.8.0';
 const VERSION_CHECK_URL = '/update/version.json';
 
 // ============================================================
@@ -30,50 +30,71 @@ let auth = null;
 let storage = null;
 let app = null;
 
-try {
-    if (typeof firebase !== 'undefined') {
-        if (firebaseConfig.apiKey !== "YOUR_API_KEY_HERE") {
-            app = firebase.initializeApp(firebaseConfig);
-            db = firebase.firestore();
-            auth = firebase.auth();
-            storage = firebase.storage();
-            
-            if (auth) {
-                auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-                    .then(() => {
-                        console.log('Auth persistence set to LOCAL');
-                    })
-                    .catch((error) => {
-                        console.error('Error setting auth persistence:', error);
-                    });
-                
-                auth.onAuthStateChanged((user) => {
-                    if (user) {
-                        console.log('User signed in:', user.email);
-                        UserAuth.currentUser = {
-                            uid: user.uid,
-                            email: user.email,
-                            displayName: user.displayName || user.email.split('@')[0],
-                            emailVerified: user.emailVerified
-                        };
-                        UserAuth.updateAuthUI();
-                    } else {
-                        console.log('User signed out');
-                    }
-                });
-            }
-            
-            console.log('Firebase initialized successfully');
-            console.log('Project ID:', firebaseConfig.projectId);
-        } else {
-            console.warn('Firebase config not set - using local storage fallback');
-        }
-    } else {
-        console.warn('Firebase SDK not loaded - using local storage fallback');
+// Force Firebase initialization - NO LOCALSTORAGE FALLBACK FOR REVIEWS
+function initializeFirebase() {
+    if (typeof firebase === 'undefined') {
+        console.error('Firebase SDK not loaded');
+        return false;
     }
-} catch (error) {
-    console.error('Firebase initialization failed:', error);
-    console.warn('Falling back to local storage');
+    
+    if (firebaseConfig.apiKey === "YOUR_API_KEY_HERE") {
+        console.error('Firebase config not properly set');
+        return false;
+    }
+    
+    try {
+        app = firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+        auth = firebase.auth();
+        storage = firebase.storage();
+        
+        // Configure Firestore settings for better reliability
+        db.settings({
+            experimentalForceLongPolling: false,
+            merge: true
+        });
+        
+        console.log('Firebase initialized successfully');
+        console.log('Project ID:', firebaseConfig.projectId);
+        
+        // Set up auth persistence
+        if (auth) {
+            auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+                .then(() => {
+                    console.log('Auth persistence set to LOCAL');
+                })
+                .catch((error) => {
+                    console.error('Error setting auth persistence:', error);
+                });
+            
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    console.log('User signed in:', user.email);
+                    UserAuth.currentUser = {
+                        uid: user.uid,
+                        email: user.email,
+                        displayName: user.displayName || user.email.split('@')[0],
+                        emailVerified: user.emailVerified
+                    };
+                    UserAuth.updateAuthUI();
+                } else {
+                    console.log('User signed out');
+                }
+            });
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('Firebase initialization failed:', error);
+        return false;
+    }
+}
+
+// Initialize Firebase immediately
+const firebaseInitialized = initializeFirebase();
+
+if (!firebaseInitialized) {
+    console.error('CRITICAL: Firebase failed to initialize. Reviews will not work until Firebase is available.');
 }
 
 // ============================================================
@@ -1249,7 +1270,7 @@ const MinecraftReGuest = {
         return appId === this.MINECRAFT_APP_ID;
     },
     
-    showWarning: function(appId, appName, appLink) {
+    showWarning: function(appId, appName, appLink, app) {
         const overlay = document.getElementById('minecraft-warning-overlay');
         if (!overlay) return;
         
@@ -1267,6 +1288,7 @@ const MinecraftReGuest = {
         }
         
         if (launchBtn) {
+            launchBtn.textContent = 'Launch Game';
             launchBtn.onclick = () => {
                 window.open(appLink, '_blank');
                 this.closeWarning();
@@ -1274,12 +1296,33 @@ const MinecraftReGuest = {
         }
         
         if (cancelBtn) {
-            cancelBtn.onclick = () => this.closeWarning();
+            cancelBtn.textContent = 'View Info & Reviews';
+            cancelBtn.onclick = () => {
+                this.closeWarning();
+                if (app) {
+                    this.showExpandedView(app, appId);
+                }
+            };
         }
         
         overlay.classList.remove('hidden');
         overlay.setAttribute('aria-hidden', 'false');
+    },
+    
+    showExpandedView: function(app, appId) {
+        const content = buildExpandedContent(app, appId, 0, 0, {5:0,4:0,3:0,2:0,1:0});
+        elements.expandedContentWrapper.innerHTML = content;
+        
+        elements.expandedOverlay.classList.remove('hidden');
+        elements.expandedOverlay.setAttribute('aria-hidden', 'false');
+        
         document.body.style.overflow = 'hidden';
+        
+        loadAppRatings(appId);
+        
+        setupRatingForm(appId);
+        
+        subscribeToAppReviews(appId);
     },
     
     closeWarning: function() {
@@ -1287,8 +1330,515 @@ const MinecraftReGuest = {
         if (overlay) {
             overlay.classList.add('hidden');
             overlay.setAttribute('aria-hidden', 'true');
-            document.body.style.overflow = '';
         }
+    }
+};
+
+// ============================================================
+// OFFLINE TAG SYSTEM
+// ============================================================
+const OfflineTagSystem = {
+    OFFLINE_APPS: ['circle', 'blockblast'],
+    HACK_SITE_PASSWORD: '0128',
+    
+    isOfflineApp: function(appId) {
+        return this.OFFLINE_APPS.includes(appId);
+    },
+    
+    showHackPassword: function(appId, appName) {
+        showNotification(`${appName}: Hack site password is ${this.HACK_SITE_PASSWORD}`);
+    }
+};
+
+// ============================================================
+// COMMUNITY BOARD / FORUM SYSTEM
+// ============================================================
+const CommunityBoard = {
+    COLLECTION_NAME: 'sawfish_community_posts',
+    unsubscribe: null,
+    
+    init: function() {
+        this.setupPostForm();
+        this.setupFilterButtons();
+        this.loadPosts();
+        this.initUserSearch();
+    },
+    
+    setupPostForm: function() {
+        const form = document.getElementById('community-post-form');
+        if (!form) return;
+        
+        const submitBtn = form.querySelector('#community-submit-btn');
+        const textarea = form.querySelector('#community-post-input');
+        const charCurrent = form.querySelector('#char-current');
+        
+        if (textarea && charCurrent) {
+            textarea.addEventListener('input', () => {
+                charCurrent.textContent = textarea.value.length;
+            });
+        }
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Check if user is logged in
+            if (!UserAuth.isLoggedIn()) {
+                showNotification('Please log in to post');
+                UserAuth.openAuthModal();
+                return;
+            }
+            
+            const content = textarea?.value.trim();
+            if (!content) {
+                showNotification('Please enter a message');
+                return;
+            }
+            
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Posting...';
+            }
+            
+            try {
+                const petitionCheckbox = document.getElementById('post-is-petition');
+                const isPetition = petitionCheckbox ? petitionCheckbox.checked : false;
+                
+                await this.createPost(content, isPetition);
+                
+                if (textarea) textarea.value = '';
+                if (charCurrent) charCurrent.textContent = '0';
+                if (petitionCheckbox) petitionCheckbox.checked = false;
+                
+                showNotification('Message posted!');
+            } catch (error) {
+                console.error('Error posting:', error);
+                showNotification('Failed to post message');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Post';
+                }
+            }
+        });
+    },
+    
+    setupFilterButtons: function() {
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const filter = btn.dataset.filter;
+                
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                this.filterPosts(filter);
+            });
+        });
+    },
+    
+    filterPosts: function(filter) {
+        const container = document.getElementById('community-posts-container');
+        if (!container) return;
+        
+        const posts = container.querySelectorAll('.community-post');
+        posts.forEach(post => {
+            if (filter === 'all') {
+                post.style.display = '';
+            } else if (filter === 'chat') {
+                post.style.display = post.dataset.type === 'chat' ? '' : 'none';
+            } else if (filter === 'petition') {
+                post.style.display = post.dataset.type === 'petition' ? '' : 'none';
+            }
+        });
+    },
+    
+    createPost: async function(content, isPetition = false) {
+        const post = {
+            content: content,
+            author: UserAuth.isLoggedIn() ? UserAuth.getReviewUsername() : 'Anonymous',
+            authorId: UserAuth.isLoggedIn() ? UserAuth.currentUser.uid : null,
+            authorAvatar: UserAuth.isLoggedIn() ? UserAuth.getReviewAvatar() : null,
+            isAdmin: UserAuth.isDeveloperMode || DeveloperMode.isLoggedIn,
+            timestamp: new Date().toISOString(),
+            type: isPetition ? 'petition' : 'chat',
+            isPetition: isPetition,
+            isResolved: false
+        };
+        
+        if (!db) {
+            const posts = JSON.parse(localStorage.getItem('sawfish_community_posts') || '[]');
+            const newPost = {
+                id: Date.now().toString(),
+                ...post
+            };
+            posts.unshift(newPost);
+            localStorage.setItem('sawfish_community_posts', JSON.stringify(posts));
+            this.renderPosts(posts);
+            
+            if (isPetition) {
+                Achievements.checkAchievements('start_petition');
+            } else {
+                Achievements.checkAchievements('community_post');
+            }
+            return;
+        }
+        
+        try {
+            const docRef = await db.collection(this.COLLECTION_NAME).add(post);
+            this.renderPosts(await this.getPosts());
+            
+            if (isPetition) {
+                Achievements.checkAchievements('start_petition');
+            } else {
+                Achievements.checkAchievements('community_post');
+            }
+        } catch (error) {
+            console.error('Error creating post:', error);
+            throw error;
+        }
+    },
+    
+    deletePost: async function(postId) {
+        if (!DeveloperMode.isLoggedIn && !UserAuth.isDeveloperMode) {
+            showNotification('Only developers can delete posts');
+            return;
+        }
+        
+        if (!confirm('Are you sure you want to delete this post?')) return;
+        
+        try {
+            if (db) {
+                await db.collection(this.COLLECTION_NAME).doc(postId).delete();
+                this.renderPosts(await this.getPosts());
+                showNotification('Post deleted!');
+            } else {
+                const posts = JSON.parse(localStorage.getItem('sawfish_community_posts') || '[]');
+                const filteredPosts = posts.filter(p => p.id !== postId);
+                localStorage.setItem('sawfish_community_posts', JSON.stringify(filteredPosts));
+                this.renderPosts(filteredPosts);
+                showNotification('Post deleted!');
+            }
+        } catch (error) {
+            console.error('Error deleting post:', error);
+            showNotification('Failed to delete post');
+        }
+    },
+    
+    resolvePetition: async function(postId, authorId) {
+        if (!DeveloperMode.isLoggedIn && !UserAuth.isDeveloperMode) {
+            showNotification('Only developers can resolve petitions');
+            return;
+        }
+        
+        try {
+            if (db) {
+                await db.collection(this.COLLECTION_NAME).doc(postId).update({
+                    isResolved: true,
+                    resolvedAt: new Date().toISOString(),
+                    resolvedBy: UserAuth.getReviewUsername()
+                });
+                this.renderPosts(await this.getPosts());
+                showNotification('Petition marked as resolved!');
+                Achievements.checkAchievements('resolve_petition');
+                
+                // Award the petition success achievement to the author
+                if (authorId) {
+                    Achievements.checkAchievements('petition_success', { authorId: authorId });
+                }
+            } else {
+                const posts = JSON.parse(localStorage.getItem('sawfish_community_posts') || '[]');
+                const postIndex = posts.findIndex(p => p.id === postId);
+                if (postIndex !== -1) {
+                    posts[postIndex].isResolved = true;
+                    posts[postIndex].resolvedAt = new Date().toISOString();
+                    posts[postIndex].resolvedBy = UserAuth.getReviewUsername();
+                    localStorage.setItem('sawfish_community_posts', JSON.stringify(posts));
+                    this.renderPosts(posts);
+                    showNotification('Petition marked as resolved!');
+                    Achievements.checkAchievements('resolve_petition');
+                }
+            }
+        } catch (error) {
+            console.error('Error resolving petition:', error);
+            showNotification('Failed to resolve petition');
+        }
+    },
+    
+    getPosts: async function() {
+        if (!db) {
+            return JSON.parse(localStorage.getItem('sawfish_community_posts') || '[]');
+        }
+        
+        try {
+            const snapshot = await db.collection(this.COLLECTION_NAME)
+                .orderBy('timestamp', 'desc')
+                .limit(50)
+                .get();
+            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        } catch (error) {
+            console.error('Error getting posts:', error);
+            return [];
+        }
+    },
+    
+    loadPosts: async function() {
+        const container = document.getElementById('community-posts-container');
+        if (!container) return;
+        
+        if (db) {
+            this.unsubscribe = db.collection(this.COLLECTION_NAME)
+                .orderBy('timestamp', 'desc')
+                .limit(50)
+                .onSnapshot((snapshot) => {
+                    const posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    this.renderPosts(posts);
+                }, (error) => {
+                    console.error('Error subscribing to posts:', error);
+                });
+        } else {
+            const posts = await this.getPosts();
+            this.renderPosts(posts);
+        }
+    },
+    
+    renderPosts: function(posts) {
+        const container = document.getElementById('community-posts-container');
+        if (!container) return;
+        
+        if (!posts || posts.length === 0) {
+            container.innerHTML = '<div class="community-empty"><p>No posts yet. Be the first to share something!</p></div>';
+            return;
+        }
+        
+        container.innerHTML = posts.map(post => {
+            const isPetition = post.isPetition === true || post.type === 'petition';
+            const isResolved = post.isResolved === true;
+            const isAdmin = post.isAdmin === true;
+            
+            let badgeHtml = '';
+            if (isPetition) {
+                badgeHtml = `<span class="post-badge ${isResolved ? 'resolved' : 'petition'}">${isResolved ? 'Resolved' : 'Petition'}</span>`;
+            } else if (isAdmin) {
+                badgeHtml = `<span class="post-badge admin">Announcement</span>`;
+            }
+            
+            const formattedDate = formatDate(post.timestamp);
+            
+            // Get author avatar or use initial
+            let avatarHtml = '';
+            if (post.authorAvatar) {
+                avatarHtml = `<img src="${post.authorAvatar}" alt="${escapeHtml(post.author)}" class="post-author-avatar">`;
+            } else {
+                const initial = post.author.charAt(0).toUpperCase();
+                avatarHtml = `<div class="post-author-avatar-default">${initial}</div>`;
+            }
+            
+            let resolveButton = '';
+            if (isPetition && !isResolved && (DeveloperMode.isLoggedIn || UserAuth.isDeveloperMode)) {
+                resolveButton = `<button class="resolve-petition-btn" data-post-id="${post.id}" data-author-id="${post.authorId || ''}" title="Mark as Resolved">✓ Resolve</button>`;
+            }
+            
+            let deleteButton = '';
+            if (DeveloperMode.isLoggedIn || UserAuth.isDeveloperMode) {
+                deleteButton = `<button class="delete-post-btn" data-post-id="${post.id}" title="Delete Post">🗑️</button>`;
+            }
+            
+            let resolvedInfo = '';
+            if (isResolved) {
+                resolvedInfo = `<div class="resolved-info">✓ Resolved by ${escapeHtml(post.resolvedBy || 'Developer')}</div>`;
+            }
+            
+            return `
+                <article class="community-post ${isPetition ? 'petition' : ''} ${isResolved ? 'resolved' : ''}" data-type="${post.type}" data-id="${post.id}">
+                    <div class="post-header">
+                        <div class="post-author-info">
+                            ${avatarHtml}
+                            <div class="post-author-details">
+                                <span class="post-author-name">${escapeHtml(post.author)}</span>
+                                <span class="post-date">${formattedDate}</span>
+                            </div>
+                        </div>
+                        <div class="post-badges">
+                            ${badgeHtml}
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        ${escapeHtml(post.content)}
+                    </div>
+                    ${resolvedInfo}
+                    <div class="post-actions">
+                        ${resolveButton}
+                        ${deleteButton}
+                    </div>
+                </article>
+            `;
+        }).join('');
+        
+        // Add click handlers for resolve buttons
+        container.querySelectorAll('.resolve-petition-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const postId = btn.dataset.postId;
+                const authorId = btn.dataset.authorId;
+                if (confirm('Mark this petition as resolved? The author will receive an award.')) {
+                    this.resolvePetition(postId, authorId);
+                }
+            });
+        });
+        
+        // Add click handlers for delete buttons
+        container.querySelectorAll('.delete-post-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const postId = btn.dataset.postId;
+                this.deletePost(postId);
+            });
+        });
+    },
+    
+    initUserSearch: function() {
+        const searchInput = document.getElementById('community-user-search');
+        const usersSection = document.getElementById('community-users-section');
+        const usersList = document.getElementById('community-users-list');
+        
+        if (!searchInput || !usersSection || !usersList) return;
+        
+        // Load all users immediately on page load
+        this.loadAllUsers();
+        
+        // Show users section when input is focused
+        searchInput.addEventListener('focus', () => {
+            usersSection.classList.remove('hidden');
+            this.loadAllUsers();
+        });
+        
+        // Filter users on input
+        searchInput.addEventListener('input', () => {
+            this.filterUsers(searchInput.value);
+        });
+        
+        // Close on click outside
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !usersSection.contains(e.target)) {
+                usersSection.classList.add('hidden');
+            }
+        });
+    },
+    
+    loadAllUsers: async function() {
+        const usersList = document.getElementById('community-users-list');
+        if (!usersList) return;
+        
+        usersList.innerHTML = '<div class="loading-users">Loading users...</div>';
+        
+        try {
+            let users = [];
+            
+            if (db) {
+                const snapshot = await db.collection('users').get();
+                users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            } else {
+                const storedUsers = JSON.parse(localStorage.getItem('sawfish_users') || '{}');
+                users = Object.values(storedUsers).map(u => ({
+                    uid: u.uid,
+                    username: u.username,
+                    bio: u.bio || '',
+                    email: u.email,
+                    achievements: u.achievements || [],
+                    createdAt: u.createdAt
+                }));
+                
+                // Also add current local user if exists
+                if (UserAuth.currentUser) {
+                    const existingUser = users.find(u => u.uid === UserAuth.currentUser.uid);
+                    if (!existingUser) {
+                        users.unshift({
+                            uid: UserAuth.currentUser.uid,
+                            username: UserAuth.getReviewUsername(),
+                            bio: UserAuth.userProfile?.bio || '',
+                            achievements: UserAuth.userProfile?.achievements || [],
+                            createdAt: UserAuth.userProfile?.createdAt
+                        });
+                    }
+                }
+            }
+            
+            this.renderUsers(users);
+        } catch (error) {
+            console.error('Error loading users:', error);
+            usersList.innerHTML = '<div class="error-loading">Failed to load users</div>';
+        }
+    },
+    
+    filterUsers: function(searchTerm) {
+        const users = document.querySelectorAll('.community-user-card');
+        const term = searchTerm.toLowerCase().trim();
+        
+        users.forEach(card => {
+            const username = card.dataset.username?.toLowerCase() || '';
+            const bio = card.dataset.bio?.toLowerCase() || '';
+            const email = card.dataset.email?.toLowerCase() || '';
+            
+            const matches = !term || 
+                username.includes(term) || 
+                bio.includes(term) ||
+                email.includes(term);
+            
+            card.style.display = matches ? '' : 'none';
+        });
+    },
+    
+    renderUsers: function(users) {
+        const usersList = document.getElementById('community-users-list');
+        if (!usersList) return;
+        
+        if (!users || users.length === 0) {
+            usersList.innerHTML = '<div class="no-users">No users found</div>';
+            return;
+        }
+        
+        usersList.innerHTML = users.map(user => {
+            const username = user.username || 'Unknown';
+            const bio = user.bio || '';
+            const initial = username.charAt(0).toUpperCase();
+            
+            // Get achievements
+            const achievements = user.achievements || [];
+            let achievementsHtml = '';
+            if (achievements.length > 0) {
+                achievementsHtml = achievements.slice(0, 5).map(achId => {
+                    const ach = Achievements.getAchievementInfo(achId);
+                    return `<span class="achievement-badge-small" title="${ach.name}: ${ach.description}">${ach.icon}</span>`;
+                }).join('');
+                if (achievements.length > 5) {
+                    achievementsHtml += `<span class="achievement-more">+${achievements.length - 5}</span>`;
+                }
+            }
+            
+            // Use profile picture or default avatar
+            let avatarHtml = '';
+            if (user.avatarUrl) {
+                avatarHtml = `<div class="community-user-avatar"><img src="${user.avatarUrl}" alt="${username}" class="user-avatar-img"></div>`;
+            } else {
+                avatarHtml = `<div class="community-user-avatar"><div class="user-avatar-initial">${initial}</div></div>`;
+            }
+            
+            return `
+                <div class="community-user-card" 
+                     data-username="${escapeHtml(username)}" 
+                     data-bio="${escapeHtml(bio)}"
+                     data-email="${escapeHtml(user.email || '')}"
+                     data-uid="${user.uid}"
+                     onclick="UserAuth.openUserProfile('${user.uid}')">
+                    ${avatarHtml}
+                    <div class="user-card-info">
+                        <div class="user-card-name">${escapeHtml(username)}</div>
+                        ${bio ? `<div class="user-card-bio">${escapeHtml(bio)}</div>` : ''}
+                        ${achievementsHtml ? `<div class="user-card-achievements">${achievementsHtml}</div>` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
     }
 };
 
@@ -1297,39 +1847,116 @@ const MinecraftReGuest = {
 // ============================================================
 const DeveloperMode = {
     isLoggedIn: false,
-    currentTab: 'dashboard',
     
     init: function() {
         this.updateLoginButton();
-        this.setupNavigation();
+        // Initialize developer page content visibility
+        this.updateDeveloperPageContent(this.isLoggedIn);
     },
     
     updateLoginButton: function() {
-        const loginBtn = document.getElementById('developer-login-button');
-        if (loginBtn) {
-            loginBtn.textContent = this.isLoggedIn ? 'Developer Dashboard' : 'Developer Login';
-            loginBtn.classList.toggle('logged-in', this.isLoggedIn);
+        const btn = document.getElementById('developer-login-button');
+        const statusText = btn?.querySelector('.developer-status-text');
+        const indicator = document.getElementById('developer-logged-in-indicator');
+        
+        if (this.isLoggedIn) {
+            if (statusText) statusText.textContent = 'Developer ✓';
+            btn?.classList.add('logged-in');
+            // Show the logged in indicator
+            if (indicator) {
+                indicator.classList.remove('hidden');
+                btn.style.display = 'none';
+            }
+        } else {
+            if (statusText) statusText.textContent = 'Developer';
+            btn?.classList.remove('logged-in');
+            // Hide the logged in indicator
+            if (indicator) {
+                indicator.classList.add('hidden');
+                btn.style.display = 'flex';
+            }
         }
+        
+        // Update dev-only elements visibility
+        updateDevOnlyElements();
     },
     
-    setupNavigation: function() {
-        // Navigation is handled in setupDeveloperDashboardListeners
+    login: function(password) {
+        if (password === '120622') {
+            this.isLoggedIn = true;
+            sessionStorage.setItem('developer_logged_in', 'true');
+            this.updateLoginButton();
+            
+            const modal = document.getElementById('developer-login-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.setAttribute('aria-hidden', 'true');
+            }
+            
+            showNotification('Developer mode activated');
+            
+            UserAuth.isDeveloperMode = true;
+            UserAuth.currentUser = {
+                uid: 'developer',
+                displayName: 'Developer'
+            };
+            
+            // Show developer content and hide login prompt
+            this.updateDeveloperPageContent(true);
+            updateDevOnlyElements();
+            return true;
+        }
+        return false;
+    },
+    
+    logout: function() {
+        this.isLoggedIn = false;
+        sessionStorage.removeItem('developer_logged_in');
+        this.updateLoginButton();
+        
+        const dashboard = document.getElementById('developer-dashboard');
+        if (dashboard) {
+            dashboard.classList.add('hidden');
+            dashboard.setAttribute('aria-hidden', 'true');
+        }
+        
+        UserAuth.isDeveloperMode = false;
+        
+        // Hide developer content and show login prompt
+        this.updateDeveloperPageContent(false);
+        updateDevOnlyElements();
+        
+        showNotification('Developer mode deactivated');
+    },
+    
+    updateDeveloperPageContent: function(isLoggedIn) {
+        const loginRequired = document.getElementById('developer-login-required');
+        const content = document.getElementById('developer-content');
+        
+        if (loginRequired) {
+            loginRequired.style.display = isLoggedIn ? 'none' : 'flex';
+        }
+        
+        if (content) {
+            content.style.display = isLoggedIn ? 'block' : 'none';
+            // Populate developer grids when showing content
+            if (isLoggedIn) {
+                populateDeveloperResources();
+                populateDeveloperProductivity();
+                populateDeveloperPublishing();
+            }
+        }
     },
     
     toggleLogin: function() {
         if (this.isLoggedIn) {
-            this.showDashboard();
+            this.logout();
         } else {
-            this.openLoginModal();
-        }
-    },
-    
-    openLoginModal: function() {
-        const modal = document.getElementById('developer-login-modal');
-        if (modal) {
-            modal.classList.remove('hidden');
-            modal.setAttribute('aria-hidden', 'false');
-            document.getElementById('developer-password').focus();
+            const modal = document.getElementById('developer-login-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.setAttribute('aria-hidden', 'false');
+            }
         }
     },
     
@@ -1341,194 +1968,44 @@ const DeveloperMode = {
         }
     },
     
-    login: function(password) {
-        if (password === this.constructor.prototype.DEVELOPER_PASSWORD || password === '120622') {
-            this.isLoggedIn = true;
-            this.updateLoginButton();
-            this.closeLoginModal();
-            this.showDashboard();
-            updateDevOnlyElements();
-            console.log('Developer mode activated');
-            return true;
-        }
-        return false;
-    },
-    
-    logout: function() {
-        this.isLoggedIn = false;
-        this.updateLoginButton();
-        this.closeDashboard();
-        updateDevOnlyElements();
-        console.log('Developer mode deactivated');
-        switchTab('home');
-    },
-    
-    showDashboard: function() {
-        const dashboard = document.getElementById('developer-dashboard');
-        if (dashboard) {
-            dashboard.classList.remove('hidden');
-            dashboard.setAttribute('aria-hidden', 'false');
-            document.body.style.overflow = 'hidden';
-        }
-    },
-    
-    closeDashboard: function() {
-        const dashboard = document.getElementById('developer-dashboard');
-        if (dashboard) {
-            dashboard.classList.add('hidden');
-            dashboard.setAttribute('aria-hidden', 'true');
-            document.body.style.overflow = '';
-        }
-    },
-    
     showAddAppForm: function() {
-        const formContainer = document.getElementById('developer-add-app-form');
-        if (formContainer) {
-            formContainer.classList.toggle('hidden');
-        }
+        showNotification('App management - Coming soon!');
     },
     
     publishAnnouncement: function() {
-        const announcementText = document.getElementById('developer-announcement-text').value.trim();
-        const announcementPriority = document.getElementById('developer-announcement-priority').value;
+        const title = document.getElementById('announcement-title')?.value.trim();
+        const text = document.getElementById('announcement-text')?.value.trim();
+        const type = document.getElementById('announcement-type')?.value || 'info';
         
-        if (!announcementText) {
-            showNotification('Please enter announcement text');
+        if (!title || !text) {
+            showNotification('Please fill in both title and message');
             return;
         }
         
         const announcement = {
-            text: announcementText,
-            priority: announcementPriority,
-            timestamp: Date.now()
+            title,
+            text,
+            type,
+            timestamp: new Date().toISOString()
         };
         
         if (db) {
-            db.collection('announcements').add(announcement)
+            db.collection('sawfish_announcements').add(announcement)
                 .then(() => {
                     showNotification('Announcement published!');
-                    document.getElementById('developer-announcement-text').value = '';
+                    document.getElementById('announcement-title').value = '';
+                    document.getElementById('announcement-text').value = '';
                 })
                 .catch(error => {
                     console.error('Error publishing announcement:', error);
                     showNotification('Failed to publish announcement');
                 });
         } else {
-            // Offline fallback
             const announcements = JSON.parse(localStorage.getItem('sawfish_announcements') || '[]');
-            announcements.unshift(announcement);
+            announcements.unshift({ id: Date.now().toString(), ...announcement });
             localStorage.setItem('sawfish_announcements', JSON.stringify(announcements));
-            showNotification('Announcement published (offline)!');
-            document.getElementById('developer-announcement-text').value = '';
+            showNotification('Announcement published! (Offline mode)');
         }
-    }
-};
-
-// ============================================================
-// SEARCH SYSTEM
-// ============================================================
-const SearchSystem = {
-    searchInput: null,
-    resultsContainer: null,
-    
-    init: function() {
-        this.searchInput = document.getElementById('search-input');
-        this.resultsContainer = document.getElementById('search-results');
-        
-        if (this.searchInput) {
-            this.searchInput.addEventListener('input', (e) => this.handleSearch(e.target.value));
-            this.searchInput.addEventListener('focus', () => {
-                if (this.searchInput.value.trim()) {
-                    this.handleSearch(this.searchInput.value);
-                }
-            });
-        }
-        
-        // Setup filter buttons
-        const filterBtns = document.querySelectorAll('.search-filter-btn');
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                filterBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                const filter = btn.dataset.filter;
-                const query = this.searchInput?.value.trim() || '';
-                this.handleSearch(query, filter);
-            });
-        });
-    },
-    
-    handleSearch: function(query, forcedCategory = null) {
-        if (!query && !forcedCategory) {
-            this.resultsContainer.innerHTML = '';
-            return;
-        }
-        
-        const filterBtns = document.querySelectorAll('.search-filter-btn');
-        const activeBtn = document.querySelector('.search-filter-btn.active');
-        const category = forcedCategory || (activeBtn ? activeBtn.dataset.filter : 'all');
-        
-        let results = Object.entries(appData);
-        
-        // Apply category filter
-        if (category && category !== 'all') {
-            results = results.filter(([id, app]) => 
-                app.category.toLowerCase().includes(category.toLowerCase())
-            );
-        }
-        
-        // Apply text search
-        if (query) {
-            const lowerQuery = query.toLowerCase();
-            results = results.filter(([id, app]) => 
-                app.name.toLowerCase().includes(lowerQuery) ||
-                app.description.toLowerCase().includes(lowerQuery) ||
-                app.developer.toLowerCase().includes(lowerQuery) ||
-                app.category.toLowerCase().includes(lowerQuery)
-            );
-        }
-        
-        this.displayResults(results.slice(0, 20));
-    },
-    
-    displayResults: function(results) {
-        if (!this.resultsContainer) return;
-        
-        if (results.length === 0) {
-            this.resultsContainer.innerHTML = '<p class="muted">No apps found matching your search.</p>';
-            return;
-        }
-        
-        this.resultsContainer.innerHTML = results.map(([id, app]) => {
-            const isMinecraft = id === 'minecraft';
-            const reguestTag = isMinecraft ? '<span class="re-guest-tag">Re-Guest Required</span>' : '';
-            
-            return `
-                <article class="app-card" data-app="${id}">
-                    <div class="card-icon">
-                        <img src="${app.icon}" alt="${app.name} Icon" loading="lazy">
-                    </div>
-                    <div class="card-content">
-                        <div class="card-header-row">
-                            <h4>${app.name}</h4>
-                            ${reguestTag}
-                        </div>
-                        <p class="card-developer">${app.developer}</p>
-                        <p class="card-desc">${app.description.substring(0, 100)}${app.description.length > 100 ? '...' : ''}</p>
-                        <span class="app-category">${app.category}</span>
-                    </div>
-                </article>
-            `;
-        }).join('');
-        
-        // Re-attach click handlers
-        this.resultsContainer.querySelectorAll('.app-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const appId = card.dataset.app;
-                if (appId) {
-                    openExpandedApp(appId);
-                }
-            });
-        });
     }
 };
 
@@ -1541,540 +2018,473 @@ const UpdateChecker = {
     },
     
     checkForUpdates: function() {
-        // Version checking can be implemented here
-        // For now, just log that we're running the latest version
-        console.log('Running version:', APP_VERSION);
+        const status = document.getElementById('update-status');
+        const action = document.getElementById('update-action');
+        
+        if (status) status.textContent = 'Checking for updates...';
+        
+        fetch(VERSION_CHECK_URL + '?t=' + Date.now())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Version check failed');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const currentVersion = APP_VERSION;
+                const latestVersion = data.version;
+                
+                if (this.compareVersions(latestVersion, currentVersion) > 0) {
+                    if (status) status.textContent = `Update available (v${latestVersion})`;
+                    if (action) {
+                        action.innerHTML = '<span class="btn-text">Update</span><span class="btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></span>';
+                    }
+                    
+                    if (data.announcement) {
+                        const banner = document.getElementById('announcement-banner');
+                        const bannerText = banner?.querySelector('.announcement-text');
+                        if (bannerText) bannerText.textContent = data.announcement;
+                        if (banner) banner.classList.remove('hidden');
+                    }
+                } else {
+                    if (status) status.textContent = 'Up to date';
+                    if (action) {
+                        action.innerHTML = '<span class="btn-text">Up to date</span>';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Update check failed:', error);
+                if (status) status.textContent = 'Unable to check for updates';
+            });
+    },
+    
+    compareVersions: function(v1, v2) {
+        const parts1 = v1.split('.').map(Number);
+        const parts2 = v2.split('.').map(Number);
+        
+        for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+            const p1 = parts1[i] || 0;
+            const p2 = parts2[i] || 0;
+            
+            if (p1 > p2) return 1;
+            if (p1 < p2) return -1;
+        }
+        
+        return 0;
     }
 };
 
 // ============================================================
-// COMMUNITY BOARD
+// FIRESTORE COMMENTS / RATINGS SYSTEM
 // ============================================================
-const CommunityBoard = {
-    POST_MAX_LENGTH: 1000,
+const FirestoreComments = {
+    COLLECTION_NAME: 'sawfish_ratings',
+    firebaseReady: false,
     
     init: function() {
-        this.setupPostForm();
-        this.loadPosts();
-        this.setupSearchListener();
-    },
-    
-    setupPostForm: function() {
-        const postForm = document.getElementById('community-post-form');
-        if (postForm) {
-            postForm.addEventListener('submit', (e) => this.handlePostSubmit(e));
-        }
-        
-        const charCount = document.getElementById('post-char-count');
-        const postText = document.getElementById('community-post-text');
-        if (charCount && postText) {
-            postText.addEventListener('input', () => {
-                const length = postText.value.length;
-                charCount.textContent = `${length}/${this.POST_MAX_LENGTH}`;
-                charCount.style.color = length > this.POST_MAX_LENGTH ? '#ff4444' : '';
-            });
+        // Check if Firebase is properly initialized
+        if (db && typeof db.collection === 'function') {
+            this.firebaseReady = true;
+            console.log('Firestore Comments: Firebase is ready');
+        } else {
+            console.warn('Firestore Comments: Firebase not available, using localStorage');
+            this.firebaseReady = false;
         }
     },
     
-    handlePostSubmit: async function(event) {
-        event.preventDefault();
-        
-        const postText = document.getElementById('community-post-text');
-        const isPetition = document.getElementById('community-post-petition').checked;
-        
-        if (!postText) return;
-        
-        const text = postText.value.trim();
-        
-        if (!text) {
-            showNotification('Please enter a message');
-            return;
-        }
-        
-        if (text.length > this.POST_MAX_LENGTH) {
-            showNotification(`Post is too long. Please reduce by ${text.length - this.POST_MAX_LENGTH} characters.`);
-            return;
-        }
-        
-        const userId = UserAuth.currentUser?.uid || 'anonymous';
-        const username = UserAuth.getReviewUsername();
-        const userAvatar = UserAuth.getReviewAvatar();
-        
-        const post = {
-            text: text,
-            author: username,
-            authorId: userId,
-            userAvatar: userAvatar,
-            timestamp: Date.now(),
-            likes: 0,
-            likedBy: [],
-            isPetition: isPetition,
-            petitionSignatures: isPetition ? [username] : [],
-            comments: []
+    saveReview: async function(appId, rating, comment, user, isDeveloper, userAvatar) {
+        const review = {
+            appId,
+            rating,
+            comment,
+            user,
+            userAvatar,
+            isDeveloper: isDeveloper === true,
+            timestamp: new Date().toISOString()
         };
         
-        try {
-            if (db) {
-                await db.collection('sawfish_community_posts').add(post);
-            } else {
-                // Offline mode - store in localStorage
-                const posts = JSON.parse(localStorage.getItem('sawfish_community_posts') || '[]');
-                post.id = 'local_' + Date.now();
-                posts.unshift(post);
-                localStorage.setItem('sawfish_community_posts', JSON.stringify(posts));
+        console.log('Saving review to Firebase:', { appId, rating, user });
+        
+        // ALWAYS try Firebase first, only fall back to localStorage if it fails
+        if (this.firebaseReady) {
+            try {
+                const docRef = await db.collection(this.COLLECTION_NAME).add(review);
+                console.log('Review saved to Firebase with ID:', docRef.id);
+                return { id: docRef.id, ...review };
+            } catch (error) {
+                console.error('Firebase save failed, falling back to localStorage:', error);
             }
-            
-            postText.value = '';
-            document.getElementById('community-post-petition').checked = false;
-            document.getElementById('post-char-count').textContent = `0/${this.POST_MAX_LENGTH}`;
-            
-            this.loadPosts();
-            Achievements.checkAchievements(isPetition ? 'start_petition' : 'community_post');
-            showNotification(isPetition ? 'Petition created!' : 'Post published!');
-        } catch (error) {
-            console.error('Error creating post:', error);
-            showNotification('Failed to publish post');
         }
+        
+        // Fallback to localStorage
+        console.log('Saving review to localStorage');
+        const reviews = JSON.parse(localStorage.getItem('sawfish_ratings') || '[]');
+        const newReview = {
+            id: Date.now().toString(),
+            ...review
+        };
+        reviews.push(newReview);
+        localStorage.setItem('sawfish_ratings', JSON.stringify(reviews));
+        return newReview;
     },
     
-    loadPosts: async function() {
-        const postsContainer = document.getElementById('community-posts-container');
-        if (!postsContainer) return;
+    getReviews: async function(appId) {
+        console.log('Loading reviews for app:', appId);
         
-        try {
-            let posts = [];
-            
-            if (db) {
-                const snapshot = await db.collection('sawfish_community_posts')
+        if (this.firebaseReady) {
+            try {
+                const snapshot = await db.collection(this.COLLECTION_NAME)
+                    .where('appId', '==', appId)
                     .orderBy('timestamp', 'desc')
-                    .limit(50)
                     .get();
-                posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            } else {
-                const storedPosts = JSON.parse(localStorage.getItem('sawfish_community_posts') || '[]');
-                posts = storedPosts.sort((a, b) => b.timestamp - a.timestamp).slice(0, 50);
-            }
-            
-            this.displayPosts(posts, postsContainer);
-        } catch (error) {
-            console.error('Error loading posts:', error);
-            postsContainer.innerHTML = '<p class="muted">Failed to load posts.</p>';
-        }
-    },
-    
-    displayPosts: function(posts, container) {
-        if (posts.length === 0) {
-            container.innerHTML = '<p class="muted">No posts yet. Be the first to share something!</p>';
-            return;
-        }
-        
-        container.innerHTML = posts.map(post => this.createPostHTML(post)).join('');
-        
-        // Attach event listeners
-        container.querySelectorAll('.like-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const postId = btn.dataset.postId;
-                this.handleLike(postId);
-            });
-        });
-        
-        // Attach click handlers for petition signatures
-        container.querySelectorAll('.sign-petition-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const postId = btn.dataset.postId;
-                this.handleSignPetition(postId);
-            });
-        });
-    },
-    
-    createPostHTML: function(post) {
-        const date = new Date(post.timestamp).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-        
-        const petitionBadge = post.isPetition ? '<span class="petition-badge">📢 Petition</span>' : '';
-        const signatureCount = post.petitionSignatures?.length || 0;
-        const signatureSection = post.isPetition ? 
-            `<div class="petition-signatures">${signatureCount} signature${signatureCount !== 1 ? 's' : ''}</div>` : '';
-        
-        let avatarHtml = '';
-        if (post.userAvatar) {
-            avatarHtml = `<img src="${post.userAvatar}" alt="${post.author}" class="post-avatar-img">`;
-        } else {
-            avatarHtml = `<div class="post-avatar">${post.author.charAt(0).toUpperCase()}</div>`;
-        }
-        
-        return `
-            <article class="community-post" data-post-id="${post.id}">
-                <div class="post-header">
-                    <div class="post-author-info">
-                        ${avatarHtml}
-                        <div class="post-author-details">
-                            <span class="post-author">${escapeHtml(post.author)}</span>
-                            <span class="post-date">${date}</span>
-                        </div>
-                    </div>
-                    ${petitionBadge}
-                </div>
-                <p class="post-text">${escapeHtml(post.text)}</p>
-                ${signatureSection}
-                <div class="post-actions">
-                    <button class="like-btn" data-post-id="${post.id}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                        </svg>
-                        <span>${post.likes || 0}</span>
-                    </button>
-                    ${post.isPetition ? `
-                        <button class="sign-petition-btn" data-post-id="${post.id}">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                                <circle cx="9" cy="7" r="4"/>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                            </svg>
-                            <span>Sign</span>
-                        </button>
-                    ` : ''}
-                </div>
-            </article>
-        `;
-    },
-    
-    handleLike: function(postId) {
-        const posts = JSON.parse(localStorage.getItem('sawfish_community_posts') || '[]');
-        const postIndex = posts.findIndex(p => p.id === postId);
-        
-        if (postIndex !== -1) {
-            const currentUser = UserAuth.currentUser?.uid || 'anonymous';
-            
-            if (!posts[postIndex].likedBy) {
-                posts[postIndex].likedBy = [];
-            }
-            
-            const alreadyLiked = posts[postIndex].likedBy.includes(currentUser);
-            
-            if (alreadyLiked) {
-                posts[postIndex].likes = (posts[postIndex].likes || 1) - 1;
-                posts[postIndex].likedBy = posts[postIndex].likedBy.filter(id => id !== currentUser);
-                showNotification('Like removed');
-            } else {
-                posts[postIndex].likes = (posts[postIndex].likes || 0) + 1;
-                posts[postIndex].likedBy.push(currentUser);
-                showNotification('Post liked!');
-            }
-            
-            localStorage.setItem('sawfish_community_posts', JSON.stringify(posts));
-            this.loadPosts();
-        }
-    },
-    
-    handleSignPetition: function(postId) {
-        const posts = JSON.parse(localStorage.getItem('sawfish_community_posts') || '[]');
-        const postIndex = posts.findIndex(p => p.id === postId);
-        
-        if (postIndex !== -1) {
-            const username = UserAuth.getReviewUsername();
-            
-            if (!posts[postIndex].petitionSignatures) {
-                posts[postIndex].petitionSignatures = [];
-            }
-            
-            const alreadySigned = posts[postIndex].petitionSignatures.includes(username);
-            
-            if (alreadySigned) {
-                showNotification('You have already signed this petition');
-            } else {
-                posts[postIndex].petitionSignatures.push(username);
-                showNotification('Petition signed!');
-                Achievements.checkAchievements('community_post');
-                this.loadPosts();
-            }
-            
-            localStorage.setItem('sawfish_community_posts', JSON.stringify(posts));
-        }
-    },
-    
-    setupSearchListener: function() {
-        const userSearchInput = document.getElementById('user-search-input');
-        const userSearchResults = document.getElementById('user-search-results');
-        
-        if (userSearchInput && userSearchResults) {
-            userSearchInput.addEventListener('input', async (e) => {
-                const query = e.target.value.trim().toLowerCase();
                 
-                if (!query) {
-                    userSearchResults.innerHTML = '';
-                    return;
-                }
+                const reviews = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                console.log('Loaded', reviews.length, 'reviews from Firebase');
+                return reviews;
+            } catch (error) {
+                console.error('Firebase getReviews failed:', error);
+            }
+        }
+        
+        // Fallback to localStorage
+        console.log('Loading reviews from localStorage');
+        const reviews = JSON.parse(localStorage.getItem('sawfish_ratings') || '[]');
+        const appReviews = reviews.filter(r => r.appId === appId).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        console.log('Loaded', appReviews.length, 'reviews from localStorage');
+        return appReviews;
+    },
+    
+    getAverageRating: async function(appId) {
+        if (this.firebaseReady) {
+            try {
+                const snapshot = await db.collection(this.COLLECTION_NAME)
+                    .where('appId', '==', appId)
+                    .get();
                 
-                try {
-                    let users = [];
-                    
-                    if (db) {
-                        const snapshot = await db.collection('users')
-                            .orderBy('username')
-                            .startAt(query)
-                            .endAt(query + '\uf8ff')
-                            .limit(10)
-                            .get();
-                        users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    } else {
-                        const storedUsers = JSON.parse(localStorage.getItem('sawfish_users') || '{}');
-                        users = Object.values(storedUsers)
-                            .filter(u => u.username.toLowerCase().includes(query))
-                            .slice(0, 10);
+                if (snapshot.empty) return null;
+                
+                let sum = 0;
+                let count = 0;
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.rating) {
+                        sum += data.rating;
+                        count++;
                     }
-                    
-                    this.displayUserSearchResults(users, userSearchResults);
-                } catch (error) {
-                    console.error('Error searching users:', error);
-                }
-            });
-            
-            userSearchInput.addEventListener('focus', async () => {
-                const query = userSearchInput.value.trim().toLowerCase();
-                if (!query) {
-                    try {
-                        let users = [];
-                        
-                        if (db) {
-                            const snapshot = await db.collection('users')
-                                .orderBy('username')
-                                .limit(20)
-                                .get();
-                            users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                        } else {
-                            const storedUsers = JSON.parse(localStorage.getItem('sawfish_users') || '{}');
-                            users = Object.values(storedUsers).slice(0, 20);
+                });
+                
+                const avg = count > 0 ? sum / count : null;
+                console.log('Average rating from Firebase:', avg);
+                return avg;
+            } catch (error) {
+                console.error('Firebase getAverageRating failed:', error);
+            }
+        }
+        
+        // Fallback to localStorage
+        const reviews = JSON.parse(localStorage.getItem('sawfish_ratings') || '[]');
+        const appReviews = reviews.filter(r => r.appId === appId);
+        
+        if (appReviews.length === 0) return null;
+        
+        const sum = appReviews.reduce((acc, r) => acc + r.rating, 0);
+        const avg = sum / appReviews.length;
+        console.log('Average rating from localStorage:', avg);
+        return avg;
+    },
+    
+    getRatingDistribution: async function(appId) {
+        const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+        
+        if (this.firebaseReady) {
+            try {
+                const snapshot = await db.collection(this.COLLECTION_NAME)
+                    .where('appId', '==', appId)
+                    .get();
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.rating) {
+                        const rating = Math.round(data.rating);
+                        if (distribution[rating] !== undefined) {
+                            distribution[rating]++;
                         }
-                        
-                        this.displayUserSearchResults(users, userSearchResults);
-                    } catch (error) {
-                        console.error('Error loading users:', error);
                     }
-                }
-            });
-        }
-    },
-    
-    displayUserSearchResults: function(users, container) {
-        if (users.length === 0) {
-            container.innerHTML = '<p class="muted">No users found.</p>';
-            return;
+                });
+                return distribution;
+            } catch (error) {
+                console.error('Firebase getRatingDistribution failed:', error);
+            }
         }
         
-        container.innerHTML = users.map(user => {
-            const initial = user.username ? user.username.charAt(0).toUpperCase() : '?';
-            const achievements = user.achievements || [];
-            
-            return `
-                <div class="user-search-result" data-user-id="${user.uid}" onclick="UserAuth.loadUserProfileData('${user.uid}')">
-                    <div class="user-search-avatar">${initial}</div>
-                    <div class="user-search-info">
-                        <span class="user-search-name">${escapeHtml(user.username)}</span>
-                        <span class="user-search-bio">${escapeHtml(user.bio || 'No bio')}</span>
-                    </div>
-                    <div class="user-search-achievements">
-                        ${achievements.slice(0, 5).map(achId => {
-                            const ach = Achievements.getAchievementInfo(achId);
-                            return `<span title="${ach.name}">${ach.icon}</span>`;
-                        }).join('')}
-                    </div>
-                </div>
-            `;
-        }).join('');
+        // Fallback to localStorage
+        const reviews = JSON.parse(localStorage.getItem('sawfish_ratings') || '[]');
+        const appReviews = reviews.filter(r => r.appId === appId);
+        
+        appReviews.forEach(r => {
+            const rating = Math.round(r.rating);
+            if (distribution[rating] !== undefined) {
+                distribution[rating]++;
+            }
+        });
+        
+        return distribution;
+    },
+    
+    getTotalReviews: async function(appId) {
+        if (this.firebaseReady) {
+            try {
+                const snapshot = await db.collection(this.COLLECTION_NAME)
+                    .where('appId', '==', appId)
+                    .get();
+                return snapshot.size;
+            } catch (error) {
+                console.error('Firebase getTotalReviews failed:', error);
+            }
+        }
+        
+        // Fallback to localStorage
+        const reviews = JSON.parse(localStorage.getItem('sawfish_ratings') || '[]');
+        return reviews.filter(r => r.appId === appId).length;
+    },
+    
+    subscribeToReviews: function(appId, callback) {
+        console.log('Subscribing to reviews for:', appId);
+        
+        if (this.firebaseReady) {
+            try {
+                const unsubscribe = db.collection(this.COLLECTION_NAME)
+                    .where('appId', '==', appId)
+                    .orderBy('timestamp', 'desc')
+                    .onSnapshot((snapshot) => {
+                        const reviews = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                        console.log('Firebase real-time update:', reviews.length, 'reviews');
+                        callback(reviews);
+                    }, (error) => {
+                        console.error('Firebase subscription error:', error);
+                    });
+                return unsubscribe;
+            } catch (error) {
+                console.error('Firebase subscribe failed:', error);
+            }
+        }
+        
+        // Fallback to localStorage with polling
+        const loadLocalReviews = async () => {
+            const reviews = JSON.parse(localStorage.getItem('sawfish_ratings') || '[]');
+            const appReviews = reviews.filter(r => r.appId === appId).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            console.log('LocalStorage reviews update:', appReviews.length, 'reviews');
+            callback(appReviews);
+        };
+        
+        // Load immediately
+        loadLocalReviews();
+        
+        // Poll for changes every 2 seconds
+        const interval = setInterval(loadLocalReviews, 2000);
+        
+        // Return unsubscribe function
+        return () => {
+            console.log('Unsubscribing from reviews');
+            clearInterval(interval);
+        };
     }
 };
+
+// Initialize FirestoreComments after Firebase is initialized
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait a bit for Firebase to initialize
+    setTimeout(() => {
+        FirestoreComments.init();
+    }, 1000);
+});
 
 // ============================================================
 // LIKE SYSTEM
 // ============================================================
 const LikeSystem = {
+    likes: {},
+    
     init: function() {
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('.like-btn')) {
-                // Already handled in CommunityBoard
+        this.loadLikes();
+    },
+    
+    loadLikes: function() {
+        try {
+            const stored = localStorage.getItem('sawfish_likes');
+            if (stored) {
+                this.likes = JSON.parse(stored);
             }
+        } catch (error) {
+            console.error('Error loading likes:', error);
+        }
+    },
+    
+    saveLikes: function() {
+        try {
+            localStorage.setItem('sawfish_likes', JSON.stringify(this.likes));
+        } catch (error) {
+            console.error('Error saving likes:', error);
+        }
+    },
+    
+    toggleLike: function(appId) {
+        const hasLiked = this.likes[appId] === true;
+        
+        if (hasLiked) {
+            delete this.likes[appId];
+        } else {
+            this.likes[appId] = true;
+            Achievements.checkAchievements('like_app');
+        }
+        
+        this.saveLikes();
+        return !hasLiked;
+    },
+    
+    hasLiked: function(appId) {
+        return this.likes[appId] === true;
+    },
+    
+    getLikeCount: function(appId) {
+        const stored = localStorage.getItem('sawfish_like_counts');
+        const counts = stored ? JSON.parse(stored) : {};
+        return counts[appId] || 0;
+    },
+    
+    incrementLikeCount: function(appId) {
+        const stored = localStorage.getItem('sawfish_like_counts');
+        const counts = stored ? JSON.parse(stored) : {};
+        counts[appId] = (counts[appId] || 0) + 1;
+        localStorage.setItem('sawfish_like_counts', JSON.stringify(counts));
+        return counts[appId];
+    }
+};
+
+// ============================================================
+// SEARCH SYSTEM
+// ============================================================
+const SearchSystem = {
+    init: function() {
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
+        const searchCount = document.getElementById('search-count');
+        const noResults = document.getElementById('search-no-results');
+        
+        if (!searchInput || !searchResults) return;
+        
+        let currentCategory = 'all';
+        let currentResults = [];
+        
+        const categoryBtns = document.querySelectorAll('.search-category-btn');
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                categoryBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCategory = btn.dataset.searchCategory;
+                this.performSearch(searchInput.value, currentCategory, searchResults, searchCount, noResults);
+            });
         });
-    }
-};
-
-// ============================================================
-// FIRESTORE COMMENTS SYSTEM
-// ============================================================
-const FirestoreComments = {
-    COLLECTION: 'sawfish_ratings',
+        
+        let debounceTimer;
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                this.performSearch(e.target.value, currentCategory, searchResults, searchCount, noResults);
+            }, 200);
+        });
+        
+        this.performSearch('', currentCategory, searchResults, searchCount, noResults);
+    },
     
-    saveReview: async function(appId, rating, comment, userName, isDeveloper, userAvatar) {
-        try {
-            const review = {
-                appId: appId,
-                rating: rating,
-                comment: comment,
-                user: userName,
-                userAvatar: userAvatar,
-                isDeveloper: isDeveloper,
-                timestamp: Date.now()
-            };
+    performSearch: function(query, category, resultsContainer, countContainer, noResultsContainer) {
+        const term = query.toLowerCase().trim();
+        const isDevMode = DeveloperMode.isLoggedIn || UserAuth.isDeveloperMode;
+        const results = Object.entries(appData).filter(([id, app]) => {
+            // Hide developer-only apps when not in developer mode
+            if (app.isDev && !isDevMode) return false;
             
-            if (db) {
-                const docRef = await db.collection(this.COLLECTION).add(review);
-                return { id: docRef.id, ...review };
-            } else {
-                // Offline fallback - store in localStorage
-                const reviews = JSON.parse(localStorage.getItem('sawfish_ratings') || '[]');
-                review.id = 'local_' + Date.now();
-                reviews.unshift(review);
-                localStorage.setItem('sawfish_ratings', JSON.stringify(reviews));
-                return review;
+            const matchesTerm = !term || 
+                app.name.toLowerCase().includes(term) || 
+                app.developer.toLowerCase().includes(term) ||
+                app.description.toLowerCase().includes(term) ||
+                app.category.toLowerCase().includes(term);
+            
+            if (!matchesTerm) return false;
+            
+            if (category === 'all') return true;
+            
+            if (category === 'Games') {
+                return app.category.toLowerCase().includes('game');
             }
-        } catch (error) {
-            console.error('Error saving review:', error);
-            return null;
-        }
-    },
-    
-    getReviews: async function(appId) {
-        try {
-            if (db) {
-                const snapshot = await db.collection(this.COLLECTION)
-                    .where('appId', '==', appId)
-                    .orderBy('timestamp', 'desc')
-                    .limit(50)
-                    .get();
-                return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            } else {
-                const reviews = JSON.parse(localStorage.getItem('sawfish_ratings') || '[]');
-                return reviews
-                    .filter(r => r.appId === appId)
-                    .sort((a, b) => b.timestamp - a.timestamp)
-                    .slice(0, 50);
+            if (category === 'Social') {
+                return app.category.toLowerCase().includes('social') || app.name.toLowerCase().includes('chat');
             }
-        } catch (error) {
-            console.error('Error getting reviews:', error);
-            return [];
-        }
-    },
-    
-    subscribeToReviews: function(appId, callback) {
-        if (!db) {
-            // No real-time updates in offline mode
-            return () => {};
+            if (category === 'Operating System' || category === 'OS') {
+                return app.category.toLowerCase().includes('operating system');
+            }
+            if (category === 'Educational') {
+                return app.category.toLowerCase().includes('educational') || app.category.toLowerCase().includes('productivity');
+            }
+            if (category === 'Utilities') {
+                return app.category.toLowerCase().includes('miscellaneous') || app.category.toLowerCase().includes('tools');
+            }
+            
+            return app.category.toLowerCase().includes(category.toLowerCase());
+        });
+        
+        currentResults = results;
+        
+        if (countContainer) {
+            countContainer.textContent = results.length;
         }
         
-        return db.collection(this.COLLECTION)
-            .where('appId', '==', appId)
-            .orderBy('timestamp', 'desc')
-            .onSnapshot(snapshot => {
-                const reviews = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                callback(reviews);
-            }, error => {
-                console.error('Error subscribing to reviews:', error);
+        if (results.length === 0) {
+            if (resultsContainer) resultsContainer.innerHTML = '';
+            if (noResultsContainer) noResultsContainer.classList.remove('hidden');
+            return;
+        }
+        
+        if (noResultsContainer) noResultsContainer.classList.add('hidden');
+        
+        if (resultsContainer) {
+            resultsContainer.innerHTML = results.map(([id, app]) => {
+                const isMinecraft = id === 'minecraft';
+                const reGuestBanner = isMinecraft ? `
+                    <div class="reguest-banner">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        <span>Re-Guest Required for Multiplayer</span>
+                    </div>
+                ` : '';
+                
+                return `
+                    <article class="app-card" data-app="${id}">
+                        ${reGuestBanner}
+                        <div class="card-icon">
+                            <img src="${app.icon}" alt="${escapeHtml(app.name)} Icon" loading="lazy">
+                        </div>
+                        <div class="card-content">
+                            <h4>${escapeHtml(app.name)}</h4>
+                            <p class="card-desc">${escapeHtml(app.description.substring(0, 80))}${app.description.length > 80 ? '...' : ''}</p>
+                            <div class="card-rating" data-avg-rating="${id}">—</div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+            
+            resultsContainer.querySelectorAll('.app-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const appId = this.dataset.app;
+                    if (appId) {
+                        openExpandedApp(appId);
+                    }
+                });
             });
-    },
-    
-    getAverageRating: async function(appId) {
-        try {
-            const reviews = await this.getReviews(appId);
-            
-            if (!reviews || reviews.length === 0) {
-                return null;
-            }
-            
-            const sum = reviews.reduce((acc, review) => acc + (review.rating || 0), 0);
-            return sum / reviews.length;
-        } catch (error) {
-            console.error('Error calculating average rating:', error);
-            return null;
         }
-    },
-    
-    getRatingDistribution: async function(appId) {
-        try {
-            const reviews = await this.getReviews(appId);
-            
-            const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-            
-            reviews.forEach(review => {
-                const rating = Math.round(review.rating || 0);
-                if (rating >= 1 && rating <= 5) {
-                    distribution[rating]++;
-                }
-            });
-            
-            return distribution;
-        } catch (error) {
-            console.error('Error getting rating distribution:', error);
-            return { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-        }
-    },
-    
-    getTotalReviews: async function(appId) {
-        try {
-            const reviews = await this.getReviews(appId);
-            return reviews.length;
-        } catch (error) {
-            console.error('Error getting total reviews:', error);
-            return 0;
-        }
-    }
-};
-
-// ============================================================
-// OFFLINE TAG SYSTEM
-// ============================================================
-const OfflineTagSystem = {
-    hackPassword: '120622',
-    
-    showHackPassword: function(appId, appName) {
-        const overlay = document.getElementById('hack-password-overlay');
-        if (!overlay) return;
-        
-        const title = document.getElementById('hack-password-title');
-        const input = document.getElementById('hack-password-input');
-        const submitBtn = document.getElementById('hack-password-submit');
-        const cancelBtn = document.getElementById('hack-password-cancel');
-        
-        if (title) title.textContent = `Hack ${appName}?`;
-        if (input) input.value = '';
-        
-        const close = () => {
-            overlay.classList.add('hidden');
-            overlay.setAttribute('aria-hidden', 'true');
-            document.body.style.overflow = '';
-        };
-        
-        if (submitBtn) {
-            submitBtn.onclick = () => {
-                if (input.value === this.hackPassword) {
-                    close();
-                    window.open(appData[appId].link, '_blank');
-                } else {
-                    input.value = '';
-                    input.placeholder = 'Wrong password!';
-                    input.classList.add('error');
-                    setTimeout(() => {
-                        input.placeholder = 'Enter password';
-                        input.classList.remove('error');
-                    }, 2000);
-                }
-            };
-        }
-        
-        if (cancelBtn) {
-            cancelBtn.onclick = close;
-        }
-        
-        overlay.classList.remove('hidden');
-        overlay.setAttribute('aria-hidden', 'false');
-        document.body.style.overflow = 'hidden';
-        input?.focus();
     }
 };
 
@@ -2082,456 +2492,451 @@ const OfflineTagSystem = {
 // APP DATA
 // ============================================================
 const appData = {
-    minecraft: {
-        name: "Minecraft Web (Beta)",
-        developer: "Zardoy",
-        icon: "icons/minecraft.png",
-        category: "Games / Sandbox",
-        description: "The iconic sandbox building game, now in your browser. Build, explore, and create without downloads.",
-        features: "Classic Minecraft gameplay, multiplayer support, various game modes.",
-        additional: "Multiplayer requires re-guesting. See in-game instructions for details.",
-        link: "https://zardoy.github.io/minecraft-web-client/",
-        screenshots: ["https://via.placeholder.com/400x250/5c8a3d/ffffff?text=Minecraft+Gameplay", "https://via.placeholder.com/400x250/5c8a3d/ffffff?text=Minecraft+World"]
-    },
-    sandboxels: {
-        name: "Sandboxels",
-        developer: "R74n",
-        icon: "icons/sandboxels.png",
-        category: "Games / Simulation",
-        description: "Falling sand physics simulator with over 500 elements. Create amazing sand art!",
-        features: "500+ elements, realistic physics, cellular automata simulation.",
-        additional: "A beloved falling sand game. Highly addictive and creative.",
-        link: "https://the-sawfish.github.io/sandboxels/",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Sandboxels+Simulation", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Sand+Physics"]
-    },
-    run3: {
-        name: "Run 3",
-        developer: "Player 3",
-        icon: "icons/run3.png",
-        category: "Games / Platformer",
-        description: "Endless space runner with gravity-shifting tunnel gameplay. Run through infinite tunnels!",
-        features: "Gravity-shifting mechanics, endless gameplay, challenging obstacles.",
-        additional: "A beloved space runner. One of the most popular browser games.",
-        link: "https://the-sawfish.github.io/Run3Final/",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Run+3+Gameplay", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Space+Runner"]
-    },
-    blockblast: {
-        name: "Block Blast",
-        developer: "Block Blast",
-        icon: "icons/blockblast.png",
-        category: "Games / Puzzle",
-        description: "Fast-paced block placement puzzle with competitive scoring. Match blocks to score high!",
-        features: "Competitive scoring, challenging puzzles, smooth animations.",
-        additional: "A highly addictive block puzzle game. Works offline!",
-        link: "https://aappqq.github.io/BlockBlast",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Block+Blast", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Block+Puzzle"]
+    portal: {
+        name: "Sawfish Game Portal",
+        developer: "Sawfish",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=P",
+        category: "Games / Portal",
+        description: "Central launcher for all approved Sawfish games in one place.",
+        features: "Browse games by category, see what's popular, quick launch any game.",
+        additional: "This portal serves as your gateway to all the games available.",
+        link: "https://the-sawfish.github.io/portal/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Game+Portal", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Game+Library"]
     },
     chat: {
         name: "Chat App",
-        developer: "Jimeneutron",
-        icon: "icons/chat.png",
-        category: "Social / Messaging",
-        description: "Real-time browser-based messaging with rooms and channels for students.",
-        features: "Real-time messaging, rooms and channels, school-friendly.",
-        additional: "Connect with classmates instantly. Works in browser.",
-        link: "https://jimeneutron.github.io/chatapp/",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Chat+App", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Real+Time+Messaging"]
+        developer: "Sawfish",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=C",
+        category: "Social / Communication",
+        description: "Real-time browser-based messaging with rooms and channels.",
+        features: "Join topic-based rooms, create channels, share text messages instantly.",
+        additional: "Perfect for study groups and class discussions.",
+        link: "https://the-sawfish.github.io/chat/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Chat+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Message+Rooms"]
     },
     call: {
         name: "Call App",
         developer: "Sawfish",
-        icon: "icons/call.png",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=Ca",
         category: "Social / Communication",
-        description: "Fast, simple browser-based voice calling interface for quick communication.",
-        features: "WebRTC voice calls, low latency, simple interface.",
-        additional: "Call classmates directly from your browser. No app needed!",
-        link: "https://the-sawfish.github.io/callapp",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Call+App", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Voice+Calling"]
+        description: "Fast, simple browser-based voice calling interface.",
+        features: "One-click calling, no app installation required, low latency audio.",
+        additional: "Great for quick check-ins with study partners.",
+        link: "https://the-sawfish.github.io/call/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Call+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Voice+Call"]
+    },
+    circle: {
+        name: "Draw a Circle",
+        developer: "Sawfish",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=O",
+        category: "Games / Puzzle",
+        description: "Quick reflex challenge - draw the most perfect circle you can.",
+        features: "Instant feedback on circle precision, score tracking.",
+        additional: "Perfect for quick breaks between classes. Works offline once loaded.",
+        link: "https://the-sawfish.github.io/seraph/games/circle/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Draw+a+Circle", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Score+Screen"]
+    },
+    sandboxels: {
+        name: "Sandboxels",
+        developer: "Rhex Lorenz",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=S",
+        category: "Games / Simulation",
+        description: "Falling sand physics simulator with over 500 unique elements.",
+        features: "Hundreds of different elements, realistic physics simulation.",
+        additional: "A great way to learn about cellular automata and physics.",
+        link: "https://sandboxels.riverside.rocks/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Sandboxels+Simulation", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Physics+Elements"]
+    },
+    minecraft: {
+        name: "Minecraft Web (Beta)",
+        developer: "Zardoy",
+        icon: "https://via.placeholder.com/100x100/5c8a3d/ffffff?text=MC",
+        category: "Games / Sandbox",
+        description: "The iconic sandbox building game, now in your browser.",
+        features: "Full block-based world generation, mining and crafting, multiplayer support.",
+        additional: "This is a browser-based recreation of Minecraft.",
+        link: "https://zardoy.github.io/minecraft-web-client/",
+        screenshots: ["https://via.placeholder.com/400x250/5c8a3d/ffffff?text=Minecraft+Web", "https://via.placeholder.com/400x250/5c8a3d/ffffff?text=Block+Building"],
+        reguestRequired: true
+    },
+    blockblast: {
+        name: "Block Blast",
+        developer: "Sawfish",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=BB",
+        category: "Games / Puzzle",
+        description: "Fast-paced block placement puzzle game with competitive scoring.",
+        features: "Classic block puzzle mechanics, competitive scoring system.",
+        additional: "Perfect for quick gaming sessions. Works offline once loaded.",
+        link: "https://the-sawfish.github.io/seraph/games/blockblast/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Block+Blast", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Puzzle+Gameplay"]
+    },
+    run3: {
+        name: "Run 3",
+        developer: "Jupiter Hadley",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=R3",
+        category: "Games / Platformer",
+        description: "Endless space runner through procedurally generated tunnels.",
+        features: "Procedurally generated endless tunnels, wall-running mechanics.",
+        additional: "A classic endless runner with a unique 3D tunnel perspective.",
+        link: "https://the-sawfish.github.io/seraph/games/run3/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Run+3+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Space+Tunnels"]
     },
     retrobowl: {
         name: "Retro Bowl",
-        developer: "Retro Studios",
-        icon: "icons/retrobowl.png",
+        developer: "Collin Crews",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=RB",
         category: "Games / Sports",
-        description: "Classic American football management game with retro aesthetics and exciting gameplay.",
-        features: "Team management, retro graphics, challenging gameplay.",
-        additional: "The beloved American football game. Very popular!",
-        link: "https://the-sawfish.github.io/seraph/games/retrobowl/index.html",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Retro+Bowl", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Football+Game"]
-    },
-    novaos: {
-        name: "NovaOS",
-        developer: "RunNova",
-        icon: "icons/novaos.png",
-        category: "Operating System",
-        description: "Full-featured browser-based desktop operating system environment with apps and customization.",
-        features: "Window management, file system, desktop apps, customization.",
-        additional: "For the full NovaOS experience, open in a new tab. Amazing attention to detail!",
-        link: "https://runnova.github.io/NovaOS/",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=NovaOS+Desktop", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=NovaOS+Apps"]
-    },
-    winripen: {
-        name: "WinRipen",
-        developer: "Ripenos",
-        icon: "icons/winripen.png",
-        category: "Operating System",
-        description: "Windows-inspired web OS with familiar desktop interface and applications.",
-        features: "Windows-like interface, window management, desktop apps.",
-        additional: "Due to browser security restrictions, open in a new tab. Familiar Windows feel!",
-        link: "https://ripenos.web.app/WinRipen/index.html",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=WinRipen+Interface", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Windows+Apps"]
-    },
-    monkeytype: {
-        name: "Monkeytype",
-        developer: "Miodec",
-        icon: "icons/monkeytype.png",
-        category: "Educational / Typing",
-        description: "Minimalist typing test with customizable themes and detailed statistics for improving speed.",
-        features: "Customizable themes, difficulty levels, comprehensive statistics, zen mode.",
-        additional: "Open source and completely ad-free. The best typing test!",
-        link: "https://monkeytype.com/",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Monkeytype+Interface", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Typing+Statistics"]
-    },
-    hack: {
-        name: "Hack Stuff",
-        developer: "Sawfish",
-        icon: "icons/hack.png",
-        category: "Miscellaneous / Tools",
-        description: "Utilities and experimental tools for advanced users. Educational purposes only.",
-        features: "Password generator, cipher tools, hash generator, ASCII converter.",
-        additional: "For educational purposes only. Learn about security and encryption!",
-        link: "https://the-sawfish.github.io/hack/",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Hack+Tools", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Security+Tools"]
-    },
-    photopea: {
-        name: "Photopea",
-        developer: "Ivan Kuckir",
-        icon: "icons/photopea.png",
-        category: "Productivity / Graphics",
-        description: "Powerful online image editor in your browser. Edit photos like a professional!",
-        features: "Layer support, filters, brushes, vector shapes, PSD compatibility.",
-        additional: "All processing happens in your browser for privacy. Like Photoshop, but free!",
-        link: "https://www.photopea.com/",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Photopea+Interface", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Image+Editing"]
+        description: "Classic American football management game with retro aesthetics.",
+        features: "Team management, strategic playcalling, retro pixel art style.",
+        additional: "The perfect game for football fans.",
+        link: "https://the-sawfish.github.io/seraph/games/retrobowl/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Retro+Bowl", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Football+Action"]
     },
     paperio2: {
         name: "Paper Io 2",
         developer: "Voodoo",
-        icon: "icons/paperio2.png",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=IO",
         category: "Games / Action",
-        description: "Territory conquest game. Capture territory and defeat opponents in this addictive IO game!",
-        features: "Territory capture mechanics, real-time multiplayer battles, power-ups.",
-        additional: "A highly addictive territory conquest game. Capture as much territory as possible!",
-        link: "https://the-sawfish.github.io/seraph/games/paperio2/index.html",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Paper+IO+2", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Territory+Capture"]
+        description: "Territory conquest game. Capture territory and defeat opponents.",
+        features: "Territory capture mechanics, real-time multiplayer battles.",
+        additional: "A highly addictive territory conquest game.",
+        link: "https://the-sawfish.github.io/seraph/games/paperio2/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Paper+IO+2", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Territory+Capture"]
     },
     bobtherobber: {
         name: "Bob The Robber",
         developer: "Bob The Robber Team",
-        icon: "icons/bobtherobber.png",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=BR",
         category: "Games / Puzzle",
-        description: "Stealth puzzle game series. Infiltrate locations and steal treasures without getting caught!",
-        features: "Progressive level difficulty, stealth mechanics, puzzle elements.",
-        additional: "A beloved stealth puzzle series. By like 10 ppl. :/)",
-        link: "https://bobtherobberunblocked.github.io/2/",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Bob+The+Robber", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Stealth+Action"]
+        description: "Stealth puzzle game series. Infiltrate locations and steal treasures.",
+        features: "Progressive level difficulty, stealth mechanics.",
+        additional: "A beloved stealth puzzle series.",
+        link: "https://the-sawfish.github.io/seraph/games/bobtherobber/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Bob+The+Robber", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Stealth+Action"]
     },
     tinyfishing: {
         name: "Tiny Fishing",
         developer: "Ketchapp",
-        icon: "icons/tinyfishing.png",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=TF",
         category: "Games / Casual",
-        description: "Addictive fishing game. Catch fish and upgrade your gear to catch bigger fish!",
-        features: "Hook fish of various sizes, upgrade your fishing gear, relaxing gameplay.",
-        additional: "A simple yet addictive fishing game. IKR??",
-        link: "https://the-sawfish.github.io/seraph/games/tinyfishing",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Tiny+Fishing", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Fish+Collection"]
+        description: "Addictive fishing game. Catch fish and upgrade your gear.",
+        features: "Hook fish of various sizes, upgrade your fishing gear.",
+        additional: "A simple yet addictive fishing game.",
+        link: "https://the-sawfish.github.io/seraph/games/tinyfishing/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Tiny+Fishing", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Fish+Collection"]
     },
     ovo: {
         name: "OVO",
         developer: "Maestro",
-        icon: "icons/ovo.png",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=OV",
         category: "Games / Platformer",
-        description: "Fast-paced parkour game. Jump, slide, and wall-run through challenging obstacle courses!",
-        features: "Smooth parkour mechanics, challenging obstacle courses, speedrun times.",
-        additional: "A beloved parkour platformer with fluid movement controls. So satisfying!",
-        link: "https://the-sawfish.github.io/legalizenuclearbombs5.github.io/games/ovo.html",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=OVO+Parkour", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Obstacle+Course"]
+        description: "Fast-paced parkour game. Jump, slide, and wall-run through obstacles.",
+        features: "Smooth parkour mechanics, challenging obstacle courses.",
+        additional: "A beloved parkour platformer with fluid movement controls.",
+        link: "https://the-sawfish.github.io/seraph/games/ovo/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=OVO+Parkour", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Obstacle+Course"]
     },
     towerofdestiny: {
         name: "Tower of Destiny",
         developer: "Sawfish",
-        icon: "icons/towerofdestiny.png",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=TD",
         category: "Games / Adventure",
-        description: "Exciting adventure game where you build and ascend a tower while avoiding obstacles!",
-        features: "Procedurally generated levels, hero upgrades, boss battles, addictive gameplay.",
-        additional: "The tower keeps getting taller as you progress. mhm!",
+        description: "Exciting adventure game where you build and ascend a tower.",
+        features: "Procedurally generated levels, hero upgrades, boss battles.",
+        additional: "The tower keeps getting taller as you progress.",
         link: "https://the-sawfish.github.io/legalizenuclearbombs5.github.io/games/Tower%20of%20Destiny",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Tower+of+Destiny", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Ascend+the+Tower"]
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Tower+of+Destiny", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Ascend+the+Tower"]
     },
-    lichess: {
-        name: "Lichess",
-        developer: "Lichess Team",
-        icon: "icons/lichess.png",
-        category: "Games / Strategy",
-        description: "Free, open-source chess platform with no ads or tracking. Play against AI or worldwide!",
-        features: "Multiple game modes, puzzles, tactics training, tournaments, analysis.",
-        additional: "One of the least blocked chess sites on school networks. Completely free!",
-        link: "https://lichess.org/",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Lichess+Chess", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Chess+Analysis"]
+    novaos: {
+        name: "NovaOS",
+        developer: "RunNova",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=N",
+        category: "Operating System",
+        description: "Full-featured browser-based desktop operating system environment.",
+        features: "Customizable desktop, window management, file manager.",
+        additional: "For the full NovaOS experience, open in a new tab.",
+        link: "https://runnova.github.io/NovaOS/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=NovaOS+Desktop", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=NovaOS+Apps"]
     },
-    neocities: {
-        name: "Neocities",
-        developer: "Neocities Inc",
-        icon: "icons/neocities.png",
-        category: "Social / Web Publishing",
-        description: "Free service for creating your own website. Express yourself on the web!",
-        features: "Free hosting, site templates, drag-and-drop uploads, community.",
-        additional: "Revives the spirit of early web publishing. Make your own website!",
-        link: "https://neocities.org/",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Neocities+Create", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Website+Builder"]
+    winripen: {
+        name: "WinRipen",
+        developer: "Ripenos",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=WR",
+        category: "Operating System",
+        description: "Web-based operating system recreating classic Windows.",
+        features: "Authentic Windows-like interface, window management.",
+        additional: "Due to browser security restrictions, open in a new tab.",
+        link: "https://ripenos.web.app/WinRipen/index.html",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=WinRipen+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Windows+Apps"]
     },
-    drawacircle: {
-        name: "Draw a Circle",
-        developer: "Sawfish",
-        icon: "icons/drawacircle.png",
-        category: "Games / Skill",
-        description: "Quick reflex challenge. Draw the most perfect circle you can and see how close you got!",
-        features: "Circle drawing accuracy test, high scores, quick gameplay.",
-        additional: "A simple but addictive skill game. How steady is your hand?",
-        link: "https://the-sawfish.github.io/circle/",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Draw+a+Circle", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Circle+Accuracy"]
+    plutoos: {
+        name: "PlutoOS",
+        developer: "Zeon",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=PL",
+        category: "Operating System",
+        description: "Futuristic vision of a web-based operating system.",
+        features: "Modular design, glass-morphism effects, smooth animations.",
+        additional: "An experimental project demonstrating cutting edge web computing.",
+        link: "https://pluto-app.zeon.dev",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=PlutoOS+Modern+UI", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Fluid+Animations"]
     },
-    gameportal: {
-        name: "Sawfish Game Portal",
-        developer: "Sawfish",
-        icon: "icons/gameportal.png",
-        category: "Games / Collection",
-        description: "Central hub for all approved browser games in one convenient location.",
-        features: "Game collection, easy access, regular updates, user suggestions.",
-        additional: "The ultimate browser game hub. New games added regularly!",
-        link: "https://the-sawfish.github.io/game-portal/",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Game+Portal", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Game+Collection"]
+    ripenos: {
+        name: "Ripenos",
+        developer: "Ripenos",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=RP",
+        category: "Operating System",
+        description: "Lightweight, modular web-based operating system framework.",
+        features: "Essential desktop functionality, modular architecture.",
+        additional: "Suitable for educational environments with varied hardware.",
+        link: "https://ripenos.web.app/Ripenos/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Ripenos+Desktop", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Modular+Apps"]
     },
     piskel: {
         name: "Piskel",
         developer: "Piskel Team",
-        icon: "icons/piskel.png",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=Pi",
         category: "Developer Tools / Graphics",
         description: "Free online editor for creating animated sprites and pixel art.",
         features: "Layers, color palettes, onion skinning, animation timeline.",
         additional: "Perfect for creating game assets and pixel art.",
         link: "https://www.piskelapp.com/",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Piskel+Pixel+Editor", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Animation+Timeline"]
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Piskel+Pixel+Editor", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Animation+Timeline"],
+        isDev: true
     },
     vscodeweb: {
         name: "VS Code Web",
         developer: "Microsoft",
-        icon: "icons/vscode.png",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=VS",
         category: "Developer Tools / Code",
-        description: "Visual Studio Code editor in your browser. Code anywhere, anytime!",
-        features: "Syntax highlighting, IntelliSense, Git integration, extensions.",
-        additional: "Requires a Microsoft account for full functionality. Powerful!",
+        description: "Visual Studio Code editor in your browser.",
+        features: "Syntax highlighting, IntelliSense, Git integration.",
+        additional: "Requires a Microsoft account for full functionality.",
         link: "https://vscode.dev/",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=VS+Code+Editor", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Code+IntelliSense"]
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=VS+Code+Editor", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Code+IntelliSense"],
+        isDev: true
     },
     shadertoy: {
         name: "ShaderToy",
         developer: "ShaderToy Team",
-        icon: "icons/shadertoy.png",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=ST",
         category: "Developer Tools / Graphics",
-        description: "Platform for learning and sharing GLSL shaders. Create stunning visual effects!",
-        features: "Powerful shader editor, thousands of example shaders, community.",
-        additional: "Perfect for learning computer graphics programming. Advanced!",
+        description: "Platform for learning and sharing GLSL shaders.",
+        features: "Powerful shader editor, thousands of example shaders.",
+        additional: "Perfect for learning computer graphics programming.",
         link: "https://www.shadertoy.com/",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=ShaderToy+Editor", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=GLSL+Shaders"]
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=ShaderToy+Editor", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=GLSL+Shaders"],
+        isDev: true
+    },
+    photopea: {
+        name: "Photopea",
+        developer: "Ivan Kuckir",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=Ph",
+        category: "Productivity / Graphics",
+        description: "Powerful online image editor in your browser.",
+        features: "Layer support, filters, brushes, vector shapes.",
+        additional: "All processing happens in your browser for privacy.",
+        link: "https://www.photopea.com/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Photopea+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Image+Editing"]
     },
     tiddlywiki: {
         name: "TiddlyWiki",
         developer: "TiddlyWiki Community",
-        icon: "icons/tiddlywiki.png",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=TW",
         category: "Productivity / Notes",
-        description: "Personal wiki and non-linear notebook for organizing thoughts and ideas.",
-        features: "Powerful linking, tagging system, rich text editing, portable.",
-        additional: "Completely self-contained in one HTML file. Very powerful!",
+        description: "Personal wiki and non-linear notebook for organizing thoughts.",
+        features: "Powerful linking, tagging system, rich text editing.",
+        additional: "Completely self-contained in one HTML file.",
         link: "https://tiddlywiki.com/",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=TiddlyWiki+Notebook", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Wiki+Organization"]
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=TiddlyWiki+Notebook", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Wiki+Organization"],
+        isDev: true
     },
-    minimax: {
-        name: "Minimax",
-        developer: "Minimax",
-        icon: "icons/minimax.png",
-        category: "Developer Tools / AI",
-        description: "Great AI for programming and general assistance. Much more instruction following than ChatGPT.",
-        features: "Own window, can self-host static files, coding assistance.",
-        additional: "Powerful AI assistant. Great for coding and general questions!",
-        link: "https://agent.minimax.io/",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Minimax+Agent", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=AI+Assistant"]
+    monkeytype: {
+        name: "Monkeytype",
+        developer: "Miodec",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=MT",
+        category: "Educational / Typing",
+        description: "Minimalist typing test for improving speed and accuracy.",
+        features: "Customizable themes, difficulty levels, comprehensive statistics.",
+        additional: "Open source and completely ad-free.",
+        link: "https://monkeytype.com/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Monkeytype+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Typing+Statistics"]
     },
-    plutoos: {
-        name: "PlutoOS",
-        developer: "Zeon",
-        icon: "icons/plutoos.png",
-        category: "Operating System",
-        description: "Futuristic vision of a web-based operating system with modern UI and smooth animations.",
-        features: "Modular design, glass-morphism effects, smooth animations, modern UI.",
-        additional: "An experimental project demonstrating cutting edge web computing. Futuristic!",
-        link: "https://pluto-app.zeon.dev/",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=PlutoOS+Modern+UI", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Fluid+Animations"]
+    lichess: {
+        name: "Lichess",
+        developer: "Lichess Team",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=Li",
+        category: "Games / Strategy",
+        description: "Free, open-source chess platform with no ads or tracking.",
+        features: "Multiple game modes, puzzles, tactics training, tournaments.",
+        additional: "One of the least blocked chess sites on school networks.",
+        link: "https://lichess.org/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Lichess+Chess+Board", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Chess+Analysis"]
     },
-    ripenos: {
-        name: "Ripenos",
-        developer: "Ripenos",
-        icon: "icons/ripenos.png",
-        category: "Operating System",
-        description: "Lightweight, modular web-based operating system framework.",
-        features: "Essential desktop functionality, modular architecture, fast performance.",
-        additional: "Suitable for educational environments with varied hardware. Lightweight!",
-        link: "https://ripenos.web.app/Ripenos/",
-        screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Ripenos+Desktop", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Modular+Apps"]
+    neocities: {
+        name: "Neocities",
+        developer: "Neocities Inc",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=NC",
+        category: "Social / Web Publishing",
+        description: "Free service for creating your own website.",
+        features: "Free hosting, site templates, drag-and-drop uploads.",
+        additional: "Revives the spirit of early web publishing.",
+        link: "https://neocities.org/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Neocities+Create", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Website+Builder"],
+        isDev: true
+    },
+    hack: {
+        name: "Hack Stuff",
+        developer: "Sawfish",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=Hk",
+        category: "Miscellaneous / Tools",
+        description: "Utilities and experimental tools for advanced users.",
+        features: "Password generator, cipher tools, hash generator.",
+        additional: "For educational purposes only.",
+        link: "https://the-sawfish.github.io/hack/",
+        screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Hack+Tools+Interface", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Password+Generator"]
     },
     securecomms: {
         name: "Secure Communication",
         developer: "Jimeneutron",
-        icon: "icons/IMG_0636.jpeg",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=SC",
         category: "Miscellaneous / Tools",
-        description: "Encrypt and decrypt messages securely. Learn about encryption and data security.",
+        description: "Encrypt and decrypt messages securely.",
         features: "AES-256 encryption, message encoding, key generation.",
-        additional: "Learn about encryption and data security. Educational!",
+        additional: "Learn about encryption and data security.",
         link: "https://jimeneutron.github.io/SecureCommunication/",
         screenshots: ["icons/IMG_0634.jpeg", "icons/IMG_0635.jpeg"]
     },
     2048: {
         name: "2048",
         developer: "Gabriele Cirulli",
-        icon: "icons/2048.png",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=20",
         category: "Games / Puzzle",
-        description: "Classic number puzzle game. Combine tiles to reach 2048!",
+        description: "Classic number puzzle game. Combine tiles to reach 2048.",
         features: "Simple swipe controls, score tracking, undo functionality.",
-        additional: "One of the most popular puzzle games of all time. Addictive!",
+        additional: "One of the most popular puzzle games of all time.",
         link: "https://the-sawfish.github.io/seraph/games/2048/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=2048+Game+Board", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=2048+Win+Screen"]
     },
     hackernews: {
         name: "Hacker News",
         developer: "Y Combinator",
-        icon: "icons/hackernews.png",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=HN",
         category: "News / Technology",
         description: "Social news website focusing on computer science and technology.",
         features: "User-submitted stories, threaded comments, karma points.",
-        additional: "One of the best sources for technology news. Tech-focused!",
+        additional: "One of the best sources for technology news.",
         link: "https://news.ycombinator.com/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Hacker+News+Front+Page", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Tech+Discussions"]
     },
     syrup: {
         name: "Syrup Games",
         developer: "Syrup Games",
-        icon: "icons/syrup.png",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=Sy",
         category: "Games / Arcade",
         description: "Alternative game launcher with unique browser-based titles.",
         features: "Collection of indie games, daily challenges, leaderboards.",
-        additional: "Discover unique indie games you won't find anywhere else. Unique!",
-        link: "https://jimeneutron.github.io",
+        additional: "Discover unique indie games you won't find anywhere else.",
+        link: "https://syrup.games/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Syrup+Games+Launcher", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Indie+Games"]
     },
     hextris: {
         name: "Hextris",
         developer: "Hextris",
-        icon: "icons/hextris.png",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=He",
         category: "Games / Puzzle",
-        description: "Addictive puzzle game played on a hexagonal grid. Twist and turn to survive!",
+        description: "Addictive puzzle game played on a hexagonal grid.",
         features: "Fast-paced gameplay, score tracking, increasing difficulty.",
-        additional: "A unique twist on the classic tetris-style gameplay. Challenging!",
-        link: "https://codechefvit.github.io/DevTris/",
+        additional: "A unique twist on the classic tetris-style gameplay.",
+        link: "https://the-sawfish.github.io/seraph/games/hextris/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Hextris+Gameplay", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Hexagonal+Puzzle"]
     },
     snowrider3d: {
         name: "Snow Rider 3D",
         developer: "Sawfish",
-        icon: "icons/snowrider.png",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=SR",
         category: "Games / Arcade",
-        description: "Thrilling sled racing game with 3D graphics and obstacles. Avoid trees and collect gifts!",
-        features: "3D graphics, obstacle avoidance, gifts and power-ups, festive theme.",
-        additional: "A classic school-friendly game. Works offline once loaded!",
+        description: "Thrilling sled racing game with 3D graphics and obstacles.",
+        features: "3D graphics, obstacle avoidance, gifts and power-ups.",
+        additional: "A classic school-friendly game. Works offline once loaded.",
         link: "https://the-sawfish.github.io/Snow-Rider3D/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Snow+Rider+3D", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Sled+Racing"]
     },
     investopedia: {
         name: "Investopedia Simulator",
         developer: "Investopedia",
-        icon: "icons/investopedia.png",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=In",
         category: "Educational / Finance",
-        description: "Learn stock market trading with virtual currency. Practice investing risk-free!",
-        features: "Real-time market data simulation, portfolio tracking, trading strategies.",
-        additional: "Perfect for learning trading strategies without risking real money. Educational!",
+        description: "Learn stock market trading with virtual currency.",
+        features: "Real-time market data simulation, portfolio tracking.",
+        additional: "Perfect for learning trading strategies without risk.",
         link: "http://investopedia.com/simulator",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Investopedia+Simulator", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Stock+Trading"]
     },
     studentgrade: {
         name: "Student Grade Viewer",
         developer: "Sawfish",
-        icon: "icons/studentgrade.png",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=SG",
         category: "Productivity / Education",
-        description: "Track and view student grades and academic performance. Monitor your progress!",
-        features: "Grade tracking, GPA calculation, assignment management, progress charts.",
-        additional: "Designed for students to monitor their academic progress. Helpful!",
+        description: "Track and view student grades and academic performance.",
+        features: "Grade tracking, GPA calculation, assignment management.",
+        additional: "Designed for students to monitor their academic progress.",
         link: "http://pa.neonet.org/Student/Grade",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Student+Grade+Viewer", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Grade+Tracking"]
     },
     chilibowl: {
         name: "Chilibowl Flash",
         developer: "Sawfish",
-        icon: "icons/chilibowl.png",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=CB",
         category: "Games / Arcade",
-        description: "Classic flash game featuring chili pepper challenges. Eat chilies to grow!",
-        features: "Classic gameplay, multiple levels, time attack mode, high scores.",
-        additional: "Nostalgic flash gaming experience. A classic!",
+        description: "Classic flash game featuring chili pepper challenges.",
+        features: "Classic gameplay, multiple levels, time attack mode.",
+        additional: "Nostalgic flash gaming experience.",
         link: "https://the-sawfish.github.io/chilibowlflash/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Chilibowl+Flash", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Chili+Challenge"]
     },
     territorial: {
         name: "Territorial.io",
         developer: "Territorial Team",
-        icon: "icons/territorial.png",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=Ti",
         category: "Games / Strategy",
-        description: "Strategic territory conquest game with real-time battles. Conquer the map!",
-        features: "Territory expansion, unit management, real-time multiplayer, strategy.",
-        additional: "A highly strategic conquest game. Think tactically!",
-        link: "https://the-sawfish.github.io/seraph/games/slope/index.html",
+        description: "Strategic territory conquest game with real-time battles.",
+        features: "Territory expansion, unit management, real-time multiplayer.",
+        additional: "A highly strategic conquest game.",
+        link: "https://the-sawfish.github.io/seraph/games/territorialio/index.html",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Territorial.io", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Territory+Conquest"]
     },
     slope: {
         name: "Slope",
         developer: "Sawfish",
-        icon: "icons/slope.png",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=Sl",
         category: "Games / Arcade",
-        description: "Fast-paced ball rolling game through an endless slope. Avoid obstacles and survive!",
-        features: "Endless runner mechanics, obstacle avoidance, high scores, simple controls.",
-        additional: "A thrilling test of reflexes and timing. Addictive!",
+        description: "Fast-paced ball rolling game through an endless slope.",
+        features: "Endless runner mechanics, obstacle avoidance, high scores.",
+        additional: "A thrilling test of reflexes and timing.",
         link: "https://the-sawfish.github.io/seraph/games/slope/index.html",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Slope+Game", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Ball+Rolling"]
     },
     agentminimax: {
         name: "Agent Minimax",
         developer: "MiniMax",
-        icon: "icons/agentminimax.png",
+        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=AM",
         category: "Productivity / AI Tools",
-        description: "AI-powered task management and automation assistant. Boost your productivity!",
-        features: "Smart scheduling, task prioritization, workflow automation, AI assistance.",
-        additional: "Boost your productivity with AI assistance. Powerful!",
-        link: "https://agent.minimax.io/",
+        description: "AI-powered task management and automation assistant.",
+        features: "Smart scheduling, task prioritization, workflow automation.",
+        additional: "Boost your productivity with AI assistance.",
+        link: "https://agent.minimax.chat/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Agent+Minimax", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=AI+Assistant"],
         isDev: true
     },
     githubio: {
         name: "GitHub.io",
         developer: "GitHub",
-        icon: "icons/githubio.png",
+        icon: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg",
         category: "Productivity / Web Publishing",
-        description: "Free static web hosting for GitHub repositories. Deploy your sites easily!",
-        features: "Free hosting, custom domains, HTTPS support, easy deployment.",
-        additional: "Deploy static sites directly from your repositories. Convenient!",
-        link: "https://github.io",
+        description: "Free static web hosting for GitHub repositories.",
+        features: "Free hosting, custom domains, HTTPS support.",
+        additional: "Deploy static sites directly from your repositories.",
+        link: "https://pages.github.com/",
         screenshots: ["https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=GitHub+Pages", "https://via.placeholder.com/400x250/1a1a2e/4da3ff?text=Static+Hosting"],
         isDev: true
     }
@@ -2578,11 +2983,14 @@ const elements = {
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing app...');
+    // Clear any welcome modal flags to prevent blocking
+    localStorage.removeItem('sawfish_welcome_acknowledged');
+    localStorage.removeItem('sawfish_visited');
     initializeElements();
     detectPWA();
     setupEventListeners();
     loadAllRatings();
-    checkFirstVisit();
+    // checkFirstVisit(); // Disabled to prevent modal blocking
     removeLoadingClass();
     
     console.log('Initializing UserAuth...');
@@ -2682,6 +3090,7 @@ function setupEventListeners() {
     setupAuthModalListeners();
     setupOfflineTagListeners();
     setupMinecraftWarningListeners();
+    setupFAQListeners();
     
     window.matchMedia('(display-mode: standalone)').addEventListener('change', function(e) {
         AppState.isPWA = e.matches;
@@ -2861,6 +3270,14 @@ function setupDeveloperDashboardListeners() {
         });
     }
     
+    // Exit developer mode button in sidebar
+    const exitDevBtnSidebar = document.getElementById('exit-developer-mode-btn');
+    if (exitDevBtnSidebar) {
+        exitDevBtnSidebar.addEventListener('click', () => {
+            DeveloperMode.logout();
+        });
+    }
+    
     const devModal = document.getElementById('developer-login-modal');
     if (devModal) {
         const backdrop = devModal.querySelector('.modal-backdrop');
@@ -2878,6 +3295,18 @@ function setupDeveloperDashboardListeners() {
                     showNotification('Invalid developer password');
                     devPasswordInput.value = '';
                 }
+            }
+        });
+    }
+    
+    // Developer page login button
+    const devPageLoginBtn = document.getElementById('developer-page-login-btn');
+    if (devPageLoginBtn) {
+        devPageLoginBtn.addEventListener('click', () => {
+            const modal = document.getElementById('developer-login-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.setAttribute('aria-hidden', 'false');
             }
         });
     }
@@ -2921,10 +3350,54 @@ function setupMinecraftWarningListeners() {
     }
 }
 
+function setupFAQListeners() {
+    const faqItems = document.querySelectorAll('.faq-item');
+    
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        if (question) {
+            question.addEventListener('click', () => {
+                const isActive = item.classList.contains('active');
+                
+                // Close all other items
+                faqItems.forEach(otherItem => {
+                    if (otherItem !== item) {
+                        otherItem.classList.remove('active');
+                    }
+                });
+                
+                // Toggle current item
+                item.classList.toggle('active', !isActive);
+            });
+            
+            // Allow keyboard navigation
+            question.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    question.click();
+                }
+            });
+        }
+    });
+}
+
 // ============================================================
 // NAVIGATION FUNCTIONS
 // ============================================================
 function switchTab(tabName) {
+    // Check if accessing developer tab without login
+    if (tabName === 'developer') {
+        if (!DeveloperMode.isLoggedIn && !UserAuth.isDeveloperMode) {
+            // Show developer login modal instead of opening the tab
+            const modal = document.getElementById('developer-login-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.setAttribute('aria-hidden', 'false');
+            }
+            return; // Don't switch to developer tab
+        }
+    }
+    
     elements.navItems.forEach(item => {
         if (item.dataset.tab === tabName) {
             item.classList.add('active');
@@ -2948,6 +3421,13 @@ function switchTab(tabName) {
             page.classList.remove('visible');
         }
     });
+    
+    // Populate developer grids when developer tab is shown
+    if (tabName === 'developer' && (DeveloperMode.isLoggedIn || UserAuth.isDeveloperMode)) {
+        populateDeveloperResources();
+        populateDeveloperProductivity();
+        populateDeveloperPublishing();
+    }
     
     AppState.currentPage = tabName;
     
@@ -2997,7 +3477,7 @@ function openExpandedApp(appId) {
     AppState.expandedApp = appId;
     
     if (appId === 'minecraft') {
-        MinecraftReGuest.showWarning(appId, app.name, app.link);
+        MinecraftReGuest.showWarning(appId, app.name, app.link, app);
         return;
     }
     
@@ -3067,8 +3547,21 @@ function updateRatingDisplay(appId, avgRating, distribution, totalReviews) {
 }
 
 function buildExpandedContent(app, appId, avgRating, totalReviews, distribution) {
+    const isMinecraft = appId === 'minecraft';
+    const reguestBanner = isMinecraft ? `
+        <div class="reguest-banner expanded-reguest-banner">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <span>Re-Guest Required for Multiplayer</span>
+        </div>
+    ` : '';
+    
     return `
         <article class="expanded-app" data-app="${appId}">
+            ${reguestBanner}
             <header class="expanded-app-header">
                 <div class="expanded-app-icon">
                     <img src="${app.icon}" alt="${app.name} Icon">
@@ -3113,6 +3606,14 @@ function buildExpandedContent(app, appId, avgRating, totalReviews, distribution)
                     </svg>
                     Open App
                 </a>
+                ${isMinecraft ? `
+                <a href="${app.link}" target="_blank" rel="noopener noreferrer" class="featured-btn" style="background: #5c8a3d;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3"/>
+                    </svg>
+                    Launch Game
+                </a>
+                ` : ''}
             </section>
             
             <section class="expanded-ratings">
@@ -3289,40 +3790,56 @@ function loadReviews(appId) {
 function displayReviews(appId, reviews) {
     const container = document.getElementById(`comment-list-${appId}`);
     
-    if (!container) return;
+    if (!container) {
+        console.error('Review container not found for app:', appId);
+        return;
+    }
     
     if (!reviews || reviews.length === 0) {
         container.innerHTML = '<p class="muted">No reviews yet. Be the first to leave a review!</p>';
         return;
     }
     
-    container.innerHTML = reviews.map(review => {
+    // Ensure reviews is an array
+    const reviewArray = Array.isArray(reviews) ? reviews : [reviews];
+    
+    container.innerHTML = reviewArray.map(review => {
+        if (!review) return '';
+        
         const isDeveloperReview = review.isDeveloper === true;
         const reviewClass = isDeveloperReview ? 'comment-item developer-response' : 'comment-item';
         
+        // Safely get user information with fallbacks
+        const userName = review.user || review.username || review.author || 'Anonymous';
+        const userRating = review.rating || review.stars || 0;
+        const userComment = review.comment || review.text || review.review || '';
+        const userAvatar = review.userAvatar || review.avatarUrl || review.avatar || null;
+        const reviewTimestamp = review.timestamp || review.date || review.createdAt || new Date().toISOString();
+        
         let avatarHtml = '';
-        if (review.userAvatar) {
-            avatarHtml = `<img src="${review.userAvatar}" alt="${escapeHtml(review.user)}" class="comment-avatar-img">`;
+        if (userAvatar) {
+            avatarHtml = `<img src="${escapeHtml(userAvatar)}" alt="${escapeHtml(userName)}" class="comment-avatar-img">`;
         } else if (isDeveloperReview) {
             avatarHtml = `<div class="comment-avatar developer">D</div>`;
         } else {
-            avatarHtml = `<div class="comment-avatar">${escapeHtml(review.user.charAt(0).toUpperCase())}</div>`;
+            const initial = userName.charAt(0).toUpperCase();
+            avatarHtml = `<div class="comment-avatar">${escapeHtml(initial)}</div>`;
         }
         
         return `
-            <div class="${reviewClass}">
+            <div class="${reviewClass}" data-review-id="${review.id || ''}">
                 <div class="comment-header">
                     <div class="comment-author">
                         ${avatarHtml}
-                        <span class="comment-name">${escapeHtml(review.user)}</span>
+                        <span class="comment-name">${escapeHtml(userName)}</span>
                         ${isDeveloperReview ? '<span class="developer-badge">Developer</span>' : ''}
                     </div>
                     <div>
-                        <span class="comment-rating">${review.rating}/5</span>
-                        <span class="comment-date">${formatDate(review.timestamp)}</span>
+                        <span class="comment-rating">${userRating}/5</span>
+                        <span class="comment-date">${formatDate(reviewTimestamp)}</span>
                     </div>
                 </div>
-                ${review.comment ? `<div class="comment-body">${escapeHtml(review.comment)}</div>` : ''}
+                ${userComment ? `<div class="comment-body">${escapeHtml(userComment)}</div>` : '<div class="comment-body muted">No comment provided</div>'}
             </div>
         `;
     }).join('');
@@ -3358,11 +3875,18 @@ async function loadAllRatings() {
 // FILTER GAME CARDS
 // ============================================================
 function filterGameCards(category) {
+    const isDevMode = DeveloperMode.isLoggedIn || UserAuth.isDeveloperMode;
     const cards = document.querySelectorAll('.page[data-page="games"] .app-card');
     
     cards.forEach(card => {
         const appId = card.dataset.app;
         const app = appData[appId];
+        
+        // First check if this card should be visible based on developer mode
+        if (app && app.isDev && !isDevMode) {
+            card.style.display = 'none';
+            return;
+        }
         
         if (category === 'all') {
             card.style.display = '';
@@ -3375,10 +3899,14 @@ function filterGameCards(category) {
 }
 
 // ============================================================
-// WELCOME MODAL
+// WELCOME MODAL - DISABLED TO PREVENT BLOCKING
 // ============================================================
 function showWelcomeModal(isFirstVisit) {
-    if (!elements.welcomeModal) return;
+    // Modal disabled - do nothing
+    return;
+    
+    // Original code commented out below:
+    /*if (!elements.welcomeModal) return;
     
     if (isFirstVisit) {
         elements.welcomeScrollContent.classList.remove('hidden');
@@ -3393,7 +3921,7 @@ function showWelcomeModal(isFirstVisit) {
     }
     
     elements.welcomeModal.classList.remove('hidden');
-    elements.welcomeModal.setAttribute('aria-hidden', 'false');
+    elements.welcomeModal.setAttribute('aria-hidden', 'false');*/
 }
 
 function closeWelcomeModal() {
@@ -3494,9 +4022,20 @@ function getNumericRatingDisplay(rating) {
 }
 
 function updateDevOnlyElements() {
-    const devOnlyElements = document.querySelectorAll('.developer-only');
+    // Only hide elements that are NOT pages (pages are handled by switchTab)
+    const devOnlyElements = document.querySelectorAll('.developer-only:not(.page)');
+    const devNavItems = document.querySelectorAll('.developer-nav-item');
+    const devToolsNavItems = document.querySelectorAll('.developer-tools-nav-item');
     const isDev = DeveloperMode.isLoggedIn || UserAuth.isDeveloperMode;
-    
+
+    // Add/remove developer mode class on body for CSS styling
+    if (isDev) {
+        document.body.classList.add('developer-mode-active');
+    } else {
+        document.body.classList.remove('developer-mode-active');
+    }
+
+    // Hide elements that should only be visible when logged in as developer
     devOnlyElements.forEach(el => {
         if (isDev) {
             el.style.display = '';
@@ -3505,6 +4044,113 @@ function updateDevOnlyElements() {
             el.style.display = 'none';
             el.classList.remove('visible');
         }
+    });
+
+    // Hide nav items that should only be visible when logged in
+    devNavItems.forEach(el => {
+        el.style.removeProperty('display');
+        el.setAttribute('data-dev-hidden', isDev ? 'false' : 'true');
+        if (!isDev) {
+            el.style.display = 'none';
+        }
+    });
+
+    devToolsNavItems.forEach(el => {
+        el.style.removeProperty('display');
+        el.setAttribute('data-dev-hidden', isDev ? 'false' : 'true');
+        if (!isDev) {
+            el.style.display = 'none';
+        }
+    });
+
+    // Populate developer grids when developer mode is active
+    if (isDev) {
+        populateDeveloperResources();
+        populateDeveloperProductivity();
+        populateDeveloperPublishing();
+    }
+}
+
+function populateDeveloperResources() {
+    const grid = document.getElementById('developer-resources-grid');
+    console.log('Developer Resources Grid found:', grid);
+    if (!grid) return;
+
+    // Clear existing content and repopulate
+    grid.innerHTML = '';
+
+    // Development tools
+    const devTools = Object.entries(appData)
+        .filter(([id, app]) => app.isDev === true &&
+            (app.name === 'Piskel' || app.name === 'VS Code Web' || app.name === 'ShaderToy'))
+        .map(([id, app]) => createAppCard(id, app));
+
+    console.log('Developer Resources found:', devTools.length);
+    grid.innerHTML = devTools.join('') || '<p class="muted">No development resources available.</p>';
+    addCardClickHandlers(grid);
+}
+
+function populateDeveloperProductivity() {
+    const grid = document.getElementById('developer-productivity-grid');
+    console.log('Developer Productivity Grid found:', grid);
+    if (!grid) return;
+    
+    // Clear existing content and repopulate
+    grid.innerHTML = '';
+    
+    // AI and productivity tools
+    const productivityTools = Object.entries(appData)
+        .filter(([id, app]) => app.isDev === true && 
+            (app.name === 'Agent Minimax' || app.name === 'TiddlyWiki'))
+        .map(([id, app]) => createAppCard(id, app));
+    
+    console.log('Developer Productivity tools found:', productivityTools.length);
+    grid.innerHTML = productivityTools.join('') || '<p class="muted">No productivity tools available.</p>';
+    addCardClickHandlers(grid);
+}
+
+function populateDeveloperPublishing() {
+    const grid = document.getElementById('developer-publishing-grid');
+    console.log('Developer Publishing Grid found:', grid);
+    if (!grid) return;
+    
+    // Clear existing content and repopulate
+    grid.innerHTML = '';
+    
+    // Web publishing tools
+    const publishingTools = Object.entries(appData)
+        .filter(([id, app]) => app.isDev === true && 
+            (app.name === 'GitHub.io' || app.name === 'Neocities'))
+        .map(([id, app]) => createAppCard(id, app));
+    
+    console.log('Developer Publishing tools found:', publishingTools.length);
+    grid.innerHTML = publishingTools.join('') || '<p class="muted">No web publishing tools available.</p>';
+    addCardClickHandlers(grid);
+}
+
+function createAppCard(appId, app) {
+    const displayName = app.name;
+    return `
+        <article class="app-card developer-only" data-app="${appId}">
+            <div class="card-icon">
+                <img src="${app.icon}" alt="${escapeHtml(displayName)} Icon" loading="lazy">
+            </div>
+            <div class="card-content">
+                <h4>${escapeHtml(displayName)}</h4>
+                <p class="card-desc">${escapeHtml(app.description.substring(0, 80))}${app.description.length > 80 ? '...' : ''}</p>
+            </div>
+        </article>
+    `;
+}
+
+function addCardClickHandlers(container) {
+    container.querySelectorAll('.app-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const appId = this.dataset.app;
+            if (appId) {
+                openExpandedApp(appId);
+            }
+        });
     });
 }
 
