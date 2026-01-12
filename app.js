@@ -2123,7 +2123,7 @@ const appData = {
         description: "Fast-paced block placement puzzle with competitive scoring. Match blocks to score high!",
         features: "Competitive scoring, challenging puzzles, smooth animations.",
         additional: "A highly addictive block puzzle game. Works offline!",
-        link: "https://aappqq.github.io/blockblast",
+        link: "https://aappqq.github.io/BlockBlast",
         screenshots: ["https://via.placeholder.com/400x250/4da3ff/ffffff?text=Block+Blast", "https://via.placeholder.com/400x250/4da3ff/ffffff?text=Block+Puzzle"]
     },
     chat: {
