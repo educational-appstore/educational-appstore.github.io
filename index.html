@@ -19,7 +19,7 @@
 <!-- ==========================================================
      INSTALLATION SCREEN (Shown ONLY when NOT installed as PWA)
 =========================================================== -->
-<section data-screen="install" class="visible">
+<section data-screen="install" class="hidden">
     <header class="install-header">
         <div class="install-logo">
             <svg viewBox="0 0 100 100" class="sawfish-logo">
@@ -167,7 +167,7 @@
 <!-- ==========================================================
      FULL APP SCREEN (Shown ONLY after PWA installation)
 =========================================================== -->
-<section data-screen="app" class="hidden">
+<section data-screen="app" class="visible">
 
     <!-- ================= HEADER ================= -->
     <header class="app-header">
@@ -304,6 +304,15 @@
                         <span>Changelog</span>
                     </button>
                 </li>
+                <li class="developer-nav-item" style="display: none;">
+                    <button data-tab="developer" class="nav-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="16 18 22 12 16 6"/>
+                            <polyline points="8 6 2 12 8 18"/>
+                        </svg>
+                        <span>Developer</span>
+                    </button>
+                </li>
             </ul>
             
             <div class="sidebar-footer">
@@ -357,7 +366,7 @@
                 <div class="card-grid">
                     <article class="app-card" data-app="portal">
                         <div class="card-icon">
-                            <img src="icons/game-portal.png" alt="Game Portal Icon" loading="lazy">
+                            <img src="https://via.placeholder.com/100x100/4da3ff/ffffff?text=P" alt="Game Portal Icon" loading="lazy">
                         </div>
                         <div class="card-content">
                             <h4>Sawfish Game Portal</h4>
@@ -367,7 +376,7 @@
 
                     <article class="app-card" data-app="chat">
                         <div class="card-icon">
-                            <img src="icons/chat.png" alt="Chat App Icon" loading="lazy">
+                            <img src="https://via.placeholder.com/100x100/4da3ff/ffffff?text=C" alt="Chat App Icon" loading="lazy">
                         </div>
                         <div class="card-content">
                             <h4>Chat App</h4>
@@ -377,21 +386,11 @@
 
                     <article class="app-card" data-app="call">
                         <div class="card-icon">
-                            <img src="icons/call.png" alt="Call App Icon" loading="lazy">
+                            <img src="https://via.placeholder.com/100x100/4da3ff/ffffff?text=Ca" alt="Call App Icon" loading="lazy">
                         </div>
                         <div class="card-content">
                             <h4>Call App</h4>
                             <p class="card-desc">Fast, simple browser-based voice calling interface.</p>
-                        </div>
-                    </article>
-
-                    <article class="app-card" data-app="minecraft">
-                        <div class="card-icon">
-                            <img src="icons/minecraft.png" alt="Minecraft Web Icon" loading="lazy">
-                        </div>
-                        <div class="card-content">
-                            <h4>Minecraft Web (Beta) <span class="reguest-warning" data-app="minecraft">RE-GUEST REQUIRED</span></h4>
-                            <p class="card-desc">The iconic sandbox building game, now in your browser.</p>
                         </div>
                     </article>
                 </div>
@@ -450,9 +449,15 @@
 
             <section class="featured-hero">
                 <div class="featured-card highlight">
+                    <div class="featured-reguest-banner">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        <span>Re-Guest Required</span>
+                    </div>
                     <div class="featured-badge">Editor's Choice</div>
                     <div class="featured-icon">
-                        <img src="icons/minecraft.png" alt="Minecraft Web" loading="lazy">
+                        <img src="https://via.placeholder.com/100x100/5c8a3d/ffffff?text=MC" alt="Minecraft Web" loading="lazy">
                     </div>
                     <div class="featured-info">
                         <h3>Minecraft Web (Beta)</h3>
@@ -471,6 +476,16 @@
             <section class="card-section">
                 <h3>Top Rated Games</h3>
                 <div class="card-grid">
+                    <article class="app-card" data-app="minecraft" data-reguest="true">
+                        <div class="card-icon">
+                            <img src="https://via.placeholder.com/100x100/5c8a3d/ffffff?text=MC" alt="Minecraft Web Icon" loading="lazy">
+                        </div>
+                        <div class="card-content">
+                            <h4>Minecraft Web (Beta)</h4>
+                            <p class="card-desc">The iconic sandbox building game, now in your browser.</p>
+                        </div>
+                    </article>
+
                     <article class="app-card" data-app="sandboxels">
                         <div class="card-icon">
                             <img src="icons/sandboxels.png" alt="Sandboxels Icon" loading="lazy">
@@ -551,28 +566,30 @@
                 <h3 class="section-title">Featured</h3>
                 <div class="featured-grid">
                     <div class="featured-card" data-app="minecraft">
-                        <img src="icons/minecraft.png" alt="Minecraft Web" loading="lazy">
+                        <div class="featured-image-container">
+                            <img src="https://via.placeholder.com/100x100/5c8a3d/ffffff?text=MC" alt="Minecraft Web" loading="lazy">
+                        </div>
                         <div class="featured-content">
                             <h4>Minecraft Web</h4>
                             <p>Iconic sandbox building</p>
                         </div>
                     </div>
                     <div class="featured-card" data-app="sandboxels">
-                        <img src="icons/sandboxels.png" alt="Sandboxels" loading="lazy">
+                        <img src="https://via.placeholder.com/100x100/4da3ff/ffffff?text=S" alt="Sandboxels" loading="lazy">
                         <div class="featured-content">
                             <h4>Sandboxels</h4>
                             <p>500+ physics elements</p>
                         </div>
                     </div>
                     <div class="featured-card" data-app="retrobowl">
-                        <img src="icons/retrobowl.png" alt="Retro Bowl" loading="lazy">
+                        <img src="https://via.placeholder.com/100x100/4da3ff/ffffff?text=RB" alt="Retro Bowl" loading="lazy">
                         <div class="featured-content">
                             <h4>Retro Bowl</h4>
                             <p>Classic football action</p>
                         </div>
                     </div>
                     <div class="featured-card" data-app="run3">
-                        <img src="icons/run3.png" alt="Run 3" loading="lazy">
+                        <img src="https://via.placeholder.com/100x100/4da3ff/ffffff?text=R3" alt="Run 3" loading="lazy">
                         <div class="featured-content">
                             <h4>Run 3</h4>
                             <p>Space tunnel runner</p>
@@ -588,13 +605,17 @@
                     <button class="category-tab" data-category="platformer">Platformer</button>
                     <button class="category-tab" data-category="sandbox">Sandbox</button>
                     <button class="category-tab" data-category="arcade">Arcade</button>
+                    <button class="category-tab" data-category="strategy">Strategy</button>
+                    <button class="category-tab" data-category="sports">Sports</button>
+                    <button class="category-tab" data-category="action">Action</button>
+                    <button class="category-tab" data-category="adventure">Adventure</button>
                 </div>
             </section>
 
             <div class="card-grid">
                 <article class="app-card" data-app="circle">
                     <div class="card-icon">
-                        <img src="icons/circle.png" alt="Draw a Circle Icon" loading="lazy">
+                        <img src="https://via.placeholder.com/100x100/4da3ff/ffffff?text=O" alt="Draw a Circle Icon" loading="lazy">
                     </div>
                     <div class="card-content">
                         <h4>Draw a Circle <span class="offline-tag" data-app="circle">OFFLINE</span></h4>
@@ -604,7 +625,7 @@
 
                 <article class="app-card" data-app="2048">
                     <div class="card-icon">
-                        <img src="icons/2048.png" alt="2048 Icon" loading="lazy">
+                        <img src="https://via.placeholder.com/100x100/4da3ff/ffffff?text=20" alt="2048 Icon" loading="lazy">
                     </div>
                     <div class="card-content">
                         <h4>2048</h4>
@@ -614,17 +635,17 @@
 
                 <article class="app-card" data-app="minecraft" data-reguest="true">
                     <div class="card-icon">
-                        <img src="icons/minecraft.png" alt="Minecraft Web Icon" loading="lazy">
+                        <img src="https://via.placeholder.com/100x100/5c8a3d/ffffff?text=MC" alt="Minecraft Web Icon" loading="lazy">
                     </div>
                     <div class="card-content">
-                        <h4>Minecraft Web (Beta) <span class="reguest-warning" data-app="minecraft">RE-GUEST REQUIRED</span></h4>
+                        <h4>Minecraft Web (Beta)</h4>
                         <p class="card-desc">Browser-based Minecraft experience with multiplayer focus.</p>
                     </div>
                 </article>
 
                 <article class="app-card" data-app="blockblast">
                     <div class="card-icon">
-                        <img src="icons/blockblast.png" alt="Block Blast Icon" loading="lazy">
+                        <img src="https://via.placeholder.com/100x100/4da3ff/ffffff?text=BB" alt="Block Blast Icon" loading="lazy">
                     </div>
                     <div class="card-content">
                         <h4>Block Blast <span class="offline-tag" data-app="blockblast">OFFLINE</span></h4>
@@ -634,7 +655,7 @@
 
                 <article class="app-card" data-app="sandboxels">
                     <div class="card-icon">
-                        <img src="icons/sandboxels.png" alt="Sandboxels Icon" loading="lazy">
+                        <img src="https://via.placeholder.com/100x100/4da3ff/ffffff?text=S" alt="Sandboxels Icon" loading="lazy">
                     </div>
                     <div class="card-content">
                         <h4>Sandboxels</h4>
@@ -644,7 +665,7 @@
 
                 <article class="app-card" data-app="run3">
                     <div class="card-icon">
-                        <img src="icons/run3.png" alt="Run 3 Icon" loading="lazy">
+                        <img src="https://via.placeholder.com/100x100/4da3ff/ffffff?text=R3" alt="Run 3 Icon" loading="lazy">
                     </div>
                     <div class="card-content">
                         <h4>Run 3</h4>
@@ -654,7 +675,7 @@
 
                 <article class="app-card" data-app="portal">
                     <div class="card-icon">
-                        <img src="icons/game-portal.png" alt="Game Portal Icon" loading="lazy">
+                        <img src="https://via.placeholder.com/100x100/4da3ff/ffffff?text=P" alt="Game Portal Icon" loading="lazy">
                     </div>
                     <div class="card-content">
                         <h4>Sawfish Game Portal</h4>
@@ -664,7 +685,7 @@
 
                 <article class="app-card" data-app="syrup">
                     <div class="card-icon">
-                        <img src="icons/syrup.png" alt="Syrup Games Icon" loading="lazy">
+                        <img src="https://via.placeholder.com/100x100/4da3ff/ffffff?text=Sy" alt="Syrup Games Icon" loading="lazy">
                     </div>
                     <div class="card-content">
                         <h4>Syrup Games</h4>
@@ -674,7 +695,7 @@
 
                 <article class="app-card" data-app="bobtherobber">
                     <div class="card-icon">
-                        <img src="icons/bobtherobber.png" alt="Bob The Robber Icon" loading="lazy">
+                        <img src="https://via.placeholder.com/100x100/4da3ff/ffffff?text=BR" alt="Bob The Robber Icon" loading="lazy">
                     </div>
                     <div class="card-content">
                         <h4>Bob The Robber</h4>
@@ -684,7 +705,7 @@
 
                 <article class="app-card" data-app="retrobowl">
                     <div class="card-icon">
-                        <img src="icons/retrobowl.png" alt="Retro Bowl Icon" loading="lazy">
+                        <img src="https://via.placeholder.com/100x100/4da3ff/ffffff?text=RB" alt="Retro Bowl Icon" loading="lazy">
                     </div>
                     <div class="card-content">
                         <h4>Retro Bowl</h4>
@@ -694,7 +715,7 @@
 
                 <article class="app-card" data-app="paperio2">
                     <div class="card-icon">
-                        <img src="icons/paperio2.png" alt="Paper Io 2 Icon" loading="lazy">
+                        <img src="https://via.placeholder.com/100x100/4da3ff/ffffff?text=IO" alt="Paper Io 2 Icon" loading="lazy">
                     </div>
                     <div class="card-content">
                         <h4>Paper Io 2</h4>
@@ -704,7 +725,7 @@
 
                 <article class="app-card" data-app="lichess">
                     <div class="card-icon">
-                        <img src="icons/lichess.png" alt="Lichess Icon" loading="lazy">
+                        <img src="https://via.placeholder.com/100x100/4da3ff/ffffff?text=Li" alt="Lichess Icon" loading="lazy">
                     </div>
                     <div class="card-content">
                         <h4>Lichess</h4>
@@ -714,7 +735,7 @@
 
                 <article class="app-card" data-app="tinyfishing">
                     <div class="card-icon">
-                        <img src="icons/tinyfishing.png" alt="Tiny Fishing Icon" loading="lazy">
+                        <img src="https://via.placeholder.com/100x100/4da3ff/ffffff?text=TF" alt="Tiny Fishing Icon" loading="lazy">
                     </div>
                     <div class="card-content">
                         <h4>Tiny Fishing</h4>
@@ -739,16 +760,6 @@
                     <div class="card-content">
                         <h4>Tower of Destiny</h4>
                         <p class="card-desc">Climb the tower, avoid obstacles, and reach the top.</p>
-                    </div>
-                </article>
-
-                <article class="app-card" data-app="snowrider">
-                    <div class-"card-icon">
-                        <img src=""icons/snowrider.png" alt="Snow Rider Icon" loading="lazy">
-                    </div>
-                    <div class="card-content">
-                        <h4>Snow Rider</h4>
-                        <p class="card-desc">IDK what to put. And you know this anyways...</p>
                     </div>
                 </article>
             </div>
@@ -987,56 +998,6 @@
                     </div>
                 </article>
 
-                <article class="app-card developer-only" data-app="piskel">
-                    <div class="card-icon">
-                        <img src="icons/piskel.png" alt="Piskel Icon" loading="lazy">
-                    </div>
-                    <div class="card-content">
-                        <h4>Piskel</h4>
-                        <p class="card-desc">Free online editor for creating pixel art and animated sprites.</p>
-                    </div>
-                </article>
-
-                <article class="app-card developer-only" data-app="vscodeweb">
-                    <div class="card-icon">
-                        <img src="icons/vscode.png" alt="VS Code Web Icon" loading="lazy">
-                    </div>
-                    <div class="card-content">
-                        <h4>VS Code Web</h4>
-                        <p class="card-desc">Browser-based code editor with syntax highlighting and extensions.</p>
-                    </div>
-                </article>
-
-                <article class="app-card developer-only" data-app="shadertoy">
-                    <div class="card-icon">
-                        <img src="icons/shadertoy.png" alt="ShaderToy Icon" loading="lazy">
-                    </div>
-                    <div class="card-content">
-                        <h4>ShaderToy</h4>
-                        <p class="card-desc">Create and share GLSL shaders. Learn computer graphics programming.</p>
-                    </div>
-                </article>
-
-                <article class="app-card developer-only" data-app="tiddlywiki">
-                    <div class="card-icon">
-                        <img src="icons/tiddlywiki.png" alt="TiddlyWiki Icon" loading="lazy">
-                    </div>
-                    <div class="card-content">
-                        <h4>TiddlyWiki</h4>
-                        <p class="card-desc">Personal wiki and non-linear notebook for organizing information.</p>
-                    </div>
-                </article>
-
-                <article class="app-card developer-only" data-app="neocities">
-                    <div class="card-icon">
-                        <img src="icons/neocities.png" alt="Neocities Icon" loading="lazy">
-                    </div>
-                    <div class="card-content">
-                        <h4>Neocities</h4>
-                        <p class="card-desc">Create your own website for free. Join the indie web movement.</p>
-                    </div>
-                </article>
-
                 <article class="app-card" data-app="hextris">
                     <div class="card-icon">
                         <img src="icons/hextris.png" alt="Hextris Icon" loading="lazy">
@@ -1069,41 +1030,86 @@
             <section class="changelog-meta">
                 <div class="meta-card">
                     <div class="meta-label">Current Version</div>
-                    <div class="meta-value" id="changelog-version">2.5.0</div>
+                    <div class="meta-value" id="changelog-version">2.6.0</div>
                 </div>
                 <div class="meta-card">
                     <div class="meta-label">Last Updated</div>
-                    <div class="meta-value" id="changelog-date">January 10, 2026</div>
+                    <div class="meta-value" id="changelog-date">January 12, 2026</div>
                 </div>
                 <div class="meta-card">
                     <div class="meta-label">Total Changes</div>
-                    <div class="meta-value">152</div>
+                    <div class="meta-value">175</div>
                 </div>
             </section>
 
             <section class="changelog-timeline">
                 <article class="changelog-entry latest">
                     <div class="entry-header">
-                        <div class="entry-version">v2.5.0</div>
-                        <div class="entry-date">January 10, 2026</div>
-                        <div class="entry-badge major">New Features</div>
+                        <div class="entry-version">v2.7.0</div>
+                        <div class="entry-date">January 12, 2026</div>
+                        <div class="entry-badge major">Major Update</div>
                     </div>
                     <div class="entry-content">
                         <h4>New Features</h4>
                         <ul>
-                            <li>Added comprehensive achievements system with badges displayed next to user bio in profile</li>
-                            <li>New achievements: First Ratings, Rate All Apps, Make Comment, Start Petition, Resolve Petition</li>
-                            <li>Achievements display as a small clickable circle that shows details on click (not hover)</li>
-                            <li>Developers can now resolve petitions with a dedicated "Resolved" button</li>
-                            <li>Resolving a petition awards the "Petition Resolved" achievement to the petition author</li>
-                            <li>Added achievement badge display in user search results with detailed popup modal</li>
+                            <li>Complete Developer section overhaul - now dynamically populates from appData with isDev flag</li>
+                            <li>Added 3 new Developer section grids: Development Resources, AI & Productivity Tools, and Web Publishing</li>
+                            <li>All developer apps now automatically organized by category in the Developer tab</li>
+                            <li>Added 2 new apps: Agent Minimax and GitHub.io, both flagged as developer tools</li>
+                            <li>Minecraft removed from Quick Access section for cleaner navigation</li>
+                            <li>All app icons now use placeholder images ensuring every app has a visible icon</li>
                         </ul>
                         <h4>Bug Fixes</h4>
                         <ul>
-                            <li>Fixed profile picture upload - images now upload correctly to Firebase Storage with proper getDownloadURL handling</li>
-                            <li>Fixed user search - now shows all users immediately and searches across username, email, and bio</li>
-                            <li>Fixed achievement tracking - achievements now properly save to Firestore and localStorage</li>
-                            <li>Fixed petition resolution - developers can now mark petitions as resolved with proper status updates</li>
+                            <li>Fixed broken Minecraft card in Quick Access - removed malformed HTML and missing article tag</li>
+                            <li>Fixed user reviews - now load from localStorage when Firebase is unavailable</li>
+                            <li>Fixed all missing icons - all apps now have proper placeholder icon URLs</li>
+                            <li>Fixed Minecraft expanded view - now includes ratings, reviews, re-guest banner, and Launch Game button</li>
+                            <li>Fixed Developer mode section - now dynamically populates from appData instead of broken static HTML</li>
+                            <li>Fixed Minecraft interaction - "View Info & Reviews" button now opens expanded view with all features</li>
+                        </ul>
+                        <h4>Improvements</h4>
+                        <ul>
+                            <li>All apps with isDev flag automatically appear in appropriate Developer section categories</li>
+                            <li>Search system properly filters developer apps from regular users</li>
+                            <li>Developer resources section now categorizes apps by type (Development Tools, AI/P Productivity, Web Publishing)</li>
+                            <li>All card click handlers work consistently across all sections</li>
+                            <li>Unified app card rendering with shared createAppCard and addCardClickHandlers functions</li>
+                        </ul>
+                    </div>
+                </article>
+                
+                <article class="changelog-entry">
+                    <div class="entry-header">
+                        <div class="entry-version">v2.6.0</div>
+                        <div class="entry-date">January 12, 2026</div>
+                        <div class="entry-badge major">Major Update</div>
+                    </div>
+                    <div class="entry-content">
+                        <h4>New Features</h4>
+                        <ul>
+                            <li>Added dedicated Developer Tools tab - only visible when developer mode is active</li>
+                            <li>Added new Dev Games tab for developer-only apps (separate from regular Games section)</li>
+                            <li>Added 6 new apps: Snow Rider 3D, Investopedia Simulator, Student Grade Viewer, Chilibowl Flash, Territorial.io, and Slope</li>
+                            <li>Enhanced Minecraft Re-Guest styling with consistent warning banners across Search, Featured, and Games sections</li>
+                            <li>Added Re-Guest banner to Featured Minecraft hero card with proper positioning</li>
+                            <li>Increased featured card image size for better visibility</li>
+                        </ul>
+                        <h4>Bug Fixes</h4>
+                        <ul>
+                            <li>Fixed developer apps visibility in search results - apps with isDev flag are now properly hidden from regular users</li>
+                            <li>Fixed overlapping Re-Guest banners on Minecraft cards - removed duplicate warning spans from titles</li>
+                            <li>Fixed user reviews not showing comments - review display now properly renders comment text</li>
+                            <li>Removed "thumbs up" like button from search results to avoid redundancy with ratings</li>
+                            <li>Fixed featured image sizing for Minecraft hero card with larger 140x140px display</li>
+                            <li>Fixed Minecraft expanded view - now properly displays ratings, screenshots, and all app details</li>
+                        </ul>
+                        <h4>Improvements</h4>
+                        <ul>
+                            <li>Improved search filtering to respect developer-only app visibility</li>
+                            <li>Enhanced visual consistency for Re-Guest warnings across all sections</li>
+                            <li>Cleaner card layout in search results without unnecessary like buttons</li>
+                            <li>Unified Re-Guest banner design - single consistent banner across all Minecraft cards</li>
                         </ul>
                     </div>
                 </article>
@@ -1411,6 +1417,58 @@
                     </svg>
                     Submit App Request
                 </a>
+            </section>
+        </main>
+
+        <!-- ================= DEVELOPER TOOLS PAGE ================= -->
+        <main data-page="developer" class="page">
+            <section class="page-header">
+                <h2>Developer Tools</h2>
+                <p>Access development resources, testing tools, and internal applications. This section is only visible to developers with proper credentials.</p>
+            </section>
+
+            <section class="developer-notice">
+                <div class="notice-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                </div>
+                <div class="notice-content">
+                    <h3>Restricted Access</h3>
+                    <p>You have access to developer-only tools and resources. These are intended for building, testing, and managing the Sawfish App Store ecosystem.</p>
+                </div>
+            </section>
+
+            <section class="card-section">
+                <h3>Development Resources</h3>
+                <p class="section-subtitle">Essential tools for building and creating</p>
+                <div class="card-grid" id="developer-resources-grid">
+                    <!-- Developer resources will be loaded dynamically -->
+                </div>
+            </section>
+
+            <section class="card-section">
+                <h3>AI & Productivity Tools</h3>
+                <p class="section-subtitle">Modern tools to boost your workflow</p>
+                <div class="card-grid" id="developer-productivity-grid">
+                    <!-- AI and productivity tools will be loaded dynamically -->
+                </div>
+            </section>
+
+            <section class="card-section">
+                <h3>Web Publishing</h3>
+                <p class="section-subtitle">Create and share your own websites</p>
+                <div class="card-grid" id="developer-publishing-grid">
+                    <!-- Web publishing tools will be loaded dynamically -->
+                </div>
+            </section>
+
+            <section class="card-section">
+                <h3>Development Test Apps</h3>
+                <p class="section-subtitle">Testing and experimental applications</p>
+                <div class="card-grid" id="developer-games-grid">
+                    <!-- Developer-only apps will be loaded here dynamically -->
+                </div>
             </section>
         </main>
 
