@@ -1,162 +1,104 @@
 {
-  "name": "Sawfish App Store",
-  "short_name": "Sawfish Store",
-  "description": "A fast, school-safe way to access games and student tools. Install as a PWA for the full experience.",
-  "start_url": "/appstore/",
-  "scope": "/appstore/",
-  "display": "standalone",
-  "orientation": "any",
-  "background_color": "#0b0d10",
-  "theme_color": "#4da3ff",
-  "lang": "en-US",
-  "dir": "ltr",
-  "prefer_related_applications": false,
-  "categories": ["education", "entertainment", "utilities"],
-  
-  "icons": [
-    {
-      "src": "icons/icon-72.png",
-      "sizes": "72x72",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icons/icon-96.png",
-      "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icons/icon-128.png",
-      "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icons/icon-144.png",
-      "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icons/icon-152.png",
-      "sizes": "152x152",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icons/icon-384.png",
-      "sizes": "384x384",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ],
-  
-  "screenshots": [
-    {
-      "src": "screenshots/home-screen.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Sawfish App Store Home Screen"
-    },
-    {
-      "src": "screenshots/games-page.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Games Collection Page"
-    },
-    {
-      "src": "screenshots/app-detail.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "App Detail View with Ratings"
-    },
-    {
-      "src": "screenshots/mobile-home.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Mobile Home Screen"
-    },
-    {
-      "src": "screenshots/mobile-games.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Mobile Games Page"
-    }
-  ],
-  
-  "shortcuts": [
-    {
-      "name": "Games",
-      "short_name": "Games",
-      "description": "Browse all available games",
-      "url": "/appstore/?tab=games",
-      "icons": [{ "src": "icons/games-shortcut.png", "sizes": "96x96" }]
-    },
-    {
-      "name": "Social",
-      "short_name": "Social",
-      "description": "Access chat and call apps",
-      "url": "/appstore/?tab=social",
-      "icons": [{ "src": "icons/social-shortcut.png", "sizes": "96x96" }]
-    },
-    {
-      "name": "Operating Systems",
-      "short_name": "OS",
-      "description": "Explore browser-based operating systems",
-      "url": "/appstore/?tab=os",
-      "icons": [{ "src": "icons/os-shortcut.png", "sizes": "96x96" }]
-    }
-  ],
-  
-  "related_applications": [],
-  
-  "prefer_related_applications": false,
-  
-  "display_override": ["window-controls-overlay", "standalone", "browser"],
-  
-  "edge_side_panel": {
-    "preferred_width": 400
-  },
-  
-  "handle_links": "preferred",
-  
-  "launch_handler": {
-    "client_mode": ["navigate-existing", "auto"]
-  },
-  
-  "share_target": {
-    "action": "/appstore/share",
-    "method": "POST",
-    "enctype": "multipart/form-data",
-    "params": {
-      "title": "title",
-      "text": "text",
-      "url": "url"
-    }
-  },
-  
-  "protocol_handlers": [
-    {
-      "protocol": "web+sawfish",
-      "url": "/appstore/open/%s"
-    }
-  ]
+    "name": "Sawfish App Store",
+    "short_name": "Sawfish Store",
+    "description": "A fast, school-safe way to access games and student tools. Install as a PWA for the full experience.",
+    "start_url": "/appstore/",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "background_color": "#0b0d10",
+    "theme_color": "#0b0d10",
+    "scope": "/",
+    "lang": "en-US",
+    "categories": ["education", "entertainment", "utilities"],
+    "icons": [
+        {
+            "src": "icons/icon-72.png",
+            "sizes": "72x72",
+            "type": "image/png",
+            "purpose": "maskable any"
+        },
+        {
+            "src": "icons/icon-96.png",
+            "sizes": "96x96",
+            "type": "image/png",
+            "purpose": "maskable any"
+        },
+        {
+            "src": "icons/icon-128.png",
+            "sizes": "128x128",
+            "type": "image/png",
+            "purpose": "maskable any"
+        },
+        {
+            "src": "icons/icon-144.png",
+            "sizes": "144x144",
+            "type": "image/png",
+            "purpose": "maskable any"
+        },
+        {
+            "src": "icons/icon-152.png",
+            "sizes": "152x152",
+            "type": "image/png",
+            "purpose": "maskable any"
+        },
+        {
+            "src": "icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable any"
+        },
+        {
+            "src": "icons/icon-384.png",
+            "sizes": "384x384",
+            "type": "image/png",
+            "purpose": "maskable any"
+        },
+        {
+            "src": "icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable any"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Games",
+            "short_name": "Games",
+            "description": "Browse school-friendly games",
+            "url": "/?tab=games",
+            "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+        },
+        {
+            "name": "Social",
+            "short_name": "Social",
+            "description": "Chat and call with classmates",
+            "url": "/?tab=social",
+            "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+        },
+        {
+            "name": "Community",
+            "short_name": "Community",
+            "description": "Join the community board",
+            "url": "/?tab=community",
+            "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Sawfish App Store - Main Interface"
+        },
+        {
+            "src": "icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "Sawfish App Store - Mobile View"
+        }
+    ],
+    "related_applications": [],
+    "prefer_related_applications": false
 }
