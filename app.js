@@ -2798,7 +2798,7 @@ const appData = {
     securecomms: {
         name: "Secure Communication",
         developer: "Jimeneutron",
-        icon: "https://via.placeholder.com/100x100/4da3ff/ffffff?text=SC",
+        icon: "icons/IMG_0636.jpeg",
         category: "Miscellaneous / Tools",
         description: "Encrypt and decrypt messages securely.",
         features: "AES-256 encryption, message encoding, key generation.",
